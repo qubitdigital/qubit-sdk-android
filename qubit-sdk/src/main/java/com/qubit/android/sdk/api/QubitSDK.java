@@ -19,17 +19,7 @@ public abstract class QubitSDK {
       }
 
       @Override
-      public void enable() {
-
-      }
-
-      @Override
       public void enable(boolean enable) {
-
-      }
-
-      @Override
-      public void disable() {
 
       }
     };

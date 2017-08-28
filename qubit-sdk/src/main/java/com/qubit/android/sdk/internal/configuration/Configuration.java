@@ -1,0 +1,6 @@
+package com.qubit.android.sdk.internal.configuration;
+
+public class Configuration {
+  // TODO
+
+}
