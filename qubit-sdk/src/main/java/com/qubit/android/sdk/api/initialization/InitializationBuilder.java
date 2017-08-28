@@ -6,7 +6,7 @@ public class InitializationBuilder {
 
   private Context appContext;
   private String trackingId;
-  private LogLevel logLevel;
+  private QBLogLevel logLevel;
 
   public InitializationBuilder() {
   }
@@ -27,7 +27,7 @@ public class InitializationBuilder {
 
   public class MandatoryPropertiesSetInitializationBuilder {
 
-    public MandatoryPropertiesSetInitializationBuilder withLogLevel(LogLevel logLevel) {
+    public MandatoryPropertiesSetInitializationBuilder withLogLevel(QBLogLevel logLevel) {
       InitializationBuilder.this.logLevel = logLevel;
       return this;
     }

@@ -3,7 +3,7 @@ package com.qubit.android.sdk.testapp;
 import android.app.Application;
 import android.util.Log;
 import com.qubit.android.sdk.api.QubitSDK;
-import com.qubit.android.sdk.api.initialization.LogLevel;
+import com.qubit.android.sdk.api.initialization.QBLogLevel;
 
 public class TestApplication extends Application {
 
@@ -15,7 +15,7 @@ public class TestApplication extends Application {
     QubitSDK.initialization()
         .inAppContext(this)
         .withTrackingId("miquido")
-        .withLogLevel(LogLevel.DEBUG)
+        .withLogLevel(QBLogLevel.DEBUG)
         .start();
   }
 
