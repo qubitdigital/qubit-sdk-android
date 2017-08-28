@@ -11,12 +11,28 @@ public abstract class QubitSDK {
   }
 
   public static QBTracker tracker() {
+    // TODO
     return new QBTracker() {
       @Override
       public void sendEvent(String type, QBEvent event) {
 
       }
-    }; // TODO
+
+      @Override
+      public void enable() {
+
+      }
+
+      @Override
+      public void enable(boolean enable) {
+
+      }
+
+      @Override
+      public void disable() {
+
+      }
+    };
   }
 
 }
