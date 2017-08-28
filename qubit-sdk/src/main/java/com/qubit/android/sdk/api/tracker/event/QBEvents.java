@@ -6,19 +6,23 @@ import org.json.JSONObject;
 public abstract class QBEvents {
 
   public static QBEvent fromJsonString(String jsonString) {
-    return null;// TODO
+    // TODO
+    return null;
   }
 
   public static QBEvent fromJson(JSONObject jsonObject) {
-    return null;// TODO
+    // TODO
+    return null;
   }
 
   public static QBEvent fromBean(Object bean) {
-    return null;// TODO
+    // TODO
+    return null;
   }
 
   public static QBEvent fromMap(Map<String, Object> map) {
-    return null;// TODO
+    // TODO
+    return null;
   }
 
 }

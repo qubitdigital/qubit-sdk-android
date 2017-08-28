@@ -11,8 +11,8 @@ public class InitializationBuilder {
   public InitializationBuilder() {
   }
 
-  public ContextSetInitializationBuilder inAppContext(Context appContext) {
-    this.appContext = appContext;
+  public ContextSetInitializationBuilder inAppContext(Context context) {
+    this.appContext = context;
     return new ContextSetInitializationBuilder();
   }
 
