@@ -7,7 +7,9 @@ public interface QBTracker {
   void sendEvent(String type, QBEvent event);
 
   void enable();
+  
   void enable(boolean enable);
+
   void disable();
 
 }
