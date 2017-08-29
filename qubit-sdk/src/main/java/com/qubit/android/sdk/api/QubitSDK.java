@@ -2,27 +2,27 @@ package com.qubit.android.sdk.api;
 
 import com.qubit.android.sdk.api.initialization.InitializationBuilder;
 import com.qubit.android.sdk.api.tracker.EventTracker;
-import com.qubit.android.sdk.api.tracker.event.QBEvent;
+import com.qubit.android.sdk.internal.SDK;
 
 public abstract class QubitSDK {
 
+  private static SDK sdkSingleton;
+
   public static InitializationBuilder initialization() {
-    return new InitializationBuilder();
+    return new InitializationBuilder(new InitializationBuilder.SdkConsumer() {
+      @Override
+      public void accept(SDK sdk) {
+        sdkSingleton = sdk;
+      }
+    });
   }
 
   public static EventTracker tracker() {
-    // TODO
-    return new EventTracker() {
-      @Override
-      public void sendEvent(String type, QBEvent event) {
-
-      }
-
-      @Override
-      public void enable(boolean enable) {
-
-      }
-    };
+    if (sdkSingleton == null) {
+      throw new IllegalStateException("QubitSDK is not initialized yet. "
+          + "Call QubitSDK.initialization().{...}.start() before any other call to QubitSDK");
+    }
+    return sdkSingleton.getEventTracker();
   }
 
 }
