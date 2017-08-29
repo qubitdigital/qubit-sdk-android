@@ -1,6 +1,7 @@
 package com.qubit.android.sdk.api.initialization;
 
 import android.content.Context;
+import com.qubit.android.sdk.internal.SDK;
 
 public class InitializationBuilder {
 
@@ -33,6 +34,7 @@ public class InitializationBuilder {
     }
 
     public void start() {
+      SDK.logLevel = logLevel;
       // TODO
     }
   }
