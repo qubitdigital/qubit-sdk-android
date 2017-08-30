@@ -36,6 +36,8 @@ public class InitializationBuilder {
     public void start() {
       SDK.logLevel = logLevel;
       // TODO
+      // todo totally tmp
+      new SDK(appContext, "miquido").start();
     }
   }
 

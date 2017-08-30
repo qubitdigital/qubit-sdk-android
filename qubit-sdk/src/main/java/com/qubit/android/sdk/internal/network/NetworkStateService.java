@@ -8,6 +8,4 @@ public interface NetworkStateService {
 
   void registerNetworkStateListener(NetworkStateListener networkStateListener);
 
-  boolean isConnected();
-
 }

@@ -1,17 +1,46 @@
 package com.qubit.android.sdk.internal.configuration;
 
 public class ConfigurationImpl implements Configuration {
-  private String endpoint; // TODO default "gong-eb.qubit.com"
-  private String dataLocation; // TODO default "EU" ?
-  private int configurationReloadInterval; // TODO default 60
-  private int queueTimeout; // TODO default 60
-  private String vertical; // TODO default "ec" ?
-  private String namespace; // TODO default ""
-  private long propertyId; // TODO default 1234 ?
-  private boolean disabled; // TODO default false ?
-  private String lookupAttributeUrl; // TODO default "https://lookup.qubit.com" ?
-  private int lookupGetRequestTimeout; // TODO default 5 ?
-  private int lookupCacheExpireTime; // TODO default 60 ?
+
+  private static final String DEFAULT_ENDPOINT = "gong-eb.qubit.com";
+  private static final String DEFAULT_DATA_LOCATION = "EU";
+  private static final int DEFAULT_CONFIGURATION_RELOAD_INTERVAL = 60;
+  private static final int DEFAULT_QUEUE_TIMEOUT = 60;
+  private static final String DEFAULT_VERTICAL = "ec";
+  private static final String DEFAULT_NAMESPACE = "";
+  private static final int DEFAULT_PROPERTY_ID = 1234;
+  private static final boolean DEFAULT_DISABLED = false;
+  private static final String DEFAULT_LOOKUP_ATTRIBUTE_URL = "https://lookup.qubit.com";
+  private static final int DEFAULT_LOOKUP_GET_REQUEST_TIMEOUT = 5;
+  private static final int DEFAULT_LOOKUP_CACHE_EXPIRE_TIME = 60;
+
+  private String endpoint;
+  private String dataLocation;
+  private int configurationReloadInterval;
+  private int queueTimeout;
+  private String vertical;
+  private String namespace;
+  private long propertyId;
+  private boolean disabled;
+  private String lookupAttributeUrl;
+  private int lookupGetRequestTimeout;
+  private int lookupCacheExpireTime;
+  private Long lastUpdateTimestamp;
+
+  public ConfigurationImpl() {
+    endpoint = DEFAULT_ENDPOINT;
+    dataLocation = DEFAULT_DATA_LOCATION;
+    configurationReloadInterval = DEFAULT_CONFIGURATION_RELOAD_INTERVAL;
+    queueTimeout = DEFAULT_QUEUE_TIMEOUT;
+    vertical = DEFAULT_VERTICAL;
+    namespace = DEFAULT_NAMESPACE;
+    propertyId = DEFAULT_PROPERTY_ID;
+    disabled = DEFAULT_DISABLED;
+    lookupAttributeUrl = DEFAULT_LOOKUP_ATTRIBUTE_URL;
+    lookupGetRequestTimeout = DEFAULT_LOOKUP_GET_REQUEST_TIMEOUT;
+    lookupCacheExpireTime = DEFAULT_LOOKUP_CACHE_EXPIRE_TIME;
+    lastUpdateTimestamp = null;
+  }
 
   @Override
   public String getEndpoint() {
@@ -109,5 +138,32 @@ public class ConfigurationImpl implements Configuration {
 
   public void setLookupCacheExpireTime(int lookupCacheExpireTime) {
     this.lookupCacheExpireTime = lookupCacheExpireTime;
+  }
+
+  @Override
+  public Long getLastUpdateTimestamp() {
+    return lastUpdateTimestamp;
+  }
+
+  public void setLastUpdateTimestamp(Long lastUpdateTimestamp) {
+    this.lastUpdateTimestamp = lastUpdateTimestamp;
+  }
+
+  @Override
+  public String toString() {
+    return "ConfigurationImpl{" +
+        "endpoint='" + endpoint + '\'' +
+        ", dataLocation='" + dataLocation + '\'' +
+        ", configurationReloadInterval=" + configurationReloadInterval +
+        ", queueTimeout=" + queueTimeout +
+        ", vertical='" + vertical + '\'' +
+        ", namespace='" + namespace + '\'' +
+        ", propertyId=" + propertyId +
+        ", disabled=" + disabled +
+        ", lookupAttributeUrl='" + lookupAttributeUrl + '\'' +
+        ", lookupGetRequestTimeout=" + lookupGetRequestTimeout +
+        ", lookupCacheExpireTime=" + lookupCacheExpireTime +
+        ", lastUpdateTimestamp=" + lastUpdateTimestamp +
+        '}';
   }
 }
