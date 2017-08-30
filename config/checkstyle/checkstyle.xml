@@ -8,6 +8,8 @@
   </module>
   <module name="FileTabCharacter"/>
   <module name="TreeWalker">
+    <!-- Make the @SuppressWarnings annotations available to Checkstyle -->
+    <module name="SuppressWarningsHolder" />
     <module name="Indentation">
       <property name="basicOffset" value="2"/>
       <property name="braceAdjustment" value="0"/>
@@ -50,11 +52,6 @@
     <module name="EqualsAvoidNull"/>
     <module name="EqualsHashCode"/>
     <module name="GenericWhitespace"/>
-    <module name="HiddenField">
-      <property name="ignoreConstructorParameter" value="true"/>
-      <property name="ignoreSetter" value="true"/>
-      <property name="setterCanReturnItsClass" value="true"/>
-    </module>
     <module name="HideUtilityClassConstructor"/>
     <module name="IllegalCatch"/>
     <module name="LeftCurly"/>
