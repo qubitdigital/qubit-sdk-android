@@ -3,7 +3,7 @@ package com.qubit.android.sdk.testapp;
 import android.app.Application;
 import android.util.Log;
 import com.qubit.android.sdk.api.QubitSDK;
-import com.qubit.android.sdk.api.initialization.QBLogLevel;
+import com.qubit.android.sdk.api.logging.QBLogLevel;
 
 public class TestApplication extends Application {
 
