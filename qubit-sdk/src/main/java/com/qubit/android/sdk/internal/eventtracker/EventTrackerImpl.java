@@ -33,7 +33,6 @@ public class EventTrackerImpl implements EventTracker {
 
   private final SendEventsTask sendEventsTask = new SendEventsTask();
 
-  private HandlerThread thread;
   private Handler handler;
 
   private boolean isStarted = false;
@@ -69,7 +68,7 @@ public class EventTrackerImpl implements EventTracker {
     if (isStarted) {
       throw new IllegalStateException("EventTracker is already started");
     }
-    thread = new HandlerThread("EventTracker", Process.THREAD_PRIORITY_BACKGROUND);
+    HandlerThread thread = new HandlerThread("EventTracker", Process.THREAD_PRIORITY_BACKGROUND);
     thread.start();
     handler = new Handler(thread.getLooper());
 
@@ -90,7 +89,7 @@ public class EventTrackerImpl implements EventTracker {
       public void onNetworkStateChange(boolean isConnected) {
         handler.post(new NetworkStateChangeTask(isConnected));
       }
-    }, true);
+    });
     isStarted = true;
   }
 
@@ -173,12 +172,12 @@ public class EventTrackerImpl implements EventTracker {
 
       Long timeMsToSendEvents = evaluateTimeMsToNextSendEvents();
       if (timeMsToSendEvents == null) {
-        Log.d(LOG_TAG, "EventTracker: SendEventTracker: No events in queue");
+        Log.d(LOG_TAG, "EventTracker: SendEventsTask: No events in queue");
         return;
       }
 
       if (timeMsToSendEvents > 0) {
-        Log.d(LOG_TAG, "EventTracker: SendEventTracker: Batch is not full. Postponing sending events by "
+        Log.d(LOG_TAG, "EventTracker: SendEventsTask: Batch is not full. Postponing sending events by "
             + timeMsToSendEvents + " ms.");
         handler.postDelayed(sendEventsTask, timeMsToSendEvents);
         return;

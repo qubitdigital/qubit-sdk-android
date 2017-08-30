@@ -6,8 +6,6 @@ public interface NetworkStateService {
     void onNetworkStateChange(boolean isConnected);
   }
 
-  void registerNetworkStateListener(NetworkStateListener networkStateListener, boolean sendInitialNotification);
-
-  boolean isConnected();
+  void registerNetworkStateListener(NetworkStateListener networkStateListener);
 
 }

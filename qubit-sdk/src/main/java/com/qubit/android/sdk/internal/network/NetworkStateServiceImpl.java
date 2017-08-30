@@ -13,16 +13,10 @@ public class NetworkStateServiceImpl implements NetworkStateService {
   }
 
   @Override
-  public void registerNetworkStateListener(NetworkStateListener networkStateListener, boolean sendInitialNotification) {
+  public void registerNetworkStateListener(NetworkStateListener networkStateListener) {
     // TODO
 
-    if (sendInitialNotification) {
-      networkStateListener.onNetworkStateChange(isConnected);
-    }
+    networkStateListener.onNetworkStateChange(isConnected);
   }
 
-  @Override
-  public boolean isConnected() {
-    return isConnected;
-  }
 }

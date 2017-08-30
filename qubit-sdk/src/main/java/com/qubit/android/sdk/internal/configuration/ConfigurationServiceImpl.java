@@ -76,7 +76,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
       public void onNetworkStateChange(boolean isConnected) {
         // TODO
       }
-    }, true);
+    });
     isStarted = true;
 
     handler.postDelayed(initializationTask, 10000);
