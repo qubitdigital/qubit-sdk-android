@@ -151,19 +151,19 @@ public class ConfigurationImpl implements Configuration {
 
   @Override
   public String toString() {
-    return "ConfigurationImpl{" +
-        "endpoint='" + endpoint + '\'' +
-        ", dataLocation='" + dataLocation + '\'' +
-        ", configurationReloadInterval=" + configurationReloadInterval +
-        ", queueTimeout=" + queueTimeout +
-        ", vertical='" + vertical + '\'' +
-        ", namespace='" + namespace + '\'' +
-        ", propertyId=" + propertyId +
-        ", disabled=" + disabled +
-        ", lookupAttributeUrl='" + lookupAttributeUrl + '\'' +
-        ", lookupGetRequestTimeout=" + lookupGetRequestTimeout +
-        ", lookupCacheExpireTime=" + lookupCacheExpireTime +
-        ", lastUpdateTimestamp=" + lastUpdateTimestamp +
-        '}';
+    return "ConfigurationImpl{"
+        + "endpoint='" + endpoint + '\''
+        + ", dataLocation='" + dataLocation + '\''
+        + ", configurationReloadInterval=" + configurationReloadInterval
+        + ", queueTimeout=" + queueTimeout
+        + ", vertical='" + vertical + '\''
+        + ", namespace='" + namespace + '\''
+        + ", propertyId=" + propertyId
+        + ", disabled=" + disabled
+        + ", lookupAttributeUrl='" + lookupAttributeUrl + '\''
+        + ", lookupGetRequestTimeout=" + lookupGetRequestTimeout
+        + ", lookupCacheExpireTime=" + lookupCacheExpireTime
+        + ", lastUpdateTimestamp=" + lastUpdateTimestamp
+        + '}';
   }
 }
