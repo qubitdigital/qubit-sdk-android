@@ -6,6 +6,8 @@ public class NetworkStateServiceImpl implements NetworkStateService {
 
   private final Context context;
 
+  private boolean isConnected = true;
+
   public NetworkStateServiceImpl(Context context) {
     this.context = context;
   }
@@ -13,11 +15,8 @@ public class NetworkStateServiceImpl implements NetworkStateService {
   @Override
   public void registerNetworkStateListener(NetworkStateListener networkStateListener) {
     // TODO
+
+    networkStateListener.onNetworkStateChange(isConnected);
   }
 
-  @Override
-  public boolean isConnected() {
-    // TODO
-    return false;
-  }
 }

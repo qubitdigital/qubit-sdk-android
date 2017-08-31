@@ -4,9 +4,12 @@ import com.qubit.android.sdk.api.initialization.InitializationBuilder;
 import com.qubit.android.sdk.api.tracker.EventTracker;
 import com.qubit.android.sdk.internal.SDK;
 
-public abstract class QubitSDK {
+public final class QubitSDK {
 
   private static SDK sdkSingleton;
+
+  private QubitSDK() {
+  }
 
   public static InitializationBuilder initialization() {
     return new InitializationBuilder(new InitializationBuilder.SdkConsumer() {
