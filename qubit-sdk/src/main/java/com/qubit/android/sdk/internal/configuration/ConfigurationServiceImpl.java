@@ -4,7 +4,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
 import android.support.annotation.Nullable;
-import android.util.Log;
+import com.qubit.android.sdk.internal.logging.QBLogger;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
 import com.qubit.android.sdk.internal.util.DateTimeUtils;
 import java.io.IOException;
@@ -19,7 +19,9 @@ import static com.qubit.android.sdk.internal.util.Elvis.*;
 
 public class ConfigurationServiceImpl implements ConfigurationService {
 
-  private static final String LOG_TAG = "qb-sdk";
+
+  private static final QBLogger LOGGER = QBLogger.getFor("ConfigurationService");
+
   private static final String CONFIGURATION_URL = "https://s3-eu-west-1.amazonaws.com/";
 
   private final String trackingId;
@@ -65,7 +67,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
       throw new IllegalStateException("ConfigurationService is already started");
     }
 
-    HandlerThread thread = new HandlerThread("ConfigurationService", Process.THREAD_PRIORITY_BACKGROUND);
+    HandlerThread thread = new HandlerThread("ConfigurationServiceThread", Process.THREAD_PRIORITY_BACKGROUND);
     thread.start();
     handler = new Handler(thread.getLooper());
 
@@ -101,7 +103,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     @Override
     public void run() {
-      Log.d(LOG_TAG, "ConfigurationService: Network state changed. Connected: " + isConnected);
+      LOGGER.d("Network state changed. Connected: " + isConnected);
       ConfigurationServiceImpl.this.isConnected = isConnected;
       scheduleNextConfigurationDownloadTask();
     }
@@ -111,7 +113,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     @Override
     public void run() {
-      Log.d(LOG_TAG, "ConfigurationService: downloading configuration");
+      LOGGER.d("Downloading configuration");
       if (isConfigurationUpToDate()) {
         scheduleNextConfigurationDownloadTask();
         return;
@@ -131,6 +133,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
           notifyListenersConfigurationChange();
         }
       }
+      LOGGER.d("Current configuration: " + getIfNotNull(currentConfiguration, "none"));
+
       scheduleNextConfigurationDownloadTask();
     }
   }
@@ -140,17 +144,19 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     try {
       Response<ConfigurationResponse> response = configurationConnector.download(trackingId).execute();
       if (response.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
+        LOGGER.d("Configuration file not defined - the default one is used");
         return ConfigurationModel.getDefault();
       }
       if (!response.isSuccessful() || response.errorBody() != null || response.body() == null) {
-        Log.e(LOG_TAG, "ConfigurationService: failed to download configuration");
+        LOGGER.e("Failed to download configuration");
         return null;
       }
 
       ConfigurationResponse newConfiguration = response.body();
+      LOGGER.d("Configuration downloaded");
       return enrichWithDefaultConfiguration(newConfiguration);
     } catch (IOException e) {
-      Log.e(LOG_TAG, "ConfigurationService: failed to download configuration: " + e.getMessage());
+      LOGGER.e("Failed to download configuration: ", e);
       return null;
     }
   }
@@ -203,8 +209,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     long nextDownloadIntervalMs = evaluateNextConfigurationDownloadIntervalMs();
     if (nextDownloadIntervalMs > 0) {
       handler.postDelayed(configurationDownloadTask, nextDownloadIntervalMs);
+      LOGGER.d("Next ConfigurationDownloadTask scheduled for " + nextDownloadIntervalMs);
     } else {
       handler.post(configurationDownloadTask);
+      LOGGER.d("Next ConfigurationDownloadTask scheduled for NOW");
     }
   }
 

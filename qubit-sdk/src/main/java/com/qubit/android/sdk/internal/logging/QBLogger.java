@@ -5,11 +5,7 @@ import android.util.Log;
 import com.qubit.android.sdk.api.logging.QBLogLevel;
 import com.qubit.android.sdk.internal.SDK;
 
-import static com.qubit.android.sdk.api.logging.QBLogLevel.DEBUG;
-import static com.qubit.android.sdk.api.logging.QBLogLevel.ERROR;
-import static com.qubit.android.sdk.api.logging.QBLogLevel.INFO;
-import static com.qubit.android.sdk.api.logging.QBLogLevel.VERBOSE;
-import static com.qubit.android.sdk.api.logging.QBLogLevel.WARN;
+import static com.qubit.android.sdk.api.logging.QBLogLevel.*;
 
 public final class QBLogger {
 
