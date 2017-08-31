@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
-import android.util.Log;
 import com.qubit.android.sdk.api.tracker.EventTracker;
 import com.qubit.android.sdk.api.tracker.event.QBEvent;
 import com.qubit.android.sdk.internal.configuration.Configuration;
@@ -70,7 +69,7 @@ public class EventTrackerImpl implements EventTracker {
     if (isStarted) {
       throw new IllegalStateException("EventTracker is already started");
     }
-    HandlerThread thread = new HandlerThread("EventTracker", Process.THREAD_PRIORITY_BACKGROUND);
+    HandlerThread thread = new HandlerThread("EventTrackerThread", Process.THREAD_PRIORITY_BACKGROUND);
     thread.start();
     handler = new Handler(thread.getLooper());
 
@@ -107,7 +106,7 @@ public class EventTrackerImpl implements EventTracker {
 
     @Override
     public void run() {
-      Log.d(LOG_TAG, "EventTracker: Storing event");
+      LOGGER.d("Storing event");
       eventsRepository.insert(type, qbEvent.toJsonObject().toString());
       queueSize = queueSize != null ? queueSize + 1 : 1;
       if (firstEventInBatchTime == null) {
@@ -126,7 +125,7 @@ public class EventTrackerImpl implements EventTracker {
 
     @Override
     public void run() {
-      Log.d(LOG_TAG, "EventTracker: Configuration Initialized");
+      LOGGER.d("Configuration Initialized");
       currentConfiguration = configuration;
       scheduleNextSendEventsTask();
     }
@@ -141,7 +140,7 @@ public class EventTrackerImpl implements EventTracker {
 
     @Override
     public void run() {
-      Log.d(LOG_TAG, "EventTracker: Configuration Changed");
+      LOGGER.d("Configuration Changed");
       currentConfiguration = configuration;
     }
   }
@@ -155,7 +154,7 @@ public class EventTrackerImpl implements EventTracker {
 
     @Override
     public void run() {
-      Log.d(LOG_TAG, "EventTracker: Network state changed. Connected: " + isConnected);
+      LOGGER.d("Network state changed. Connected: " + isConnected);
       EventTrackerImpl.this.isConnected = isConnected;
       scheduleNextSendEventsTask();
     }
@@ -165,21 +164,21 @@ public class EventTrackerImpl implements EventTracker {
 
     @Override
     public void run() {
-      Log.d(LOG_TAG, "EventTracker: Send events task");
+      LOGGER.d("Send events task");
 
       if (currentConfiguration == null) {
-        Log.d(LOG_TAG, "EventTracker: Configuration is not initialized yet");
+        LOGGER.d("Configuration is not initialized yet");
         return;
       }
 
       Long timeMsToSendEvents = evaluateTimeMsToNextSendEvents();
       if (timeMsToSendEvents == null) {
-        Log.d(LOG_TAG, "EventTracker: SendEventsTask: No events in queue");
+        LOGGER.d("SendEventsTask: No events in queue");
         return;
       }
 
       if (timeMsToSendEvents > 0) {
-        Log.d(LOG_TAG, "EventTracker: SendEventsTask: Batch is not full. Postponing sending events by "
+        LOGGER.d("SendEventsTask: Batch is not full. Postponing sending events by "
             + timeMsToSendEvents + " ms.");
         handler.postDelayed(sendEventsTask, timeMsToSendEvents);
         return;
@@ -188,7 +187,7 @@ public class EventTrackerImpl implements EventTracker {
       List<EventModel> nextEvents = eventsRepository.selectFirst(BATCH_MAX_SIZE + 1);
 
       List<EventModel> eventsToSent = ListUtil.firstElements(nextEvents, BATCH_MAX_SIZE);
-      Log.d(LOG_TAG, "EventTracker: SendEventTask: Sending events: " + eventsToSent.size());
+      LOGGER.d("SendEventTask: Sending events: " + eventsToSent.size());
       // TODO send 15 events, delete them
       Uninterruptibles.sleepUninterruptibly(SEND_EVENT_TIME_MS, TimeUnit.MILLISECONDS);
       // TODO negative path
@@ -211,10 +210,10 @@ public class EventTrackerImpl implements EventTracker {
     if (timeMsToNextSendEvents != null) {
       if (timeMsToNextSendEvents > 0) {
         handler.postDelayed(sendEventsTask, timeMsToNextSendEvents);
-        Log.d(LOG_TAG, "EventTracker: Next SendEventsTask scheduled for " + timeMsToNextSendEvents);
+        LOGGER.d("Next SendEventsTask scheduled for " + timeMsToNextSendEvents);
       } else {
         handler.post(sendEventsTask);
-        Log.d(LOG_TAG, "EventTracker: Next SendEventsTask scheduled for NOW");
+        LOGGER.d("Next SendEventsTask scheduled for NOW");
       }
     }
   }
@@ -233,7 +232,7 @@ public class EventTrackerImpl implements EventTracker {
       return 0L;
     }
     if (firstEventInBatchTime == null) {
-      Log.w(LOG_TAG, "EventTracker: INCONSISTENCY! FirstEventInBatchTime is null, while there are events in queue");
+      LOGGER.w("INCONSISTENCY! FirstEventInBatchTime is null, while there are events in queue");
       // TODO fix cache
       return null;
     }
