@@ -24,13 +24,13 @@ public class SDK {
     this.trackingId = trackingId;
     this.networkStateService = new NetworkStateServiceImpl(appContext);
     ConfigurationRepository configurationRepository = new ConfigurationRepositoryImpl(appContext, new Gson());
-    this.configurationService = new ConfigurationServiceImpl(appContext, trackingId, networkStateService,
+    this.configurationService = new ConfigurationServiceImpl(trackingId, networkStateService,
         configurationRepository);
     this.eventQueue = new EventTrackerImpl(appContext, configurationService, networkStateService);
   }
 
   public void start() {
-    networkStateService.start(appContext);
+    networkStateService.start();
     configurationService.start();
     eventQueue.start();
   }

@@ -7,12 +7,12 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class NetworkStateServiceImpl extends BroadcastReceiver implements NetworkStateService {
 
   private final Context context;
-  private final Collection<NetworkStateListener> listeners = new HashSet<>();
+  private final Collection<NetworkStateListener> listeners = new CopyOnWriteArraySet<>();
 
   public NetworkStateServiceImpl(Context context) {
     this.context = context;
@@ -21,17 +21,17 @@ public class NetworkStateServiceImpl extends BroadcastReceiver implements Networ
   @Override
   public void registerNetworkStateListener(NetworkStateListener listener) {
     listeners.add(listener);
-    boolean isConnected = isConnected(context);
+    boolean isConnected = isConnected();
     notifyListenerNetworkStateChange(listener, isConnected);
   }
 
   @Override
   public void onReceive(Context context, Intent intent) {
-    boolean isConnected = isConnected(context);
+    boolean isConnected = isConnected();
     notifyListenersNetworkStateChange(isConnected);
   }
 
-  private boolean isConnected(Context context) {
+  private boolean isConnected() {
     ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo networkInfo = manager.getActiveNetworkInfo();
     return networkInfo != null && networkInfo.isConnected();
@@ -51,7 +51,7 @@ public class NetworkStateServiceImpl extends BroadcastReceiver implements Networ
     }
   }
 
-  public void start(Context context) {
+  public void start() {
     context.registerReceiver(this, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
   }
 }
