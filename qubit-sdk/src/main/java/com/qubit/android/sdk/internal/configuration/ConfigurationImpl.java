@@ -2,6 +2,8 @@ package com.qubit.android.sdk.internal.configuration;
 
 public class ConfigurationImpl implements Configuration {
 
+  private static final ConfigurationImpl DEFAULT = new ConfigurationImpl();
+
   private static final String DEFAULT_ENDPOINT = "gong-eb.qubit.com";
   private static final String DEFAULT_DATA_LOCATION = "EU";
   private static final int DEFAULT_CONFIGURATION_RELOAD_INTERVAL = 60;
@@ -165,5 +167,9 @@ public class ConfigurationImpl implements Configuration {
         + ", lookupCacheExpireTime=" + lookupCacheExpireTime
         + ", lastUpdateTimestamp=" + lastUpdateTimestamp
         + '}';
+  }
+
+  public static ConfigurationImpl getDefault() {
+    return DEFAULT;
   }
 }

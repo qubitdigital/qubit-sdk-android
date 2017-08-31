@@ -120,10 +120,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
       Configuration configuration = downloadConfiguration();
       if (configuration != null) {
         notifyListenersInitialization();
-        handler.postDelayed(configurationChangeTask,
-            DateTimeUtils.minToMs(configuration.getConfigurationReloadInterval()));
+      } else {
+        configuration = ConfigurationImpl.getDefault();
       }
-      // TODO negative scenario: configuration == null (take connection state into consideration)
+      handler.postDelayed(configurationChangeTask,
+          DateTimeUtils.minToMs(configuration.getConfigurationReloadInterval()));
 
     }
   }
@@ -136,10 +137,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
       Configuration configuration = downloadConfiguration();
       if (configuration != null) {
         notifyListenersConfigurationChange();
-        handler.postDelayed(configurationChangeTask,
-            DateTimeUtils.minToMs(configuration.getConfigurationReloadInterval()));
+      } else {
+        configuration = ConfigurationImpl.getDefault();
       }
-      // TODO negative scenario: configuration == null (take connection state into consideration)
+      handler.postDelayed(configurationChangeTask,
+          DateTimeUtils.minToMs(configuration.getConfigurationReloadInterval()));
     }
   }
 
@@ -163,7 +165,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
       Log.d(LOG_TAG, "ConfigurationService: configuration: " + resultConfiguration);
       return resultConfiguration;
     } catch (IOException e) {
-      Log.e(LOG_TAG, "ConfigurationService: failed to download configuration: ", e);
+      Log.e(LOG_TAG, "ConfigurationService: failed to download configuration: " + e.getMessage());
       return null;
     }
   }
@@ -172,7 +174,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   private ConfigurationImpl getCurrentConfiguration() {
     ConfigurationImpl currentConfiguration = (ConfigurationImpl) getConfiguration();
     if (currentConfiguration == null) {
-      currentConfiguration = new ConfigurationImpl();
+      currentConfiguration = ConfigurationImpl.getDefault();
     }
     return currentConfiguration;
   }
