@@ -8,6 +8,8 @@
   </module>
   <module name="FileTabCharacter"/>
   <module name="TreeWalker">
+    <!-- Make the @SuppressWarnings annotations available to Checkstyle -->
+    <module name="SuppressWarningsHolder" />
     <module name="Indentation">
       <property name="basicOffset" value="2"/>
       <property name="braceAdjustment" value="0"/>

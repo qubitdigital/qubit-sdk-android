@@ -7,7 +7,12 @@ public abstract class QBEvents {
 
   public static QBEvent fromJsonString(String jsonString) {
     // TODO
-    return null;
+    return new QBEvent() {
+      @Override
+      public JSONObject toJsonObject() {
+        return new JSONObject();
+      }
+    };
   }
 
   public static QBEvent fromJson(JSONObject jsonObject) {

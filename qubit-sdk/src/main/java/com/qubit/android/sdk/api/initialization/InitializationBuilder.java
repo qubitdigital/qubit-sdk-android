@@ -1,15 +1,22 @@
 package com.qubit.android.sdk.api.initialization;
 
 import android.content.Context;
+import com.qubit.android.sdk.api.logging.QBLogLevel;
 import com.qubit.android.sdk.internal.SDK;
 
 public class InitializationBuilder {
 
+  public interface SdkConsumer {
+    void accept(SDK sdk);
+  }
+
+  private final SdkConsumer sdkConsumer;
   private Context appContext;
   private String trackingId;
   private QBLogLevel logLevel;
 
-  public InitializationBuilder() {
+  public InitializationBuilder(SdkConsumer sdkConsumer) {
+    this.sdkConsumer = sdkConsumer;
   }
 
   public ContextSetInitializationBuilder inAppContext(Context context) {
@@ -35,9 +42,9 @@ public class InitializationBuilder {
 
     public void start() {
       SDK.logLevel = logLevel;
-      // TODO
-      // todo totally tmp
-      new SDK(appContext, "miquido").start();
+      SDK sdk = new SDK(appContext, trackingId);
+      sdk.start();
+      sdkConsumer.accept(sdk);
     }
   }
 

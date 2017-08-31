@@ -54,4 +54,5 @@ public class NetworkStateServiceImpl extends BroadcastReceiver implements Networ
   public void start() {
     context.registerReceiver(this, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
   }
+
 }
