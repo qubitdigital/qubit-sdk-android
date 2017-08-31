@@ -12,7 +12,14 @@ import static com.qubit.android.sdk.api.logging.QBLogLevel.WARN;
 
 public final class Logger {
 
-  private Logger() {
+  private final String component;
+
+  private Logger(String component) {
+    this.component = component;
+  }
+
+  public static Logger getFor(String component) {
+    return new Logger(component);
   }
 
   public static void e(String tag, String message) {

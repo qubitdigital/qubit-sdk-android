@@ -5,9 +5,12 @@ import com.qubit.android.sdk.api.tracker.EventTracker;
 import com.qubit.android.sdk.api.tracker.event.QBEvent;
 import com.qubit.android.sdk.internal.configuration.Configuration;
 import com.qubit.android.sdk.internal.configuration.ConfigurationService;
+import com.qubit.android.sdk.internal.logging.Logger;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
 
 public class EventTrackerImpl implements EventTracker {
+
+  private static final Logger LOGGER = Logger.getFor("EventTracker");
 
   private final Context context;
   private final ConfigurationService configurationService;
