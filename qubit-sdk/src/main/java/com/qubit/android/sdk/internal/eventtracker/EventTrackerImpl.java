@@ -110,21 +110,6 @@ public class EventTrackerImpl implements EventTracker {
     }
   }
 
-  private class ConfigurationInitTask implements Runnable {
-    private final Configuration configuration;
-
-    ConfigurationInitTask(Configuration configuration) {
-      this.configuration = configuration;
-    }
-
-    @Override
-    public void run() {
-      Log.d(LOG_TAG, "EventTracker: Configuration Initialized");
-      currentConfiguration = configuration;
-      scheduleNextSendEventsTask();
-    }
-  }
-
   private class ConfigurationChangeTask implements Runnable {
     private final Configuration configuration;
 
