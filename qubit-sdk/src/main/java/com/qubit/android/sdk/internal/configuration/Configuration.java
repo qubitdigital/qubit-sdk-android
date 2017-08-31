@@ -22,6 +22,5 @@ public interface Configuration {
 
   int getLookupCacheExpireTime();
 
-  Long getLastUpdateTimestamp();
 
 }

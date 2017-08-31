@@ -1,9 +1,5 @@
 package com.qubit.android.sdk.internal.util;
 
-/**
- * Created by aamq on 30.08.2017.
- */
-
 public final class DateTimeUtils {
 
   private static final int SEC_IN_MIN = 60;

@@ -1,43 +1,46 @@
 package com.qubit.android.sdk.internal.configuration;
 
-import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
 import com.qubit.android.sdk.internal.util.DateTimeUtils;
-import com.qubit.android.sdk.internal.util.Elvis;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArraySet;
+import javax.net.ssl.HttpsURLConnection;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+import static com.qubit.android.sdk.internal.util.Elvis.*;
 
 public class ConfigurationServiceImpl implements ConfigurationService {
 
   private static final String LOG_TAG = "qb-sdk";
   private static final String CONFIGURATION_URL = "https://s3-eu-west-1.amazonaws.com/";
 
-  private final Context context;
   private final String trackingId;
   private final NetworkStateService networkStateService;
   private final ConfigurationRepository configurationRepository;
   private final ConfigurationConnector configurationConnector;
 
-  private ConfigurationChangeTask configurationChangeTask = new ConfigurationChangeTask();
+  private ConfigurationDownloadTask configurationDownloadTask = new ConfigurationDownloadTask();
 
   private Handler handler;
 
   private boolean isStarted = false;
   private Collection<ConfigurationListener> listeners = new CopyOnWriteArraySet<>();
 
-  public ConfigurationServiceImpl(Context context, String trackingId, NetworkStateService networkStateService,
+  private ConfigurationModel currentConfiguration;
+  private boolean isConnected;
+  private Long lastUpdateAttemptTimestamp;
+
+
+  public ConfigurationServiceImpl(String trackingId, NetworkStateService networkStateService,
                                   ConfigurationRepository configurationRepository) {
-    this.context = context;
     this.trackingId = trackingId;
     this.networkStateService = networkStateService;
     this.configurationRepository = configurationRepository;
@@ -52,13 +55,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   @Override
   public void registerConfigurationListener(ConfigurationListener configurationListener) {
     listeners.add(configurationListener);
-    if (getConfiguration() != null) {
-      notifyListenerInitialization(configurationListener);
+    if (currentConfiguration != null) {
+      configurationListener.onConfigurationChange(currentConfiguration);
     }
-  }
-
-  public Configuration getConfiguration() {
-    return configurationRepository.load(context);
   }
 
   public synchronized void start() {
@@ -70,6 +69,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     thread.start();
     handler = new Handler(thread.getLooper());
 
+    handler.post(new InitialConfigurationLoadTask());
+
     networkStateService.registerNetworkStateListener(new NetworkStateService.NetworkStateListener() {
       @Override
       public void onNetworkStateChange(boolean isConnected) {
@@ -78,6 +79,17 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     });
 
     isStarted = true;
+  }
+
+
+  private class InitialConfigurationLoadTask implements Runnable {
+    @Override
+    public void run() {
+      currentConfiguration = configurationRepository.load();
+      if (currentConfiguration != null) {
+        notifyListenersConfigurationChange();
+      }
+    }
   }
 
   private class NetworkStateChangeTask implements Runnable {
@@ -90,147 +102,129 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     @Override
     public void run() {
       Log.d(LOG_TAG, "ConfigurationService: Network state changed. Connected: " + isConnected);
-      if (isConnected) {
-        Configuration configuration = getConfiguration();
-        if (isConfigurationUpToDate(configuration)) {
-          return;
-        }
-
-        if (configuration != null) {
-          handler.post(configurationChangeTask);
-        } else {
-          handler.post(new ConfigurationInitializationTask());
-        }
-      }
-    }
-
-    private boolean isConfigurationUpToDate(Configuration configuration) {
-      return configuration != null && configuration.getLastUpdateTimestamp() != null
-          && configuration.getLastUpdateTimestamp()
-          + DateTimeUtils.minToMs(configuration.getConfigurationReloadInterval())
-          > System.currentTimeMillis();
+      ConfigurationServiceImpl.this.isConnected = isConnected;
+      scheduleNextConfigurationDownloadTask();
     }
   }
 
-  private class ConfigurationInitializationTask implements Runnable {
-
-    @Override
-    public void run() {
-      Log.d(LOG_TAG, "ConfigurationService: first time downloading configuration");
-      Configuration configuration = downloadConfiguration();
-      if (configuration != null) {
-        notifyListenersInitialization();
-      } else {
-        configuration = ConfigurationImpl.getDefault();
-      }
-      handler.postDelayed(configurationChangeTask,
-          DateTimeUtils.minToMs(configuration.getConfigurationReloadInterval()));
-
-    }
-  }
-
-  private class ConfigurationChangeTask implements Runnable {
+  private class ConfigurationDownloadTask implements Runnable {
 
     @Override
     public void run() {
       Log.d(LOG_TAG, "ConfigurationService: downloading configuration");
-      Configuration configuration = downloadConfiguration();
-      if (configuration != null) {
-        notifyListenersConfigurationChange();
-      } else {
-        configuration = ConfigurationImpl.getDefault();
+      if (isConfigurationUpToDate()) {
+        scheduleNextConfigurationDownloadTask();
+        return;
       }
-      handler.postDelayed(configurationChangeTask,
-          DateTimeUtils.minToMs(configuration.getConfigurationReloadInterval()));
+      if (!isConnected) {
+        return;
+      }
+
+      ConfigurationModel downloadedConfiguration = downloadConfiguration();
+      long now = System.currentTimeMillis();
+      lastUpdateAttemptTimestamp = now;
+      if (downloadedConfiguration != null) {
+        downloadedConfiguration.setLastUpdateTimestamp(now);
+        configurationRepository.save(downloadedConfiguration);
+        if (!downloadedConfiguration.equals(currentConfiguration)) {
+          currentConfiguration = downloadedConfiguration;
+          notifyListenersConfigurationChange();
+        }
+      }
+      scheduleNextConfigurationDownloadTask();
     }
   }
 
   @Nullable
-  private Configuration downloadConfiguration() {
-    handler.removeCallbacks(configurationChangeTask);
+  private ConfigurationModel downloadConfiguration() {
     try {
       Response<ConfigurationResponse> response = configurationConnector.download(trackingId).execute();
+      if (response.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
+        return ConfigurationModel.getDefault();
+      }
       if (!response.isSuccessful() || response.errorBody() != null || response.body() == null) {
         Log.e(LOG_TAG, "ConfigurationService: failed to download configuration");
         return null;
       }
 
       ConfigurationResponse newConfiguration = response.body();
-      ConfigurationImpl currentConfiguration = getCurrentConfiguration();
-      ConfigurationImpl resultConfiguration = createMergedConfiguration(currentConfiguration, newConfiguration);
-
-      resultConfiguration.setLastUpdateTimestamp(System.currentTimeMillis());
-      configurationRepository.save(context, resultConfiguration);
-
-      Log.d(LOG_TAG, "ConfigurationService: configuration: " + resultConfiguration);
-      return resultConfiguration;
+      return enrichWithDefaultConfiguration(newConfiguration);
     } catch (IOException e) {
       Log.e(LOG_TAG, "ConfigurationService: failed to download configuration: " + e.getMessage());
       return null;
     }
   }
 
-  @NonNull
-  private ConfigurationImpl getCurrentConfiguration() {
-    ConfigurationImpl currentConfiguration = (ConfigurationImpl) getConfiguration();
-    if (currentConfiguration == null) {
-      currentConfiguration = ConfigurationImpl.getDefault();
-    }
-    return currentConfiguration;
-  }
+  private static ConfigurationModel enrichWithDefaultConfiguration(ConfigurationResponse newConfiguration) {
+    ConfigurationModel defaultConf = ConfigurationModel.getDefault();
+    ConfigurationModel result = new ConfigurationModel();
 
-  private ConfigurationImpl createMergedConfiguration(ConfigurationImpl baseConfiguration,
-                                                      ConfigurationResponse newConfiguration) {
-    ConfigurationImpl resultConfiguration = new ConfigurationImpl();
-
-    resultConfiguration.setEndpoint(
-        Elvis.getNotEmpty(newConfiguration.getEndpoint(), baseConfiguration.getEndpoint()));
-    resultConfiguration.setDataLocation(
-        Elvis.getNotEmpty(newConfiguration.getDataLocation(), baseConfiguration.getDataLocation()));
-    resultConfiguration.setConfigurationReloadInterval(
-        Elvis.get(
+    result.setEndpoint(
+        getIfNotEmpty(newConfiguration.getEndpoint(), defaultConf.getEndpoint()));
+    result.setDataLocation(
+        getIfNotEmpty(newConfiguration.getDataLocation(), defaultConf.getDataLocation()));
+    result.setConfigurationReloadInterval(
+        getIfNotNull(
             newConfiguration.getConfigurationReloadInterval(),
-            baseConfiguration.getConfigurationReloadInterval()));
-    resultConfiguration.setQueueTimeout(
-        Elvis.get(newConfiguration.getQueueTimeout(), baseConfiguration.getQueueTimeout()));
-    resultConfiguration.setVertical(
-        Elvis.getNotEmpty(newConfiguration.getVertical(), baseConfiguration.getVertical()));
-    resultConfiguration.setNamespace(
-        Elvis.getNotEmpty(newConfiguration.getNamespace(), baseConfiguration.getNamespace()));
-    resultConfiguration.setPropertyId(
-        Elvis.get(newConfiguration.getPropertyId(), baseConfiguration.getPropertyId()));
-    resultConfiguration.setDisabled(
-        Elvis.get(newConfiguration.isDisabled(), baseConfiguration.isDisabled()));
-    resultConfiguration.setLookupAttributeUrl(
-        Elvis.getNotEmpty(newConfiguration.getLookupAttributeUrl(), baseConfiguration.getLookupAttributeUrl()));
-    resultConfiguration.setLookupGetRequestTimeout(
-        Elvis.get(newConfiguration.getLookupGetRequestTimeout(), baseConfiguration.getLookupGetRequestTimeout()));
-    resultConfiguration.setLookupCacheExpireTime(
-        Elvis.get(newConfiguration.getLookupCacheExpireTime(), baseConfiguration.getLookupCacheExpireTime()));
+            defaultConf.getConfigurationReloadInterval()));
+    result.setQueueTimeout(
+        getIfNotNull(newConfiguration.getQueueTimeout(), defaultConf.getQueueTimeout()));
+    result.setVertical(
+        getIfNotEmpty(newConfiguration.getVertical(), defaultConf.getVertical()));
+    result.setNamespace(
+        getIfNotEmpty(newConfiguration.getNamespace(), defaultConf.getNamespace()));
+    result.setPropertyId(
+        getIfNotNull(newConfiguration.getPropertyId(), defaultConf.getPropertyId()));
+    result.setDisabled(
+        getIfNotNull(newConfiguration.isDisabled(), defaultConf.isDisabled()));
+    result.setLookupAttributeUrl(
+        getIfNotEmpty(newConfiguration.getLookupAttributeUrl(), defaultConf.getLookupAttributeUrl()));
+    result.setLookupGetRequestTimeout(
+        getIfNotNull(newConfiguration.getLookupGetRequestTimeout(), defaultConf.getLookupGetRequestTimeout()));
+    result.setLookupCacheExpireTime(
+        getIfNotNull(newConfiguration.getLookupCacheExpireTime(), defaultConf.getLookupCacheExpireTime()));
 
-    return resultConfiguration;
-  }
-
-  private void notifyListenerInitialization(ConfigurationListener listener) {
-    if (listener != null) {
-      listener.onInitialization(getConfiguration());
-    }
-  }
-
-  private void notifyListenersInitialization() {
-    for (ConfigurationListener listener : listeners) {
-      if (listener != null) {
-        listener.onInitialization(getConfiguration());
-      }
-    }
+    return result;
   }
 
   private void notifyListenersConfigurationChange() {
     for (ConfigurationListener listener : listeners) {
       if (listener != null) {
-        listener.onConfigurationChange(getConfiguration());
+        listener.onConfigurationChange(currentConfiguration);
       }
     }
+  }
+
+  private void scheduleNextConfigurationDownloadTask() {
+    handler.removeCallbacks(configurationDownloadTask);
+    if (!isConnected) {
+      return;
+    }
+    long nextDownloadIntervalMs = evaluateNextConfigurationDownloadIntervalMs();
+    if (nextDownloadIntervalMs > 0) {
+      handler.postDelayed(configurationDownloadTask, nextDownloadIntervalMs);
+    } else {
+      handler.post(configurationDownloadTask);
+    }
+  }
+
+  private long evaluateNextConfigurationDownloadIntervalMs() {
+    if (lastUpdateAttemptTimestamp == null && currentConfiguration == null) {
+      return 0;
+    }
+    long reloadIntervalMs = DateTimeUtils.minToMs(currentConfiguration.getConfigurationReloadInterval());
+    long baseTime = lastUpdateAttemptTimestamp != null
+        ? lastUpdateAttemptTimestamp : currentConfiguration.getLastUpdateTimestamp();
+    long nextDownloadTime = baseTime + reloadIntervalMs;
+    long now = System.currentTimeMillis();
+    return nextDownloadTime > now ? nextDownloadTime - now : 0;
+  }
+
+  private boolean isConfigurationUpToDate() {
+    return currentConfiguration != null && currentConfiguration.getLastUpdateTimestamp() != null
+        && currentConfiguration.getLastUpdateTimestamp()
+        + DateTimeUtils.minToMs(currentConfiguration.getConfigurationReloadInterval())
+        > System.currentTimeMillis();
   }
 
 }

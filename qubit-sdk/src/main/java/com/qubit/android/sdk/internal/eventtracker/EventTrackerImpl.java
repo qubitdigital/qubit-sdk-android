@@ -34,11 +34,6 @@ public class EventTrackerImpl implements EventTracker {
     // TODO
     configurationService.registerConfigurationListener(new ConfigurationService.ConfigurationListener() {
       @Override
-      public void onInitialization(Configuration configuration) {
-        // TODO
-      }
-
-      @Override
       public void onConfigurationChange(Configuration configuration) {
         // TODO
       }

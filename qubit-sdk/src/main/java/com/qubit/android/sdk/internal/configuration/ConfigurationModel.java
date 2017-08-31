@@ -1,8 +1,8 @@
 package com.qubit.android.sdk.internal.configuration;
 
-public class ConfigurationImpl implements Configuration {
+public class ConfigurationModel implements Configuration {
 
-  private static final ConfigurationImpl DEFAULT = new ConfigurationImpl();
+  private static final ConfigurationModel DEFAULT = new ConfigurationModel();
 
   private static final String DEFAULT_ENDPOINT = "gong-eb.qubit.com";
   private static final String DEFAULT_DATA_LOCATION = "EU";
@@ -29,7 +29,7 @@ public class ConfigurationImpl implements Configuration {
   private int lookupCacheExpireTime;
   private Long lastUpdateTimestamp;
 
-  public ConfigurationImpl() {
+  public ConfigurationModel() {
     endpoint = DEFAULT_ENDPOINT;
     dataLocation = DEFAULT_DATA_LOCATION;
     configurationReloadInterval = DEFAULT_CONFIGURATION_RELOAD_INTERVAL;
@@ -142,7 +142,6 @@ public class ConfigurationImpl implements Configuration {
     this.lookupCacheExpireTime = lookupCacheExpireTime;
   }
 
-  @Override
   public Long getLastUpdateTimestamp() {
     return lastUpdateTimestamp;
   }
@@ -153,7 +152,7 @@ public class ConfigurationImpl implements Configuration {
 
   @Override
   public String toString() {
-    return "ConfigurationImpl{"
+    return "ConfigurationModel{"
         + "endpoint='" + endpoint + '\''
         + ", dataLocation='" + dataLocation + '\''
         + ", configurationReloadInterval=" + configurationReloadInterval
@@ -169,7 +168,74 @@ public class ConfigurationImpl implements Configuration {
         + '}';
   }
 
-  public static ConfigurationImpl getDefault() {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    ConfigurationModel that = (ConfigurationModel) o;
+
+    if (configurationReloadInterval != that.configurationReloadInterval) {
+      return false;
+    }
+    if (queueTimeout != that.queueTimeout) {
+      return false;
+    }
+    if (propertyId != that.propertyId) {
+      return false;
+    }
+    if (disabled != that.disabled) {
+      return false;
+    }
+    if (lookupGetRequestTimeout != that.lookupGetRequestTimeout) {
+      return false;
+    }
+    if (lookupCacheExpireTime != that.lookupCacheExpireTime) {
+      return false;
+    }
+    if (endpoint != null ? !endpoint.equals(that.endpoint) : that.endpoint != null) {
+      return false;
+    }
+    if (dataLocation != null ? !dataLocation.equals(that.dataLocation) : that.dataLocation != null) {
+      return false;
+    }
+    if (vertical != null ? !vertical.equals(that.vertical) : that.vertical != null) {
+      return false;
+    }
+    if (namespace != null ? !namespace.equals(that.namespace) : that.namespace != null) {
+      return false;
+    }
+    if (lookupAttributeUrl != null
+        ? !lookupAttributeUrl.equals(that.lookupAttributeUrl) : that.lookupAttributeUrl != null) {
+      return false;
+    }
+    return lastUpdateTimestamp != null
+        ? lastUpdateTimestamp.equals(that.lastUpdateTimestamp) : that.lastUpdateTimestamp == null;
+
+  }
+
+  @Override
+  public int hashCode() {
+    int result = endpoint != null ? endpoint.hashCode() : 0;
+    result = 31 * result + (dataLocation != null ? dataLocation.hashCode() : 0);
+    result = 31 * result + configurationReloadInterval;
+    result = 31 * result + queueTimeout;
+    result = 31 * result + (vertical != null ? vertical.hashCode() : 0);
+    result = 31 * result + (namespace != null ? namespace.hashCode() : 0);
+    result = 31 * result + (int) (propertyId ^ (propertyId >>> 32));
+    result = 31 * result + (disabled ? 1 : 0);
+    result = 31 * result + (lookupAttributeUrl != null ? lookupAttributeUrl.hashCode() : 0);
+    result = 31 * result + lookupGetRequestTimeout;
+    result = 31 * result + lookupCacheExpireTime;
+    result = 31 * result + (lastUpdateTimestamp != null ? lastUpdateTimestamp.hashCode() : 0);
+    return result;
+  }
+
+  public static ConfigurationModel getDefault() {
     return DEFAULT;
   }
 }

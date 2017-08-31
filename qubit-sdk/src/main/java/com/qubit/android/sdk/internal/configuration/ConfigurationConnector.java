@@ -6,10 +6,10 @@ import retrofit2.http.Path;
 
 interface ConfigurationConnector {
 
-  String TRACKING_ID_PATH = "/{id}.json";
-  String TRACKING_ID_PARAM = "id";
+  String CONFIGURATION_PATH = "qubit-mobile-config/{trackingId}.json";
+  String TRACKING_ID_PARAM = "trackingId";
 
-  @GET("qubit-mobile-config" + TRACKING_ID_PATH)
+  @GET(CONFIGURATION_PATH)
   Call<ConfigurationResponse> download(@Path(TRACKING_ID_PARAM) String trackingId);
 
 }
