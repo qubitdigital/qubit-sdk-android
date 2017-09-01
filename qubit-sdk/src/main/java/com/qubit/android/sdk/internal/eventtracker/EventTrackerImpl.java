@@ -73,11 +73,6 @@ public class EventTrackerImpl implements EventTracker {
 
     configurationService.registerConfigurationListener(new ConfigurationService.ConfigurationListener() {
       @Override
-      public void onInitialization(Configuration configuration) {
-        handler.post(new ConfigurationInitTask(configuration));
-      }
-
-      @Override
       public void onConfigurationChange(Configuration configuration) {
         handler.post(new ConfigurationChangeTask(configuration));
       }
@@ -106,21 +101,6 @@ public class EventTrackerImpl implements EventTracker {
     public void run() {
       LOGGER.d("Storing event");
       eventsRepository.insert(type, qbEvent.toJsonObject().toString());
-      scheduleNextSendEventsTask();
-    }
-  }
-
-  private class ConfigurationInitTask implements Runnable {
-    private final Configuration configuration;
-
-    ConfigurationInitTask(Configuration configuration) {
-      this.configuration = configuration;
-    }
-
-    @Override
-    public void run() {
-      LOGGER.d("Configuration Initialized");
-      currentConfiguration = configuration;
       scheduleNextSendEventsTask();
     }
   }

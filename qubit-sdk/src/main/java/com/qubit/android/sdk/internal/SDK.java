@@ -1,6 +1,7 @@
 package com.qubit.android.sdk.internal;
 
 import android.content.Context;
+import com.google.gson.Gson;
 import com.qubit.android.sdk.api.logging.QBLogLevel;
 import com.qubit.android.sdk.internal.configuration.ConfigurationRepository;
 import com.qubit.android.sdk.internal.configuration.ConfigurationRepositoryImpl;
@@ -21,15 +22,16 @@ public class SDK {
   public SDK(Context appContext, String trackingId) {
     this.networkStateService = new NetworkStateServiceImpl(appContext);
 
-    ConfigurationRepository configurationRepository = new ConfigurationRepositoryImpl();
+    ConfigurationRepository configurationRepository = new ConfigurationRepositoryImpl(appContext, new Gson());
     this.configurationService =
-        new ConfigurationServiceImpl(appContext, trackingId, networkStateService, configurationRepository);
+        new ConfigurationServiceImpl(trackingId, networkStateService, configurationRepository);
 
     EventsRepository eventsRepository = new EventsRepositoryMock();
     this.eventTracker = new EventTrackerImpl(appContext, configurationService, networkStateService, eventsRepository);
   }
 
   public void start() {
+    networkStateService.start();
     configurationService.start();
     eventTracker.start();
   }

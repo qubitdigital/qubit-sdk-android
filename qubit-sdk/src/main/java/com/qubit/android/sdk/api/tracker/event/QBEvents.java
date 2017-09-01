@@ -16,7 +16,6 @@ public abstract class QBEvents {
   }
 
   public static QBEvent fromJson(JSONObject jsonObject) {
-    // TODO
     return null;
   }
 

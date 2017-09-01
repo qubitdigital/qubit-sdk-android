@@ -4,8 +4,6 @@ public interface Configuration {
 
   String getEndpoint();
 
-  String getDataLocation();
-
   int getConfigurationReloadInterval();
 
   String getVertical();
@@ -21,5 +19,6 @@ public interface Configuration {
   int getLookupGetRequestTimeout();
 
   int getLookupCacheExpireTime();
+
 
 }
