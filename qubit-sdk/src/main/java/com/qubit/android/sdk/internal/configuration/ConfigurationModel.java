@@ -1,10 +1,15 @@
 package com.qubit.android.sdk.internal.configuration;
 
+import com.qubit.android.sdk.internal.logging.QBLogger;
+
 public class ConfigurationModel implements Configuration {
+
+  private static final QBLogger LOGGER = QBLogger.getFor("ConfigurationModel");
 
   private static final ConfigurationModel DEFAULT = new ConfigurationModel();
 
-  private static final String DEFAULT_ENDPOINT = "gong-eb.qubit.com";
+  private static final String DEFAULT_ENDPOINT_EU = "gong-eb.qubit.com";
+  private static final String DEFAULT_ENDPOINT_US = "gong-gc.qubit.com";
   private static final String DEFAULT_DATA_LOCATION = "EU";
   private static final int DEFAULT_CONFIGURATION_RELOAD_INTERVAL = 60;
   private static final int DEFAULT_QUEUE_TIMEOUT = 60;
@@ -30,7 +35,7 @@ public class ConfigurationModel implements Configuration {
   private Long lastUpdateTimestamp;
 
   public ConfigurationModel() {
-    endpoint = DEFAULT_ENDPOINT;
+    endpoint = DEFAULT_ENDPOINT_EU;
     dataLocation = DEFAULT_DATA_LOCATION;
     configurationReloadInterval = DEFAULT_CONFIGURATION_RELOAD_INTERVAL;
     queueTimeout = DEFAULT_QUEUE_TIMEOUT;
@@ -53,7 +58,6 @@ public class ConfigurationModel implements Configuration {
     this.endpoint = endpoint;
   }
 
-  @Override
   public String getDataLocation() {
     return dataLocation;
   }
@@ -237,5 +241,32 @@ public class ConfigurationModel implements Configuration {
 
   public static ConfigurationModel getDefault() {
     return DEFAULT;
+  }
+
+  public static String getDefaultEndpoint(String dataLocation) {
+    Region region = Region.fromString(dataLocation);
+    switch (region) {
+      case EU:
+        return DEFAULT_ENDPOINT_EU;
+      case US:
+        return DEFAULT_ENDPOINT_US;
+      default:
+        LOGGER.w("Unsupported data location: " + dataLocation);
+        return DEFAULT_ENDPOINT_EU;
+    }
+  }
+
+  private enum Region {
+    EU, US, UNKNOWN;
+
+    public static Region fromString(String string) {
+      if (EU.toString().equals(string)) {
+        return EU;
+      }
+      if (US.toString().equals(string)) {
+        return US;
+      }
+      return UNKNOWN;
+    }
   }
 }

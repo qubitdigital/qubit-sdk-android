@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import com.qubit.android.sdk.internal.logging.QBLogger;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
 import com.qubit.android.sdk.internal.util.DateTimeUtils;
@@ -131,6 +132,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         if (!downloadedConfiguration.equals(currentConfiguration)) {
           currentConfiguration = downloadedConfiguration;
           notifyListenersConfigurationChange();
+          LOGGER.d("Configuration data changed");
         }
       }
       LOGGER.d("Current configuration: " + getIfNotNull(currentConfiguration, "none"));
@@ -165,8 +167,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     ConfigurationModel defaultConf = ConfigurationModel.getDefault();
     ConfigurationModel result = new ConfigurationModel();
 
-    result.setEndpoint(
-        getIfNotEmpty(newConfiguration.getEndpoint(), defaultConf.getEndpoint()));
+    result.setEndpoint(determineConfigurationEndpoint(defaultConf, newConfiguration));
     result.setDataLocation(
         getIfNotEmpty(newConfiguration.getDataLocation(), defaultConf.getDataLocation()));
     result.setConfigurationReloadInterval(
@@ -191,6 +192,21 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         getIfNotNull(newConfiguration.getLookupCacheExpireTime(), defaultConf.getLookupCacheExpireTime()));
 
     return result;
+  }
+
+  private static String determineConfigurationEndpoint(ConfigurationModel defaultConf,
+                                                       ConfigurationResponse newConfiguration) {
+    String resultEndpoint;
+    if (TextUtils.isEmpty(newConfiguration.getEndpoint())) {
+      if (TextUtils.isEmpty(newConfiguration.getDataLocation())) {
+        resultEndpoint = defaultConf.getEndpoint();
+      } else {
+        resultEndpoint = ConfigurationModel.getDefaultEndpoint(newConfiguration.getDataLocation());
+      }
+    } else {
+      resultEndpoint = getIfNotEmpty(newConfiguration.getEndpoint(), defaultConf.getEndpoint());
+    }
+    return resultEndpoint;
   }
 
   private void notifyListenersConfigurationChange() {
