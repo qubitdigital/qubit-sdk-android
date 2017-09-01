@@ -72,7 +72,9 @@ public class CachingEventsRepository implements EventsRepository {
 
     // Check consistency with size cache
     if (eventsPlusOne.size() < number + 1 && (queueSize == null || queueSize != eventsPlusOne.size())) {
-      LOGGER.w(getInconsistencyMessage(number + 1, eventsPlusOne.size(), queueSize) + ". Fixing.");
+      if (queueSize != null) {
+        LOGGER.w(getInconsistencyMessage(number + 1, eventsPlusOne.size(), queueSize) + ". Fixing.");
+      }
       queueSize = eventsPlusOne.size();
     }
     if (queueSize != null && queueSize < eventsPlusOne.size()) {
