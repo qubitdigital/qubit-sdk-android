@@ -5,7 +5,9 @@ import java.util.List;
 
 public interface EventsRepository {
 
-  long insert(String type, String jsonEvent);
+  EventModel insert(String type, String jsonEvent);
+
+  EventModel selectFirst();
 
   List<EventModel> selectFirst(int number);
 
