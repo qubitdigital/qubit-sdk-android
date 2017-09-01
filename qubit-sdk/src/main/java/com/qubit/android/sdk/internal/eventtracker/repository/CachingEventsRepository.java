@@ -1,6 +1,7 @@
 package com.qubit.android.sdk.internal.eventtracker.repository;
 
 import com.qubit.android.sdk.internal.logging.QBLogger;
+import com.qubit.android.sdk.internal.util.DateTimeUtils;
 import com.qubit.android.sdk.internal.util.ListUtil;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,7 +12,7 @@ import java.util.List;
 public class CachingEventsRepository implements EventsRepository {
 
   private static final QBLogger LOGGER = QBLogger.getFor("CachingEventsRepository");
-  private static final int QUEUE_SIZE_UPDATE_INTERVAL_MS = 5 * 60 * 1000;
+  private static final long QUEUE_SIZE_UPDATE_INTERVAL_MS = DateTimeUtils.minToMs(5);
 
   private final EventsRepository eventsRepository;
 
