@@ -8,9 +8,11 @@ public class ConfigurationModel implements Configuration {
 
   private static final ConfigurationModel DEFAULT = new ConfigurationModel();
 
-  private static final String DEFAULT_ENDPOINT_EU = "gong-eb.qubit.com";
-  private static final String DEFAULT_ENDPOINT_US = "gong-gc.qubit.com";
-  private static final String DEFAULT_DATA_LOCATION = "EU";
+  private static final String ENDPOINT_EU = "gong-eb.qubit.com";
+  private static final String ENDPOINT_US = "gong-gc.qubit.com";
+  private static final String DATA_LOCATION_EU = "EU";
+  private static final String DATA_LOCATION_US = "US";
+  private static final String DEFAULT_DATA_LOCATION = DATA_LOCATION_EU;
   private static final int DEFAULT_CONFIGURATION_RELOAD_INTERVAL = 60;
   private static final int DEFAULT_QUEUE_TIMEOUT = 60;
   private static final String DEFAULT_VERTICAL = "ec";
@@ -35,7 +37,7 @@ public class ConfigurationModel implements Configuration {
   private Long lastUpdateTimestamp;
 
   public ConfigurationModel() {
-    endpoint = DEFAULT_ENDPOINT_EU;
+    endpoint = ENDPOINT_EU;
     dataLocation = DEFAULT_DATA_LOCATION;
     configurationReloadInterval = DEFAULT_CONFIGURATION_RELOAD_INTERVAL;
     queueTimeout = DEFAULT_QUEUE_TIMEOUT;
@@ -243,30 +245,14 @@ public class ConfigurationModel implements Configuration {
     return DEFAULT;
   }
 
-  public static String getDefaultEndpoint(String dataLocation) {
-    Region region = Region.fromString(dataLocation);
-    switch (region) {
-      case EU:
-        return DEFAULT_ENDPOINT_EU;
-      case US:
-        return DEFAULT_ENDPOINT_US;
-      default:
+  public static String getEndpointBy(String dataLocation) {
+    switch (dataLocation) {
+      case DATA_LOCATION_US: return ENDPOINT_US;
+      case DATA_LOCATION_EU: return ENDPOINT_EU;
+      default :
         LOGGER.w("Unsupported data location: " + dataLocation);
-        return DEFAULT_ENDPOINT_EU;
+        return ENDPOINT_EU;
     }
   }
 
-  private enum Region {
-    EU, US, UNKNOWN;
-
-    public static Region fromString(String string) {
-      if (EU.toString().equals(string)) {
-        return EU;
-      }
-      if (US.toString().equals(string)) {
-        return US;
-      }
-      return UNKNOWN;
-    }
-  }
 }
