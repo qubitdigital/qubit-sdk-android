@@ -1,9 +1,9 @@
 package com.qubit.android.sdk.api.tracker.event;
 
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 public interface QBEvent {
 
-  JSONObject toJsonObject();
+  JsonObject toJsonObject();
 
 }
