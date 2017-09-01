@@ -67,24 +67,24 @@ public class CachingEventsRepository implements EventsRepository {
   }
 
   @Override
-  public List<EventModel> selectFirst(int number) {
-    List<EventModel> eventsPlusOne = eventsRepository.selectFirst(number + 1);
+  public List<EventModel> selectFirst(int amount) {
+    List<EventModel> eventsPlusOne = eventsRepository.selectFirst(amount + 1);
 
     // Check consistency with size cache
-    if (eventsPlusOne.size() < number + 1 && (queueSize == null || queueSize != eventsPlusOne.size())) {
+    if (eventsPlusOne.size() < amount + 1 && (queueSize == null || queueSize != eventsPlusOne.size())) {
       if (queueSize != null) {
-        LOGGER.w(getInconsistencyMessage(number + 1, eventsPlusOne.size(), queueSize) + ". Fixing.");
+        LOGGER.w(getInconsistencyMessage(amount + 1, eventsPlusOne.size(), queueSize) + ". Fixing.");
       }
       queueSize = eventsPlusOne.size();
     }
     if (queueSize != null && queueSize < eventsPlusOne.size()) {
-      LOGGER.w(getInconsistencyMessage(number + 1, eventsPlusOne.size(), queueSize) + ". Clearing queue size cache.");
+      LOGGER.w(getInconsistencyMessage(amount + 1, eventsPlusOne.size(), queueSize) + ". Clearing queue size cache.");
       queueSize = null;
     }
 
     queueBeginningCache = eventsPlusOne;
 
-    return ListUtil.firstElements(eventsPlusOne, number);
+    return ListUtil.firstElements(eventsPlusOne, amount);
   }
 
 
