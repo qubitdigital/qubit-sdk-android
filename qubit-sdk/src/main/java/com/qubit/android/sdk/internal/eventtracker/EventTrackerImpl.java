@@ -8,6 +8,7 @@ import com.qubit.android.sdk.api.tracker.EventTracker;
 import com.qubit.android.sdk.api.tracker.event.QBEvent;
 import com.qubit.android.sdk.internal.configuration.Configuration;
 import com.qubit.android.sdk.internal.configuration.ConfigurationService;
+import com.qubit.android.sdk.internal.eventtracker.repository.CachingEventsRepository;
 import com.qubit.android.sdk.internal.eventtracker.repository.EventModel;
 import com.qubit.android.sdk.internal.eventtracker.repository.EventsRepository;
 import com.qubit.android.sdk.internal.logging.QBLogger;
@@ -42,15 +43,12 @@ public class EventTrackerImpl implements EventTracker {
   private Configuration currentConfiguration = null;
   private boolean isConnected = false;
 
-  private Integer queueSize = null;
-  private Long firstEventInBatchTime = null;
-
   public EventTrackerImpl(Context context, ConfigurationService configurationService,
                           NetworkStateService networkStateService, EventsRepository eventsRepository) {
     this.context = context;
     this.configurationService = configurationService;
     this.networkStateService = networkStateService;
-    this.eventsRepository = eventsRepository;
+    this.eventsRepository = new CachingEventsRepository(eventsRepository);
   }
 
   @Override
@@ -103,10 +101,6 @@ public class EventTrackerImpl implements EventTracker {
     public void run() {
       LOGGER.d("Storing event");
       eventsRepository.insert(type, qbEvent.toJsonObject().toString());
-      queueSize = queueSize != null ? queueSize + 1 : 1;
-      if (firstEventInBatchTime == null) {
-        firstEventInBatchTime = System.currentTimeMillis();
-      }
       scheduleNextSendEventsTask();
     }
   }
@@ -172,9 +166,6 @@ public class EventTrackerImpl implements EventTracker {
       Uninterruptibles.sleepUninterruptibly(SEND_EVENT_TIME_MS, TimeUnit.MILLISECONDS);
       // TODO negative path
       eventsRepository.delete(extractEventsIds(eventsToSent));
-      queueSize -= eventsToSent.size();
-      firstEventInBatchTime = nextEvents.size() > eventsToSent.size()
-          ? nextEvents.get(eventsToSent.size()).getCreationTimestamp() : null;
 
       scheduleNextSendEventsTask();
     }
@@ -202,22 +193,17 @@ public class EventTrackerImpl implements EventTracker {
    * @return null - Nothing to send. 0 - Now. N - miliseconds to next send events task
    */
   private Long evaluateTimeMsToNextSendEvents() {
-    if (queueSize == null) {
-      queueSize = eventsRepository.countEvents();
-    }
-    if (queueSize == 0) {
+    EventModel firstEvent = eventsRepository.selectFirst();
+    if (firstEvent == null) {
       return null;
     }
+    int queueSize = eventsRepository.countEvents();
     if (queueSize >= BATCH_MAX_SIZE) {
       return 0L;
     }
-    if (firstEventInBatchTime == null) {
-      LOGGER.w("INCONSISTENCY! FirstEventInBatchTime is null, while there are events in queue");
-      // TODO fix cache
-      return null;
-    }
+    long firstEventTime = firstEvent.getCreationTimestamp();
     long now = System.currentTimeMillis();
-    long nextSendEventsTime = firstEventInBatchTime + BATCH_INTERVAL_MS;
+    long nextSendEventsTime = firstEventTime + BATCH_INTERVAL_MS;
     return (nextSendEventsTime > now) ? nextSendEventsTime - now : 0L;
   }
 
