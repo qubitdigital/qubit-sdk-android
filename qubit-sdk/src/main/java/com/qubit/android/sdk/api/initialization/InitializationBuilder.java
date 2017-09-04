@@ -3,6 +3,7 @@ package com.qubit.android.sdk.api.initialization;
 import android.content.Context;
 import com.qubit.android.sdk.api.logging.QBLogLevel;
 import com.qubit.android.sdk.internal.SDK;
+import com.qubit.android.sdk.internal.logging.QBLogger;
 
 public class InitializationBuilder {
 
@@ -41,7 +42,7 @@ public class InitializationBuilder {
     }
 
     public void start() {
-      SDK.logLevel = logLevel;
+      QBLogger.logLevel = logLevel;
       SDK sdk = new SDK(appContext, trackingId);
       sdk.start();
       sdkConsumer.accept(sdk);

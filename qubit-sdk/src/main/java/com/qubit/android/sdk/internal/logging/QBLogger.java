@@ -3,11 +3,12 @@ package com.qubit.android.sdk.internal.logging;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import com.qubit.android.sdk.api.logging.QBLogLevel;
-import com.qubit.android.sdk.internal.SDK;
 
 import static com.qubit.android.sdk.api.logging.QBLogLevel.*;
 
 public final class QBLogger {
+
+  public static QBLogLevel logLevel = QBLogLevel.WARN;
 
   private static final String TAG = "qb-sdk";
 
@@ -82,7 +83,7 @@ public final class QBLogger {
   }
 
   private static boolean shouldShowLog(QBLogLevel qbLogLevel) {
-    return SDK.logLevel.compareTo(qbLogLevel) >= 0;
+    return logLevel.compareTo(qbLogLevel) >= 0;
   }
 
   @NonNull

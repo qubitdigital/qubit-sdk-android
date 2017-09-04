@@ -2,7 +2,6 @@ package com.qubit.android.sdk.internal;
 
 import android.content.Context;
 import com.google.gson.Gson;
-import com.qubit.android.sdk.api.logging.QBLogLevel;
 import com.qubit.android.sdk.internal.configuration.ConfigurationRepository;
 import com.qubit.android.sdk.internal.configuration.ConfigurationRepositoryImpl;
 import com.qubit.android.sdk.internal.configuration.ConfigurationServiceImpl;
@@ -12,8 +11,6 @@ import com.qubit.android.sdk.internal.eventtracker.repository.EventsRepositoryMo
 import com.qubit.android.sdk.internal.network.NetworkStateServiceImpl;
 
 public class SDK {
-
-  public static QBLogLevel logLevel = QBLogLevel.WARN;
 
   private NetworkStateServiceImpl networkStateService;
   private ConfigurationServiceImpl configurationService;
