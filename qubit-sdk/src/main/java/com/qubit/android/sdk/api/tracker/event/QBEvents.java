@@ -4,69 +4,68 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import com.qubit.android.sdk.internal.logging.QBLogger;
-import java.util.Arrays;
 import java.util.Map;
 
-public abstract class QBEvents {
+public final class QBEvents {
 
-  private static final QBLogger LOGGER = QBLogger.getFor("QBEvents");
+  private static final Gson GSON = new Gson();
 
-  public static QBEvent fromJsonString(final String jsonString) {
-    return new QBEvent() {
-      @Override
-      public JsonObject toJsonObject() {
-        try {
-          JsonParser jsonParser = new JsonParser();
-          return jsonParser.parse(jsonString).getAsJsonObject();
-        } catch (JsonSyntaxException | NullPointerException | IllegalStateException e) {
-          LOGGER.e("Failed to parse following string to JSON object: " + jsonString, e);
-          return null;
-        }
-      }
-    };
+  public static class JsonParseException extends RuntimeException {
+    public JsonParseException(String message, Throwable cause) {
+      super(message, cause);
+    }
+  }
+
+  private QBEvents() {
+  }
+
+  public static QBEvent fromJsonString(final String jsonString) throws JsonParseException {
+    if (jsonString == null) {
+      throw new NullPointerException("jsonString parameter cannot be null");
+    }
+    try {
+      JsonParser jsonParser = new JsonParser();
+      JsonObject jsonObject = jsonParser.parse(jsonString).getAsJsonObject();
+      return new QBEventImpl(jsonObject);
+    } catch (JsonSyntaxException | IllegalStateException e) {
+      throw new JsonParseException("Failed to parse following string to JSON object: " + jsonString, e);
+    }
   }
 
   public static QBEvent fromJson(final JsonObject jsonObject) {
-    return new QBEvent() {
-      @Override
-      public JsonObject toJsonObject() {
-        return jsonObject;
-      }
-    };
+    if (jsonObject == null) {
+      throw new NullPointerException("jsonObject parameter cannot be null");
+    }
+    return new QBEventImpl(jsonObject);
   }
 
-  public static QBEvent fromBean(final Object bean) {
-    return new QBEvent() {
-      @Override
-      public JsonObject toJsonObject() {
-        try {
-          // TODO extract Gson
-          Gson gson = new Gson();
-          return gson.toJsonTree(bean).getAsJsonObject();
-        } catch (IllegalStateException e) {
-          LOGGER.e("Failed to parse bean to JSON object", e);
-          return null;
-        }
-      }
-    };
+
+  public static QBEvent fromObject(final Object object) {
+    if (object == null) {
+      throw new NullPointerException("Object parameter cannot be null");
+    }
+    return new QBEventImpl(GSON.toJsonTree(object).getAsJsonObject());
   }
 
   public static QBEvent fromMap(final Map<String, Object> map) {
-    return new QBEvent() {
-      @Override
-      public JsonObject toJsonObject() {
-        try {
-          // TODO extract Gson
-          Gson gson = new Gson();
-          return gson.toJsonTree(map).getAsJsonObject();
-        } catch (IllegalStateException e) {
-          String mapAsString = map != null ? Arrays.toString(map.entrySet().toArray()) : "null";
-          LOGGER.e("Failed to parse following map to JSON object: " + mapAsString, e);
-          return null;
-        }
-      }
-    };
+    if (map == null) {
+      throw new NullPointerException("Map parameter cannot be null");
+    }
+    return new QBEventImpl(GSON.toJsonTree(map).getAsJsonObject());
+  }
+
+
+  private static final class QBEventImpl implements QBEvent {
+    private final JsonObject jsonObject;
+
+    private QBEventImpl(JsonObject jsonObject) {
+      this.jsonObject = jsonObject;
+    }
+
+    @Override
+    public JsonObject toJsonObject() {
+      return jsonObject;
+    }
   }
 
 }
