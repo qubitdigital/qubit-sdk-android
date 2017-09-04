@@ -11,13 +11,13 @@ public interface EventsRepository {
 
   List<EventModel> selectFirst(int number);
 
-  boolean delete(long id);
+  boolean delete(String id);
 
-  int delete(Collection<Long> ids);
+  int delete(Collection<String> ids);
 
-  boolean updateSetWasTriedToSend(long id);
+  boolean updateSetWasTriedToSend(String id);
 
-  int updateSetWasTriedToSend(Collection<Long> ids);
+  int updateSetWasTriedToSend(Collection<String> ids);
 
   int countEvents();
 }

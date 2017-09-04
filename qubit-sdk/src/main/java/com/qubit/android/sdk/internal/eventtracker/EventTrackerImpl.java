@@ -1,6 +1,5 @@
 package com.qubit.android.sdk.internal.eventtracker;
 
-import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
@@ -8,17 +7,18 @@ import com.qubit.android.sdk.api.tracker.EventTracker;
 import com.qubit.android.sdk.api.tracker.event.QBEvent;
 import com.qubit.android.sdk.internal.configuration.Configuration;
 import com.qubit.android.sdk.internal.configuration.ConfigurationService;
+import com.qubit.android.sdk.internal.eventtracker.connector.EventRestModel;
+import com.qubit.android.sdk.internal.eventtracker.connector.EventsRestAPIConnector;
+import com.qubit.android.sdk.internal.eventtracker.connector.EventsRestAPIConnectorBuilder;
 import com.qubit.android.sdk.internal.eventtracker.repository.CachingEventsRepository;
 import com.qubit.android.sdk.internal.eventtracker.repository.EventModel;
 import com.qubit.android.sdk.internal.eventtracker.repository.EventsRepository;
 import com.qubit.android.sdk.internal.logging.QBLogger;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
-import com.qubit.android.sdk.internal.util.ListUtil;
-import com.qubit.android.sdk.internal.util.Uninterruptibles;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class EventTrackerImpl implements EventTracker {
 
@@ -26,13 +26,12 @@ public class EventTrackerImpl implements EventTracker {
 
   private static final int BATCH_MAX_SIZE = 15;
   private static final int BATCH_INTERVAL_MS = 500;
-  private static final int SEND_EVENT_TIME_MS = 300;
 
-  private final Context context;
   private final ConfigurationService configurationService;
   private final NetworkStateService networkStateService;
   private final EventsRepository eventsRepository;
-
+  private final EventsRestAPIConnectorBuilder eventsRestAPIConnectorBuilder;
+  private final EventRestModelCreator eventRestModelCreator;
   private final SendEventsTask sendEventsTask = new SendEventsTask();
 
   private Handler handler;
@@ -42,13 +41,17 @@ public class EventTrackerImpl implements EventTracker {
 
   private Configuration currentConfiguration = null;
   private boolean isConnected = false;
+  private EventsRestAPIConnector apiConnector = null;
 
-  public EventTrackerImpl(Context context, ConfigurationService configurationService,
-                          NetworkStateService networkStateService, EventsRepository eventsRepository) {
-    this.context = context;
+  public EventTrackerImpl(String trackingId, String deviceId,
+                          ConfigurationService configurationService,
+                          NetworkStateService networkStateService, EventsRepository eventsRepository,
+                          EventsRestAPIConnectorBuilder eventsRestAPIConnectorBuilder) {
     this.configurationService = configurationService;
     this.networkStateService = networkStateService;
     this.eventsRepository = new CachingEventsRepository(eventsRepository);
+    this.eventsRestAPIConnectorBuilder = eventsRestAPIConnectorBuilder;
+    eventRestModelCreator = new EventRestModelCreator(trackingId, deviceId);
   }
 
   @Override
@@ -116,6 +119,11 @@ public class EventTrackerImpl implements EventTracker {
     public void run() {
       LOGGER.d("Configuration Changed");
       currentConfiguration = configuration;
+      try {
+        apiConnector = eventsRestAPIConnectorBuilder.buildFor(currentConfiguration.getEndpoint());
+      } catch (IllegalArgumentException e) {
+        LOGGER.e("Cannot create Rest API connector. Most likely endpoint url is incorrect.", e);
+      }
     }
   }
 
@@ -144,6 +152,10 @@ public class EventTrackerImpl implements EventTracker {
         LOGGER.d("Configuration is not initialized yet");
         return;
       }
+      if (apiConnector == null) {
+        LOGGER.d("Endpoint is not well defined");
+        return;
+      }
 
       Long timeMsToSendEvents = evaluateTimeMsToNextSendEvents();
       if (timeMsToSendEvents == null) {
@@ -158,15 +170,21 @@ public class EventTrackerImpl implements EventTracker {
         return;
       }
 
-      List<EventModel> nextEvents = eventsRepository.selectFirst(BATCH_MAX_SIZE + 1);
+      List<EventModel> eventsToSent = eventsRepository.selectFirst(BATCH_MAX_SIZE);
+      Collection<String> eventsToSentIds = extractEventsIds(eventsToSent);
 
-      List<EventModel> eventsToSent = ListUtil.firstElements(nextEvents, BATCH_MAX_SIZE);
-      LOGGER.d("SendEventTask: Sending events: " + eventsToSent.size());
-      // TODO send 15 events, delete them
-      Uninterruptibles.sleepUninterruptibly(SEND_EVENT_TIME_MS, TimeUnit.MILLISECONDS);
-      // TODO negative path
-      eventsRepository.delete(extractEventsIds(eventsToSent));
-
+      boolean dedupe = wasAtLeastOneTriedToSent(eventsToSent);
+      List<EventRestModel> eventRestModels = translateEvents(eventsToSent);
+      LOGGER.d("SendEventTask: Sending events: " + eventRestModels.size() + ", dedupe=" + dedupe);
+      boolean success = apiConnector.sendEvents(eventRestModels, dedupe);
+      LOGGER.d("SendEventTask: Events sent. Is success: " + success);
+      if (success) {
+        eventsRepository.delete(eventsToSentIds);
+      } else {
+        eventsRepository.updateSetWasTriedToSend(eventsToSentIds);
+        // TODO
+        LOGGER.e("SendEventTask: Sending events failed");
+      }
       scheduleNextSendEventsTask();
     }
   }
@@ -207,11 +225,32 @@ public class EventTrackerImpl implements EventTracker {
     return (nextSendEventsTime > now) ? nextSendEventsTime - now : 0L;
   }
 
-  private static Collection<Long> extractEventsIds(Collection<EventModel> events) {
-    HashSet<Long> ids = new HashSet<>(events.size());
+  private static Collection<String> extractEventsIds(Collection<EventModel> events) {
+    HashSet<String> ids = new HashSet<>(events.size());
     for (EventModel event : events) {
       ids.add(event.getId());
     }
     return ids;
   }
+
+  private static boolean wasAtLeastOneTriedToSent(List<EventModel> events) {
+    for (EventModel event : events) {
+      if (event.isWasTriedToSend()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private List<EventRestModel> translateEvents(List<EventModel> events) {
+    List<EventRestModel> eventRestModels = new ArrayList<>(events.size());
+    for (EventModel event : events) {
+      EventRestModel eventRestModel = eventRestModelCreator.create(event);
+      if (eventRestModel != null) {
+        eventRestModels.add(eventRestModel);
+      }
+    }
+    return eventRestModels;
+  }
+
 }

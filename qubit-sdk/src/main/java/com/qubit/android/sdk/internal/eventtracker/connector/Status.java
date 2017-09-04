@@ -20,4 +20,9 @@ public class Status {
   public void setCode(int code) {
     this.code = code;
   }
+
+  @Override
+  public String toString() {
+    return "Status{" + "message='" + message + '\'' + ", code=" + code + '}';
+  }
 }

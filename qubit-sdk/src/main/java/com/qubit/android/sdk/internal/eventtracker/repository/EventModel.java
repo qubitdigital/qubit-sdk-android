@@ -1,24 +1,24 @@
 package com.qubit.android.sdk.internal.eventtracker.repository;
 
 public class EventModel {
-  private long id;
+  private String id;
   private String type;
   private String eventBody;
   private boolean wasTriedToSend;
   private long creationTimestamp;
 
-  public EventModel(long id, String type, String eventBody, long creationTimestamp) {
+  public EventModel(String id, String type, String eventBody, long creationTimestamp) {
     this.id = id;
     this.type = type;
     this.eventBody = eventBody;
     this.creationTimestamp = creationTimestamp;
   }
 
-  public long getId() {
+  public String getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(String id) {
     this.id = id;
   }
 
