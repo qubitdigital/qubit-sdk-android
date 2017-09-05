@@ -12,6 +12,7 @@ public class MainActivity extends AppCompatActivity {
 
   public static final String TAG = "qb-testapp";
 
+  @SuppressWarnings("checkstyle:magicnumber")
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
