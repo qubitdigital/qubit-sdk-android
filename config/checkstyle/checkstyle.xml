@@ -6,6 +6,7 @@
   <module name="SuppressionFilter">
     <property name="file" value="config/checkstyle/suppressions.xml"/>
   </module>
+  <module name="SuppressWarningsFilter" />
   <module name="FileTabCharacter"/>
   <module name="TreeWalker">
     <!-- Make the @SuppressWarnings annotations available to Checkstyle -->

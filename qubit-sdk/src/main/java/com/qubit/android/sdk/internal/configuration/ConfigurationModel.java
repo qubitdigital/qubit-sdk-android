@@ -224,6 +224,7 @@ public class ConfigurationModel implements Configuration {
 
   }
 
+  @SuppressWarnings("checkstyle:magicnumber")
   @Override
   public int hashCode() {
     int result = endpoint != null ? endpoint.hashCode() : 0;
