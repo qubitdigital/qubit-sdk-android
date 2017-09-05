@@ -13,7 +13,7 @@ public class EventsRestAPIConnectorBuilderImpl implements EventsRestAPIConnector
   private final String trackingId;
 
   public EventsRestAPIConnectorBuilderImpl(String trackingId) {
-    gson = createCustomerGson();
+    gson = createCustomGson();
     this.trackingId = trackingId;
   }
 
@@ -23,7 +23,7 @@ public class EventsRestAPIConnectorBuilderImpl implements EventsRestAPIConnector
   }
 
 
-  private static Gson createCustomerGson() {
+  private static Gson createCustomGson() {
     return new GsonBuilder()
         .registerTypeAdapter(EventRestModel.class, new EventRestModel.Serializer())
         .create();
@@ -42,6 +42,7 @@ public class EventsRestAPIConnectorBuilderImpl implements EventsRestAPIConnector
     if (endpoint.startsWith(URL_PREFIX_HTTP) || endpoint.startsWith(URL_PREFIX_HTTPS)) {
       return endpoint;
     } else {
+      // TODO Change to https
       return URL_PREFIX_HTTP + endpoint;
     }
   }

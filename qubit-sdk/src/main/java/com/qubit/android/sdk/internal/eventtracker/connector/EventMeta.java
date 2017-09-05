@@ -6,7 +6,7 @@ public class EventMeta {
   private final long ts;
   private final String type;
   private final String trackingId;
-  private long seq;
+  private Long seq;
   private String source;
 
   public EventMeta(String id, long ts, String type, String trackingId) {
