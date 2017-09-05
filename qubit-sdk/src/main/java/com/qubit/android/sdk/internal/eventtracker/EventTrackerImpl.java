@@ -15,10 +15,12 @@ import com.qubit.android.sdk.internal.eventtracker.repository.EventModel;
 import com.qubit.android.sdk.internal.eventtracker.repository.EventsRepository;
 import com.qubit.android.sdk.internal.logging.QBLogger;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
+import com.qubit.android.sdk.internal.util.DateTimeUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 
 public class EventTrackerImpl implements EventTracker {
 
@@ -27,12 +29,17 @@ public class EventTrackerImpl implements EventTracker {
   private static final int BATCH_MAX_SIZE = 15;
   private static final int BATCH_INTERVAL_MS = 500;
 
+  private static final int EXP_BACKOFF_BASE_TIME_SECS = 5;
+  private static final int EXP_BACKOFF_MAX_SENDING_ATTEMPTS = 7;
+  private static final int MAX_RETRY_INTERVAL_SECS = 60 * 5;
+
   private final ConfigurationService configurationService;
   private final NetworkStateService networkStateService;
   private final EventsRepository eventsRepository;
   private final EventsRestAPIConnectorBuilder eventsRestAPIConnectorBuilder;
   private final EventRestModelCreator eventRestModelCreator;
   private final SendEventsTask sendEventsTask = new SendEventsTask();
+  private final Random random = new Random();
 
   private Handler handler;
 
@@ -42,6 +49,8 @@ public class EventTrackerImpl implements EventTracker {
   private Configuration currentConfiguration = null;
   private boolean isConnected = false;
   private EventsRestAPIConnector apiConnector = null;
+  private int sendingAttempts = 0;
+  private long lastAttemptTime = 0;
 
   public EventTrackerImpl(String trackingId, String deviceId,
                           ConfigurationService configurationService,
@@ -138,6 +147,9 @@ public class EventTrackerImpl implements EventTracker {
     public void run() {
       LOGGER.d("Network state changed. Connected: " + isConnected);
       EventTrackerImpl.this.isConnected = isConnected;
+      if (isConnected) {
+        clearAttempts();
+      }
       scheduleNextSendEventsTask();
     }
   }
@@ -176,17 +188,31 @@ public class EventTrackerImpl implements EventTracker {
       boolean dedupe = wasAtLeastOneTriedToSent(eventsToSent);
       List<EventRestModel> eventRestModels = translateEvents(eventsToSent);
       LOGGER.d("SendEventTask: Sending events: " + eventRestModels.size() + ", dedupe=" + dedupe);
-      boolean success = apiConnector.sendEvents(eventRestModels, dedupe);
-      LOGGER.d("SendEventTask: Events sent. Is success: " + success);
-      if (success) {
+      EventsRestAPIConnector.ResponseStatus status = apiConnector.sendEvents(eventRestModels, dedupe);
+      LOGGER.d("SendEventTask: Events sent. Status: " + status);
+      if (status == EventsRestAPIConnector.ResponseStatus.OK) {
         eventsRepository.delete(eventsToSentIds);
-      } else {
+        clearAttempts();
+      } else if (status == EventsRestAPIConnector.ResponseStatus.RETRYABLE_ERROR) {
         eventsRepository.updateSetWasTriedToSend(eventsToSentIds);
-        // TODO
+        registerFailedAttempt();
         LOGGER.e("SendEventTask: Sending events failed");
+      } else {
+        eventsRepository.delete(eventsToSentIds);
+        clearAttempts();
       }
       scheduleNextSendEventsTask();
     }
+  }
+
+  private void clearAttempts() {
+    sendingAttempts = 0;
+    lastAttemptTime = 0;
+  }
+
+  private void registerFailedAttempt() {
+    sendingAttempts++;
+    lastAttemptTime = System.currentTimeMillis();
   }
 
   private void scheduleNextSendEventsTask() {
@@ -195,7 +221,10 @@ public class EventTrackerImpl implements EventTracker {
       return;
     }
 
-    Long timeMsToNextSendEvents = evaluateTimeMsToNextSendEvents();
+    Long timeMsToNextSendEvents = sendingAttempts > 0
+        ? Long.valueOf(evaluateTimeMsToNextRetry())
+        : evaluateTimeMsToNextSendEvents();
+
     if (timeMsToNextSendEvents != null) {
       if (timeMsToNextSendEvents > 0) {
         handler.postDelayed(sendEventsTask, timeMsToNextSendEvents);
@@ -223,6 +252,22 @@ public class EventTrackerImpl implements EventTracker {
     long now = System.currentTimeMillis();
     long nextSendEventsTime = firstEventTime + BATCH_INTERVAL_MS;
     return (nextSendEventsTime > now) ? nextSendEventsTime - now : 0L;
+  }
+
+  private long evaluateTimeMsToNextRetry() {
+    long nextRetryIntervalMs = DateTimeUtils.secToMs(evaluateIntervalSecsToNextRetry(sendingAttempts));
+    long nextRetryTimeMs = lastAttemptTime + nextRetryIntervalMs;
+    long now = System.currentTimeMillis();
+    return Math.max(nextRetryTimeMs - now, 0);
+  }
+
+  private long evaluateIntervalSecsToNextRetry(int sendingAttemptsDone) {
+    if (sendingAttemptsDone > EXP_BACKOFF_MAX_SENDING_ATTEMPTS) {
+      return MAX_RETRY_INTERVAL_SECS;
+    } else {
+      int maxSecs = 2 ^ (sendingAttemptsDone - 1) * EXP_BACKOFF_BASE_TIME_SECS;
+      return Math.min(random.nextInt(maxSecs) + 1, MAX_RETRY_INTERVAL_SECS);
+    }
   }
 
   private static Collection<String> extractEventsIds(Collection<EventModel> events) {
