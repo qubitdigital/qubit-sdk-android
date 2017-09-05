@@ -11,4 +11,8 @@ public final class DateTimeUtils {
   public static long minToMs(long min) {
     return min * SEC_IN_MIN * MS_IN_SEC;
   }
+
+  public static long secToMs(long secs) {
+    return secs * MS_IN_SEC;
+  }
 }

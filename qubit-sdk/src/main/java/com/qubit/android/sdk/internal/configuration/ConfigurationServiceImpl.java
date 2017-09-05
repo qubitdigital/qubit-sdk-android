@@ -8,9 +8,9 @@ import com.qubit.android.sdk.internal.logging.QBLogger;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
 import com.qubit.android.sdk.internal.util.DateTimeUtils;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArraySet;
-import javax.net.ssl.HttpsURLConnection;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -144,7 +144,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   private ConfigurationModel downloadConfiguration() {
     try {
       Response<ConfigurationResponse> response = configurationConnector.download(trackingId).execute();
-      if (response.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
+      if (response.code() == HttpURLConnection.HTTP_NOT_FOUND) {
         LOGGER.d("Configuration file not defined - the default one is used");
         return ConfigurationModel.getDefault();
       }

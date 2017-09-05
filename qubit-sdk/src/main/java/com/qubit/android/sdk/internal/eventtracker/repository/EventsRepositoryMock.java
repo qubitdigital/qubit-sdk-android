@@ -19,7 +19,8 @@ public class EventsRepositoryMock implements EventsRepository {
   public EventModel insert(String type, String jsonEvent) {
     LOGGER.d("insert");
     long id = idSequence++;
-    EventModel newEvent = new EventModel(id, type, jsonEvent, System.currentTimeMillis());
+    // TODO propert id generation
+    EventModel newEvent = new EventModel(Long.toString(id), type, jsonEvent, System.currentTimeMillis());
     events.add(newEvent);
     return newEvent;
   }
@@ -37,7 +38,7 @@ public class EventsRepositoryMock implements EventsRepository {
   }
 
   @Override
-  public boolean delete(long id) {
+  public boolean delete(String id) {
     LOGGER.d("delete one");
     Iterator<EventModel> eventsIterator = events.iterator();
     while (eventsIterator.hasNext()) {
@@ -51,7 +52,7 @@ public class EventsRepositoryMock implements EventsRepository {
   }
 
   @Override
-  public int delete(Collection<Long> ids) {
+  public int delete(Collection<String> ids) {
     LOGGER.d("delete many");
     Iterator<EventModel> eventsIterator = events.iterator();
     int eventsSizeBefore = events.size();
@@ -65,7 +66,7 @@ public class EventsRepositoryMock implements EventsRepository {
   }
 
   @Override
-  public boolean updateSetWasTriedToSend(long id) {
+  public boolean updateSetWasTriedToSend(String id) {
     LOGGER.d("updateSetWasTriedToSend");
     for (EventModel event: events) {
       if (event.getId() == id) {
@@ -77,7 +78,7 @@ public class EventsRepositoryMock implements EventsRepository {
   }
 
   @Override
-  public int updateSetWasTriedToSend(Collection<Long> ids) {
+  public int updateSetWasTriedToSend(Collection<String> ids) {
     LOGGER.d("updateSetWasTriedToSend many");
     int updatesCounter = 0;
     for (EventModel event: events) {

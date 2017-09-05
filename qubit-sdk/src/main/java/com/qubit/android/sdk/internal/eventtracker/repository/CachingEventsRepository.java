@@ -90,7 +90,7 @@ public class CachingEventsRepository implements EventsRepository {
 
 
   @Override
-  public boolean delete(long id) {
+  public boolean delete(String id) {
     boolean removed = eventsRepository.delete(id);
     deleteFromCache(Collections.singletonList(id));
     if (removed) {
@@ -100,7 +100,7 @@ public class CachingEventsRepository implements EventsRepository {
   }
 
   @Override
-  public int delete(Collection<Long> ids) {
+  public int delete(Collection<String> ids) {
     int removed = eventsRepository.delete(ids);
     deleteFromCache(ids);
     queueSize -= removed;
@@ -108,13 +108,13 @@ public class CachingEventsRepository implements EventsRepository {
   }
 
   @Override
-  public boolean updateSetWasTriedToSend(long id) {
+  public boolean updateSetWasTriedToSend(String id) {
     updateWasTriedToSendInCache(Collections.singletonList(id));
     return eventsRepository.updateSetWasTriedToSend(id);
   }
 
   @Override
-  public int updateSetWasTriedToSend(Collection<Long> ids) {
+  public int updateSetWasTriedToSend(Collection<String> ids) {
     updateWasTriedToSendInCache(ids);
     return eventsRepository.updateSetWasTriedToSend(ids);
   }
@@ -130,7 +130,7 @@ public class CachingEventsRepository implements EventsRepository {
   }
 
 
-  private int deleteFromCache(Collection<Long> ids) {
+  private int deleteFromCache(Collection<String> ids) {
     if (queueBeginningCache == null) {
       return 0;
     }
@@ -145,7 +145,7 @@ public class CachingEventsRepository implements EventsRepository {
     return eventsSizeBefore - queueBeginningCache.size();
   }
 
-  private int updateWasTriedToSendInCache(Collection<Long> ids) {
+  private int updateWasTriedToSendInCache(Collection<String> ids) {
     if (queueBeginningCache == null) {
       return 0;
     }
