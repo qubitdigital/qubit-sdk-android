@@ -11,18 +11,17 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
   private static final String CONFIGURATION_KEY = "CONFIGURATION_KEY";
 
   private final Context appContext;
-  private final Gson gson;
+  private Gson gson;
 
-  public ConfigurationRepositoryImpl(Context context, Gson gson) {
+  public ConfigurationRepositoryImpl(Context context) {
     this.appContext = context;
-    this.gson = gson;
   }
 
   @Override
   public void save(ConfigurationModel configuration) {
     SharedPreferences sharedPreferences = appContext.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE);
     sharedPreferences.edit()
-        .putString(CONFIGURATION_KEY, gson.toJson(configuration))
+        .putString(CONFIGURATION_KEY, getGson().toJson(configuration))
         .apply();
   }
 
@@ -31,6 +30,13 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
   public ConfigurationModel load() {
     SharedPreferences sharedPref = appContext.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE);
     String configurationJson = sharedPref.getString(CONFIGURATION_KEY, null);
-    return configurationJson != null ? gson.fromJson(configurationJson, ConfigurationModel.class) : null;
+    return configurationJson != null ? getGson().fromJson(configurationJson, ConfigurationModel.class) : null;
+  }
+
+  private Gson getGson() {
+    if (gson == null) {
+      gson = new Gson();
+    }
+    return gson;
   }
 }

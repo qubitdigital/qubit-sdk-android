@@ -8,10 +8,12 @@ import com.qubit.android.sdk.api.logging.QBLogLevel;
 
 public class TestApplication extends Application {
 
+  public static final String TAG = "qb-testapp";
+
   @Override
   public void onCreate() {
     super.onCreate();
-    Log.i("qb-testapp", "Test application initializes");
+    Log.i(TAG, "Test application initializes");
 
     StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
         .detectDiskReads()
@@ -25,6 +27,8 @@ public class TestApplication extends Application {
         .withTrackingId("miquido")
         .withLogLevel(QBLogLevel.DEBUG)
         .start();
+
+    Log.i(TAG, "Test application initialized");
   }
 
 }
