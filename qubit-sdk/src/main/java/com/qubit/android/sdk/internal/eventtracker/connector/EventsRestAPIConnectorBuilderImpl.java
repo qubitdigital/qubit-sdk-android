@@ -42,8 +42,7 @@ public class EventsRestAPIConnectorBuilderImpl implements EventsRestAPIConnector
     if (endpoint.startsWith(URL_PREFIX_HTTP) || endpoint.startsWith(URL_PREFIX_HTTPS)) {
       return endpoint;
     } else {
-      // TODO Change to https
-      return URL_PREFIX_HTTP + endpoint;
+      return URL_PREFIX_HTTPS + endpoint;
     }
   }
 
