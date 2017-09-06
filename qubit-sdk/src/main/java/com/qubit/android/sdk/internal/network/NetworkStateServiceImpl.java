@@ -9,6 +9,7 @@ import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
+import android.text.TextUtils;
 import com.qubit.android.sdk.internal.logging.QBLogger;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -20,11 +21,11 @@ public class NetworkStateServiceImpl implements NetworkStateService {
   private final Context appContext;
   private final Collection<NetworkStateListener> listeners = new CopyOnWriteArraySet<>();
   private Handler handler;
-  private boolean isConnected = false;
+  private NetworkInfo networkInfo;
 
   public NetworkStateServiceImpl(Context appContext) {
     this.appContext = appContext;
-    isConnected = isConnected();
+    networkInfo = requestForActiveNetworkInfo();
   }
 
   @Override
@@ -50,19 +51,17 @@ public class NetworkStateServiceImpl implements NetworkStateService {
   private final class ReceiveConnectivityActionTask implements Runnable {
     @Override
     public void run() {
-      boolean newIsConnected = isConnected();
+      NetworkInfo oldNetworkInfo = networkInfo;
+      NetworkInfo newNetworkInfo = requestForActiveNetworkInfo();
+      boolean oldIsConnected = isConnected(networkInfo);
+      boolean newIsConnected = isConnected(newNetworkInfo);
       LOGGER.d("Handling Message from Connectivity service. isConnected: " + newIsConnected);
-      if (isConnected != newIsConnected) {
-        isConnected = newIsConnected;
-        notifyListenersNetworkStateChange();
+      networkInfo = newNetworkInfo;
+      if (oldIsConnected != newIsConnected
+          || newIsConnected && areSameNetworks(oldNetworkInfo, newNetworkInfo)) {
+        notifyListenersNetworkStateChange(newIsConnected);
       }
     }
-  }
-
-  private boolean isConnected() {
-    ConnectivityManager manager = (ConnectivityManager) appContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-    NetworkInfo networkInfo = manager.getActiveNetworkInfo();
-    return networkInfo != null && networkInfo.isConnected();
   }
 
   private final class RegisterListenerTask implements Runnable {
@@ -75,22 +74,36 @@ public class NetworkStateServiceImpl implements NetworkStateService {
     @Override
     public void run() {
       listeners.add(listener);
-      notifyListenerNetworkStateChange(listener);
+      notifyListenerNetworkStateChange(listener, isConnected(networkInfo));
     }
   }
 
-  private void notifyListenersNetworkStateChange() {
+  private NetworkInfo requestForActiveNetworkInfo() {
+    ConnectivityManager manager = (ConnectivityManager) appContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+    NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+    LOGGER.d("Network Info: " + networkInfo);
+    return networkInfo;
+  }
+
+  private static boolean areSameNetworks(NetworkInfo networkInfo1, NetworkInfo networkInfo2) {
+    return networkInfo1.getType() == networkInfo2.getType()
+        && TextUtils.equals(networkInfo1.getExtraInfo(), networkInfo2.getExtraInfo());
+  }
+
+  private static boolean isConnected(NetworkInfo networkInfo) {
+    return networkInfo != null && networkInfo.isConnected();
+  }
+
+  private void notifyListenersNetworkStateChange(boolean isConnected) {
     for (NetworkStateListener listener : listeners) {
-      notifyListenerNetworkStateChange(listener);
+      notifyListenerNetworkStateChange(listener, isConnected);
     }
   }
 
-  private void notifyListenerNetworkStateChange(NetworkStateListener listener) {
+  private void notifyListenerNetworkStateChange(NetworkStateListener listener, boolean isConnected) {
     if (listener != null) {
       listener.onNetworkStateChange(isConnected);
     }
   }
-
-
 
 }

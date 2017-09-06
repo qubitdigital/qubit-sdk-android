@@ -1,6 +1,7 @@
 package com.qubit.android.sdk.api.initialization;
 
 import android.content.Context;
+import android.util.TimingLogger;
 import com.qubit.android.sdk.api.logging.QBLogLevel;
 import com.qubit.android.sdk.internal.SDK;
 import com.qubit.android.sdk.internal.logging.QBLogger;
@@ -42,10 +43,17 @@ public class InitializationBuilder {
     }
 
     public void start() {
+      TimingLogger timings = new TimingLogger("qb-sdk", "initialization");
+      timings.reset();
+
       QBLogger.logLevel = logLevel;
       SDK sdk = new SDK(appContext, trackingId);
+      timings.addSplit("creation");
       sdk.start();
+      timings.addSplit("starting");
       sdkConsumer.accept(sdk);
+      timings.addSplit("finishing");
+      timings.dumpToLog();
     }
   }
 

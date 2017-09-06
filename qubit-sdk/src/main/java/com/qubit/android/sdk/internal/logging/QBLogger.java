@@ -10,7 +10,7 @@ public final class QBLogger {
 
   public static QBLogLevel logLevel = QBLogLevel.WARN;
 
-  private static final String TAG = "qb-sdk";
+  public static final String TAG = "qb-sdk";
 
   private final String component;
 

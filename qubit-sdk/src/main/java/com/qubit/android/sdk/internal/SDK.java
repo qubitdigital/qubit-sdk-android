@@ -9,6 +9,7 @@ import com.qubit.android.sdk.internal.eventtracker.connector.EventsRestAPIConnec
 import com.qubit.android.sdk.internal.eventtracker.connector.EventsRestAPIConnectorBuilderImpl;
 import com.qubit.android.sdk.internal.eventtracker.repository.EventsRepository;
 import com.qubit.android.sdk.internal.eventtracker.repository.EventsRepositoryMock;
+import com.qubit.android.sdk.internal.initialization.SecureAndroidIdDeviceIdProvider;
 import com.qubit.android.sdk.internal.network.NetworkStateServiceImpl;
 
 public class SDK {
@@ -25,7 +26,7 @@ public class SDK {
         new ConfigurationServiceImpl(trackingId, networkStateService, configurationRepository);
 
     EventsRepository eventsRepository = new EventsRepositoryMock();
-    String deviceId = "deviceId"; //new SecureAndroidIdDeviceIdProvider(appContext).getDeviceId();
+    String deviceId = new SecureAndroidIdDeviceIdProvider(appContext).getDeviceId();
     EventsRestAPIConnectorBuilder eventsRestAPIConnectorBuilder = new EventsRestAPIConnectorBuilderImpl(trackingId);
     this.eventTracker = new EventTrackerImpl(trackingId, deviceId,
         configurationService, networkStateService, eventsRepository, eventsRestAPIConnectorBuilder);

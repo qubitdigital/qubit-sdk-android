@@ -45,8 +45,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     this.trackingId = trackingId;
     this.networkStateService = networkStateService;
     this.configurationRepository = configurationRepository;
-
-    validateUrl(CONFIGURATION_URL);
   }
 
   @Override
