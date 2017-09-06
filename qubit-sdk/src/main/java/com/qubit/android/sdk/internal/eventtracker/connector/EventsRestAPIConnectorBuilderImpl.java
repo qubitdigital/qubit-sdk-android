@@ -9,16 +9,18 @@ public class EventsRestAPIConnectorBuilderImpl implements EventsRestAPIConnector
 
   public static final String URL_PREFIX_HTTP = "http://";
   public static final String URL_PREFIX_HTTPS = "https://";
-  private final Gson gson;
   private final String trackingId;
+  private Gson gson;
 
   public EventsRestAPIConnectorBuilderImpl(String trackingId) {
-    gson = createCustomGson();
     this.trackingId = trackingId;
   }
 
   @Override
   public EventsRestAPIConnector buildFor(String endpointUrl) {
+    if (gson == null) {
+      gson = createCustomGson();
+    }
     return new EventsRestAPIConnectorImpl(trackingId, createConnector(endpointUrl));
   }
 

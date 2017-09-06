@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArraySet;
+import okhttp3.HttpUrl;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -19,7 +20,6 @@ import static com.qubit.android.sdk.internal.util.Elvis.*;
 
 public class ConfigurationServiceImpl implements ConfigurationService {
 
-
   private static final QBLogger LOGGER = QBLogger.getFor("ConfigurationService");
 
   private static final String CONFIGURATION_URL = "https://s3-eu-west-1.amazonaws.com/";
@@ -27,11 +27,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   private final String trackingId;
   private final NetworkStateService networkStateService;
   private final ConfigurationRepository configurationRepository;
-  private final ConfigurationConnector configurationConnector;
-
-  private ConfigurationDownloadTask configurationDownloadTask = new ConfigurationDownloadTask();
+  private final ConfigurationDownloadTask configurationDownloadTask = new ConfigurationDownloadTask();
 
   private Handler handler;
+  private ConfigurationConnector configurationConnector;
 
   private boolean isStarted = false;
   private Collection<ConfigurationListener> listeners = new CopyOnWriteArraySet<>();
@@ -46,20 +45,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     this.trackingId = trackingId;
     this.networkStateService = networkStateService;
     this.configurationRepository = configurationRepository;
-
-    configurationConnector = new Retrofit.Builder()
-        .baseUrl(CONFIGURATION_URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-        .create(ConfigurationConnector.class);
   }
 
   @Override
   public void registerConfigurationListener(ConfigurationListener configurationListener) {
-    listeners.add(configurationListener);
-    if (currentConfiguration != null) {
-      configurationListener.onConfigurationChange(currentConfiguration);
-    }
+    handler.post(new RegisterConfigurationListenerTask(configurationListener));
   }
 
   public synchronized void start() {
@@ -83,12 +73,28 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     isStarted = true;
   }
 
+  private final class RegisterConfigurationListenerTask implements Runnable {
+    private final ConfigurationListener listener;
+
+    private RegisterConfigurationListenerTask(ConfigurationListener listener) {
+      this.listener = listener;
+    }
+
+    @Override
+    public void run() {
+      listeners.add(listener);
+      if (currentConfiguration != null) {
+        notifyConfigurationChange(listener, currentConfiguration);
+      }
+    }
+  }
 
   private class InitialConfigurationLoadTask implements Runnable {
     @Override
     public void run() {
       currentConfiguration = configurationRepository.load();
       if (currentConfiguration != null) {
+        LOGGER.d("Configuration loaded from local storage");
         notifyListenersConfigurationChange();
       }
     }
@@ -143,7 +149,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   @Nullable
   private ConfigurationModel downloadConfiguration() {
     try {
-      Response<ConfigurationResponse> response = configurationConnector.download(trackingId).execute();
+      Response<ConfigurationResponse> response = getConfigurationConnector().download(trackingId).execute();
       if (response.code() == HttpURLConnection.HTTP_NOT_FOUND) {
         LOGGER.d("Configuration file not defined - the default one is used");
         return ConfigurationModel.getDefault();
@@ -159,6 +165,24 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     } catch (IOException e) {
       LOGGER.e("Failed to download configuration: ", e);
       return null;
+    }
+  }
+
+  private ConfigurationConnector getConfigurationConnector() {
+    if (configurationConnector == null) {
+      configurationConnector = new Retrofit.Builder()
+          .baseUrl(CONFIGURATION_URL)
+          .addConverterFactory(GsonConverterFactory.create())
+          .build()
+          .create(ConfigurationConnector.class);
+    }
+    return configurationConnector;
+  }
+
+  private static void validateUrl(String url) {
+    HttpUrl httpUrl = HttpUrl.parse(url);
+    if (httpUrl == null) {
+      throw new IllegalArgumentException("Illegal Configuration URL: " + url);
     }
   }
 
@@ -197,9 +221,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   private void notifyListenersConfigurationChange() {
     for (ConfigurationListener listener : listeners) {
-      if (listener != null) {
-        listener.onConfigurationChange(currentConfiguration);
-      }
+      notifyConfigurationChange(listener, currentConfiguration);
+    }
+  }
+
+  private static void notifyConfigurationChange(ConfigurationListener listener, Configuration configuration) {
+    if (listener != null) {
+      listener.onConfigurationChange(configuration);
     }
   }
 

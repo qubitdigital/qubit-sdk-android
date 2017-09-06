@@ -1,7 +1,6 @@
 package com.qubit.android.sdk.internal;
 
 import android.content.Context;
-import com.google.gson.Gson;
 import com.qubit.android.sdk.internal.configuration.ConfigurationRepository;
 import com.qubit.android.sdk.internal.configuration.ConfigurationRepositoryImpl;
 import com.qubit.android.sdk.internal.configuration.ConfigurationServiceImpl;
@@ -22,7 +21,7 @@ public class SDK {
   public SDK(Context appContext, String trackingId) {
     this.networkStateService = new NetworkStateServiceImpl(appContext);
 
-    ConfigurationRepository configurationRepository = new ConfigurationRepositoryImpl(appContext, new Gson());
+    ConfigurationRepository configurationRepository = new ConfigurationRepositoryImpl(appContext);
     this.configurationService =
         new ConfigurationServiceImpl(trackingId, networkStateService, configurationRepository);
 
