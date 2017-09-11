@@ -11,6 +11,7 @@ import com.qubit.android.sdk.api.tracker.event.QBEvents;
 public class MainActivity extends AppCompatActivity {
 
   public static final String TAG = "qb-testapp";
+  public static final String EVENT_TYPE = "ecView";
 
   @SuppressWarnings("checkstyle:magicnumber")
   @Override
@@ -23,8 +24,7 @@ public class MainActivity extends AppCompatActivity {
       public void onClick(View view) {
         Log.i(TAG, "Send event button clicked");
         // Example of sending event
-        QubitSDK.tracker().sendEvent("eventType",
-            QBEvents.fromJsonString("{ \"viewId\" : \"button\" }"));
+        QubitSDK.tracker().sendEvent(QBEvents.fromJsonString(EVENT_TYPE, "{ \"viewId\" : \"button\" }"));
       }
     });
 
@@ -34,8 +34,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, "Send 20 events button clicked");
 
         for (int i = 0; i < 20; i++) {
-          QubitSDK.tracker().sendEvent("eventType2",
-              QBEvents.fromJsonString("{ \"viewId\" : \"buttons\" }"));
+          QubitSDK.tracker().sendEvent(QBEvents.fromJsonString(EVENT_TYPE, "{ \"viewId\" : \"buttons\" }"));
         }
       }
     });
