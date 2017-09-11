@@ -5,19 +5,21 @@ import java.util.List;
 
 public interface EventsRepository {
 
-  EventModel insert(String type, String jsonEvent);
+  boolean init();
+
+  EventModel insert(String type, String globalId, String jsonEvent);
 
   EventModel selectFirst();
 
   List<EventModel> selectFirst(int number);
 
-  boolean delete(String id);
+  boolean delete(long id);
 
-  int delete(Collection<String> ids);
+  int delete(Collection<Long> ids);
 
-  boolean updateSetWasTriedToSend(String id);
+  boolean updateSetWasTriedToSend(long id);
 
-  int updateSetWasTriedToSend(Collection<String> ids);
+  int updateSetWasTriedToSend(Collection<Long> ids);
 
-  int countEvents();
+  int count();
 }

@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 public class EventTrackerImpl implements EventTracker {
 
@@ -83,6 +84,8 @@ public class EventTrackerImpl implements EventTracker {
     thread.start();
     handler = new Handler(thread.getLooper());
 
+    handler.post(new RepositoryInitTask());
+
     configurationService.registerConfigurationListener(new ConfigurationService.ConfigurationListener() {
       @Override
       public void onConfigurationChange(Configuration configuration) {
@@ -99,6 +102,14 @@ public class EventTrackerImpl implements EventTracker {
     isStarted = true;
   }
 
+  private class RepositoryInitTask implements Runnable {
+    @Override
+    public void run() {
+      LOGGER.d("Initializing events repository");
+      eventsRepository.init();
+      scheduleNextSendEventsTask();
+    }
+  }
 
   private class StoreEventTask implements Runnable {
     private final String type;
@@ -112,7 +123,9 @@ public class EventTrackerImpl implements EventTracker {
     @Override
     public void run() {
       LOGGER.d("Storing event");
-      eventsRepository.insert(type, qbEvent.toJsonObject().toString());
+
+      String globalId = UUID.randomUUID().toString();
+      eventsRepository.insert(type, globalId, qbEvent.toJsonObject().toString());
       scheduleNextSendEventsTask();
     }
   }
@@ -183,7 +196,7 @@ public class EventTrackerImpl implements EventTracker {
       }
 
       List<EventModel> eventsToSent = eventsRepository.selectFirst(BATCH_MAX_SIZE);
-      Collection<String> eventsToSentIds = extractEventsIds(eventsToSent);
+      Collection<Long> eventsToSentIds = extractEventsIds(eventsToSent);
 
       boolean dedupe = wasAtLeastOneTriedToSent(eventsToSent);
       List<EventRestModel> eventRestModels = translateEvents(eventsToSent);
@@ -244,7 +257,7 @@ public class EventTrackerImpl implements EventTracker {
     if (firstEvent == null) {
       return null;
     }
-    int queueSize = eventsRepository.countEvents();
+    int queueSize = eventsRepository.count();
     if (queueSize >= BATCH_MAX_SIZE) {
       return 0L;
     }
@@ -270,8 +283,8 @@ public class EventTrackerImpl implements EventTracker {
     }
   }
 
-  private static Collection<String> extractEventsIds(Collection<EventModel> events) {
-    HashSet<String> ids = new HashSet<>(events.size());
+  private static Collection<Long> extractEventsIds(Collection<EventModel> events) {
+    HashSet<Long> ids = new HashSet<>(events.size());
     for (EventModel event : events) {
       ids.add(event.getId());
     }
@@ -280,7 +293,7 @@ public class EventTrackerImpl implements EventTracker {
 
   private static boolean wasAtLeastOneTriedToSent(List<EventModel> events) {
     for (EventModel event : events) {
-      if (event.isWasTriedToSend()) {
+      if (event.getWasTriedToSend()) {
         return true;
       }
     }

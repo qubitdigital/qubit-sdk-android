@@ -26,9 +26,14 @@ public class CachingEventsRepository implements EventsRepository {
   }
 
   @Override
-  public EventModel insert(String type, String jsonEvent) {
-    int sizeBefore = countEvents();
-    EventModel newEvent = eventsRepository.insert(type, jsonEvent);
+  public boolean init() {
+    return eventsRepository.init();
+  }
+
+  @Override
+  public EventModel insert(String type, String globalId, String jsonEvent) {
+    int sizeBefore = count();
+    EventModel newEvent = eventsRepository.insert(type, globalId, jsonEvent);
     if (queueBeginningCache != null && sizeBefore == queueBeginningCache.size()) {
       queueBeginningCache.add(newEvent);
     }
@@ -90,7 +95,7 @@ public class CachingEventsRepository implements EventsRepository {
 
 
   @Override
-  public boolean delete(String id) {
+  public boolean delete(long id) {
     boolean removed = eventsRepository.delete(id);
     deleteFromCache(Collections.singletonList(id));
     if (removed) {
@@ -100,7 +105,7 @@ public class CachingEventsRepository implements EventsRepository {
   }
 
   @Override
-  public int delete(Collection<String> ids) {
+  public int delete(Collection<Long> ids) {
     int removed = eventsRepository.delete(ids);
     deleteFromCache(ids);
     queueSize -= removed;
@@ -108,29 +113,29 @@ public class CachingEventsRepository implements EventsRepository {
   }
 
   @Override
-  public boolean updateSetWasTriedToSend(String id) {
+  public boolean updateSetWasTriedToSend(long id) {
     updateWasTriedToSendInCache(Collections.singletonList(id));
     return eventsRepository.updateSetWasTriedToSend(id);
   }
 
   @Override
-  public int updateSetWasTriedToSend(Collection<String> ids) {
+  public int updateSetWasTriedToSend(Collection<Long> ids) {
     updateWasTriedToSendInCache(ids);
     return eventsRepository.updateSetWasTriedToSend(ids);
   }
 
   @Override
-  public int countEvents() {
+  public int count() {
     if (queueSize == null || queueSizeUpdateTime == null
         || queueSizeUpdateTime + QUEUE_SIZE_UPDATE_INTERVAL_MS < System.currentTimeMillis()) {
-      queueSize = eventsRepository.countEvents();
+      queueSize = eventsRepository.count();
       queueSizeUpdateTime = System.currentTimeMillis();
     }
     return queueSize;
   }
 
 
-  private int deleteFromCache(Collection<String> ids) {
+  private int deleteFromCache(Collection<Long> ids) {
     if (queueBeginningCache == null) {
       return 0;
     }
@@ -145,7 +150,7 @@ public class CachingEventsRepository implements EventsRepository {
     return eventsSizeBefore - queueBeginningCache.size();
   }
 
-  private int updateWasTriedToSendInCache(Collection<String> ids) {
+  private int updateWasTriedToSendInCache(Collection<Long> ids) {
     if (queueBeginningCache == null) {
       return 0;
     }

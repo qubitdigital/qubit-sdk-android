@@ -30,7 +30,7 @@ class EventRestModelCreator {
     }
 
     EventContext context = new EventContext(deviceId);
-    EventMeta meta = new EventMeta(eventModel.getId(), eventModel.getCreationTimestamp(), eventModel.getType(),
+    EventMeta meta = new EventMeta(eventModel.getGlobalId(), eventModel.getCreationTimestamp(), eventModel.getType(),
         trackingId);
 
     return new EventRestModel(event, meta, context);

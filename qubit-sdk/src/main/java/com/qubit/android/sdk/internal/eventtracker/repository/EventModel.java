@@ -1,24 +1,40 @@
 package com.qubit.android.sdk.internal.eventtracker.repository;
 
 public class EventModel {
-  private String id;
+
+  private Long id;
+  private String globalId;
   private String type;
   private String eventBody;
   private boolean wasTriedToSend;
   private long creationTimestamp;
 
-  public EventModel(String id, String type, String eventBody, long creationTimestamp) {
-    this.id = id;
+  public EventModel() {
+  }
+
+  public EventModel(String globalId, String type, String eventBody, long creationTimestamp) {
+    this.globalId = globalId;
     this.type = type;
     this.eventBody = eventBody;
     this.creationTimestamp = creationTimestamp;
   }
 
-  public String getId() {
+  public EventModel(Long id, String globalId, String type,
+                    String eventBody, boolean wasTriedToSend, long creationTimestamp) {
+    this.id = id;
+    this.globalId = globalId;
+    this.type = type;
+    this.eventBody = eventBody;
+    this.wasTriedToSend = wasTriedToSend;
+    this.creationTimestamp = creationTimestamp;
+  }
+
+
+  public Long getId() {
     return id;
   }
 
-  public void setId(String id) {
+  public void setId(Long id) {
     this.id = id;
   }
 
@@ -38,10 +54,6 @@ public class EventModel {
     this.eventBody = eventBody;
   }
 
-  public boolean isWasTriedToSend() {
-    return wasTriedToSend;
-  }
-
   public void setWasTriedToSend(boolean wasTriedToSend) {
     this.wasTriedToSend = wasTriedToSend;
   }
@@ -52,5 +64,17 @@ public class EventModel {
 
   public void setCreationTimestamp(long creationTimestamp) {
     this.creationTimestamp = creationTimestamp;
+  }
+
+  public String getGlobalId() {
+    return globalId;
+  }
+
+  public void setGlobalId(String globalId) {
+    this.globalId = globalId;
+  }
+
+  public boolean getWasTriedToSend() {
+    return this.wasTriedToSend;
   }
 }
