@@ -65,9 +65,9 @@ public class EventTrackerImpl implements EventTracker {
   }
 
   @Override
-  public synchronized void sendEvent(String type, QBEvent event) {
+  public synchronized void sendEvent(QBEvent event) {
     if (isStarted && isEnabled) {
-      handler.post(new StoreEventTask(type, event));
+      handler.post(new StoreEventTask(event));
     }
   }
 
@@ -112,11 +112,9 @@ public class EventTrackerImpl implements EventTracker {
   }
 
   private class StoreEventTask implements Runnable {
-    private final String type;
     private final QBEvent qbEvent;
 
-    StoreEventTask(String type, QBEvent qbEvent) {
-      this.type = type;
+    StoreEventTask(QBEvent qbEvent) {
       this.qbEvent = qbEvent;
     }
 
@@ -125,7 +123,7 @@ public class EventTrackerImpl implements EventTracker {
       LOGGER.d("Storing event");
 
       String globalId = UUID.randomUUID().toString();
-      eventsRepository.insert(type, globalId, qbEvent.toJsonObject().toString());
+      eventsRepository.insert(qbEvent.getType(), globalId, qbEvent.toJsonObject().toString());
       scheduleNextSendEventsTask();
     }
   }
