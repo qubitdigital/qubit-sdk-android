@@ -14,13 +14,17 @@ public class EventsRepositoryMock implements EventsRepository {
   private static long idSequence = 1;
   private final List<EventModel> events = new ArrayList<>();
 
+  @Override
+  public boolean init() {
+    return true;
+  }
 
   @Override
-  public EventModel insert(String type, String jsonEvent) {
+  public EventModel insert(String type, String globalId, String jsonEvent) {
     LOGGER.d("insert");
     long id = idSequence++;
     // TODO propert id generation
-    EventModel newEvent = new EventModel(Long.toString(id), type, jsonEvent, System.currentTimeMillis());
+    EventModel newEvent = new EventModel(id, globalId, type, jsonEvent, false, System.currentTimeMillis());
     events.add(newEvent);
     return newEvent;
   }
@@ -38,7 +42,7 @@ public class EventsRepositoryMock implements EventsRepository {
   }
 
   @Override
-  public boolean delete(String id) {
+  public boolean delete(long id) {
     LOGGER.d("delete one");
     Iterator<EventModel> eventsIterator = events.iterator();
     while (eventsIterator.hasNext()) {
@@ -52,7 +56,7 @@ public class EventsRepositoryMock implements EventsRepository {
   }
 
   @Override
-  public int delete(Collection<String> ids) {
+  public int delete(Collection<Long> ids) {
     LOGGER.d("delete many");
     Iterator<EventModel> eventsIterator = events.iterator();
     int eventsSizeBefore = events.size();
@@ -66,7 +70,7 @@ public class EventsRepositoryMock implements EventsRepository {
   }
 
   @Override
-  public boolean updateSetWasTriedToSend(String id) {
+  public boolean updateSetWasTriedToSend(long id) {
     LOGGER.d("updateSetWasTriedToSend");
     for (EventModel event: events) {
       if (event.getId() == id) {
@@ -78,7 +82,7 @@ public class EventsRepositoryMock implements EventsRepository {
   }
 
   @Override
-  public int updateSetWasTriedToSend(Collection<String> ids) {
+  public int updateSetWasTriedToSend(Collection<Long> ids) {
     LOGGER.d("updateSetWasTriedToSend many");
     int updatesCounter = 0;
     for (EventModel event: events) {
@@ -91,8 +95,8 @@ public class EventsRepositoryMock implements EventsRepository {
   }
 
   @Override
-  public int countEvents() {
-    LOGGER.d("countEvents");
+  public int count() {
+    LOGGER.d("count");
     return events.size();
   }
 }
