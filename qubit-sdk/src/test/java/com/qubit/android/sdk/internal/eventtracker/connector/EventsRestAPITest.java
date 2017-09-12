@@ -45,12 +45,12 @@ public class EventsRestAPITest {
     EventContext context = new EventContext("12345");
 
     Object eventObject1 = new EcViewEvent("button1");
-    QBEvent qbEvent1 = QBEvents.fromObject("ecView", eventObject1);
+    QBEvent qbEvent1 = QBEvents.fromObject(EVENT_TYPE, eventObject1);
     EventMeta meta1 = new EventMeta("3", System.currentTimeMillis(), EVENT_TYPE, TRACKING_ID);
     EventRestModel eventRestModel1 = new EventRestModel(qbEvent1.toJsonObject(), meta1, context);
 
     Object eventObject2 = new EcViewEvent("button2");
-    QBEvent qbEvent2 = QBEvents.fromObject("ecView", eventObject2);
+    QBEvent qbEvent2 = QBEvents.fromObject(EVENT_TYPE, eventObject2);
     EventMeta meta2 = new EventMeta("4", System.currentTimeMillis(), EVENT_TYPE, TRACKING_ID);
     EventRestModel eventRestModel2 = new EventRestModel(qbEvent2.toJsonObject(), meta2, context);
 

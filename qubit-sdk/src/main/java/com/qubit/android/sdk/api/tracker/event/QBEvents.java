@@ -20,12 +20,8 @@ public final class QBEvents {
   }
 
   public static QBEvent fromJsonString(final String type, final String jsonString) throws JsonParseException {
-    if (type == null) {
-      throw new NullPointerException("type parameter cannot be null");
-    }
-    if (jsonString == null) {
-      throw new NullPointerException("jsonString parameter cannot be null");
-    }
+    validateType(type);
+    validateEventBody("jsonString", jsonString);
     try {
       JsonParser jsonParser = new JsonParser();
       JsonObject jsonObject = jsonParser.parse(jsonString).getAsJsonObject();
@@ -36,34 +32,36 @@ public final class QBEvents {
   }
 
   public static QBEvent fromJson(final String type, final JsonObject jsonObject) {
-    if (type == null) {
-      throw new NullPointerException("type parameter cannot be null");
-    }
-    if (jsonObject == null) {
-      throw new NullPointerException("jsonObject parameter cannot be null");
-    }
+    validateType(type);
+    validateEventBody("jsonObject", jsonObject);
     return new QBEventImpl(type, jsonObject);
   }
 
-
   public static QBEvent fromObject(final String type, final Object object) {
-    if (type == null) {
-      throw new NullPointerException("type parameter cannot be null");
-    }
+    validateType(type);
     if (object == null) {
       throw new NullPointerException("Object parameter cannot be null");
     }
     return new QBEventImpl(type, GSON.toJsonTree(object).getAsJsonObject());
   }
 
+
   public static QBEvent fromMap(final String type, final Map<String, Object> map) {
+    validateType(type);
+    validateEventBody("map", map);
+    return new QBEventImpl(type, GSON.toJsonTree(map).getAsJsonObject());
+  }
+
+  private static void validateEventBody(String parameterName, Object parameter) {
+    if (parameter == null) {
+      throw new NullPointerException(parameterName + " parameter cannot be null");
+    }
+  }
+
+  private static void validateType(String type) {
     if (type == null) {
       throw new NullPointerException("type parameter cannot be null");
     }
-    if (map == null) {
-      throw new NullPointerException("Map parameter cannot be null");
-    }
-    return new QBEventImpl(type, GSON.toJsonTree(map).getAsJsonObject());
   }
 
 
