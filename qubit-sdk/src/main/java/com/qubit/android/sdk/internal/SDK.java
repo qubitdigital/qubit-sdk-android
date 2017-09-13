@@ -2,7 +2,6 @@ package com.qubit.android.sdk.internal;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Handler;
 import com.qubit.android.sdk.internal.common.repository.DatabaseInitializer;
 import com.qubit.android.sdk.internal.configuration.ConfigurationRepository;
 import com.qubit.android.sdk.internal.configuration.ConfigurationRepositoryImpl;
@@ -17,10 +16,8 @@ import com.qubit.android.sdk.internal.network.NetworkStateServiceImpl;
 import com.qubit.android.sdk.internal.session.SessionServiceImpl;
 import com.qubit.android.sdk.internal.session.event.SessionEventGenerator;
 import com.qubit.android.sdk.internal.session.event.SessionEventGeneratorImpl;
-import com.qubit.android.sdk.internal.session.repository.LazySaveSessionRepositoryDecorator;
 import com.qubit.android.sdk.internal.session.repository.SessionRepository;
 import com.qubit.android.sdk.internal.session.repository.SessionRepositoryImpl;
-import com.qubit.android.sdk.internal.session.repository.SessionRepositoryProvider;
 import java.util.concurrent.Future;
 
 public class SDK {
@@ -37,15 +34,9 @@ public class SDK {
     this.configurationService =
         new ConfigurationServiceImpl(trackingId, networkStateService, configurationRepository);
 
-    final SessionRepository sessionRepository = new SessionRepositoryImpl(appContext);
+    SessionRepository sessionRepository = new SessionRepositoryImpl(appContext);
     SessionEventGenerator sessionEventGenerator = new SessionEventGeneratorImpl();
-    SessionRepositoryProvider sessionRepositoryProvider = new SessionRepositoryProvider() {
-      @Override
-      public SessionRepository provide(Handler handler) {
-        return new LazySaveSessionRepositoryDecorator(sessionRepository, handler);
-      }
-    };
-    sessionService = new SessionServiceImpl(sessionRepositoryProvider, sessionEventGenerator);
+    sessionService = new SessionServiceImpl(sessionRepository, sessionEventGenerator);
 
 //    EventsRepository eventsRepository = new EventsRepositoryMock();
     Future<SQLiteDatabase> databaseFuture =

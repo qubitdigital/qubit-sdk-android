@@ -3,7 +3,6 @@ package com.qubit.android.sdk.internal.session;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
-import android.util.TimingLogger;
 import com.google.gson.Gson;
 import com.qubit.android.sdk.api.tracker.event.QBEvent;
 import com.qubit.android.sdk.internal.common.model.QBEventImpl;
@@ -13,7 +12,6 @@ import com.qubit.android.sdk.internal.session.model.SessionDataModel;
 import com.qubit.android.sdk.internal.session.model.SessionEvent;
 import com.qubit.android.sdk.internal.session.model.SessionResponseImpl;
 import com.qubit.android.sdk.internal.session.repository.SessionRepository;
-import com.qubit.android.sdk.internal.session.repository.SessionRepositoryProvider;
 import com.qubit.android.sdk.internal.util.DateTimeUtils;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -28,18 +26,17 @@ public class SessionServiceImpl implements SessionService {
   private static final String SESSION_EVENT_TYPE = "qubit.session";
 
   private final SessionEventGenerator sessionEventGenerator;
-  private final SessionRepositoryProvider sessionRepositoryProvider;
+  private final SessionRepository sessionRepository;
 
   private Handler handler;
   private boolean isStarted = false;
   private Gson gson;
-  private SessionRepository sessionRepository;
 
   private SessionDataModel currentSessionData;
 
-  public SessionServiceImpl(SessionRepositoryProvider sessionRepositoryProvider,
+  public SessionServiceImpl(SessionRepository sessionRepository,
                             SessionEventGenerator sessionEventGenerator) {
-    this.sessionRepositoryProvider = sessionRepositoryProvider;
+    this.sessionRepository = sessionRepository;
     this.sessionEventGenerator = sessionEventGenerator;
   }
 
@@ -51,8 +48,6 @@ public class SessionServiceImpl implements SessionService {
     HandlerThread thread = new HandlerThread("SessionServiceThread", Process.THREAD_PRIORITY_BACKGROUND);
     thread.start();
     handler = new Handler(thread.getLooper());
-
-    sessionRepository = sessionRepositoryProvider.provide(handler);
 
     handler.post(new InitialSessionLoadTask());
 
@@ -90,29 +85,18 @@ public class SessionServiceImpl implements SessionService {
 
   private SessionResponse getOrCreateSessionSynch(String eventType, long nowEpochTimeMs) {
     LOGGER.d("getOrCreateSessionSynch() eventType: " + eventType);
-    TimingLogger timings = new TimingLogger("qb-sdk", "getOrCreateSession");
-    timings.reset();
-
-    try {
-      boolean isNewSession = false;
-      if (!isCurrentSessionValid(nowEpochTimeMs)) {
-        currentSessionData = createNextSession(currentSessionData, nowEpochTimeMs);
-        isNewSession = true;
-      }
-      timings.addSplit("created");
-
-      currentSessionData = registerEvent(eventType, nowEpochTimeMs, currentSessionData);
-      timings.addSplit("registeredEvent");
-      sessionRepository.save(currentSessionData);
-      timings.addSplit("saved");
-
-      QBEvent sessionEvent = isNewSession ? generateSessionEvent(currentSessionData) : null;
-      timings.addSplit("event generated");
-
-      return new SessionResponseImpl(currentSessionData, sessionEvent);
-    } finally {
-      timings.dumpToLog();
+    boolean isNewSession = false;
+    if (!isCurrentSessionValid(nowEpochTimeMs)) {
+      currentSessionData = createNextSession(currentSessionData, nowEpochTimeMs);
+      isNewSession = true;
     }
+
+    currentSessionData = registerEvent(eventType, nowEpochTimeMs, currentSessionData);
+    sessionRepository.save(currentSessionData);
+
+    QBEvent sessionEvent = isNewSession ? generateSessionEvent(currentSessionData) : null;
+
+    return new SessionResponseImpl(currentSessionData, sessionEvent);
   }
 
 
