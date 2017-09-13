@@ -13,10 +13,13 @@ public class EventContext {
     this.id = id;
   }
 
-  public void setSessionData(long sessionNumber, long sessionTs, long sessionViewNumber) {
+  public void setSessionData(Long sessionNumber, Long sessionTs, Long sessionViewNumber,
+                             Long viewNumber, Long viewTs) {
     this.sessionNumber = sessionNumber;
     this.sessionTs = sessionTs;
     this.sessionViewNumber = sessionViewNumber;
+    this.viewNumber = viewNumber;
+    this.viewTs = viewTs;
   }
 
   public void setViewData(long viewNumber, long viewTs) {
