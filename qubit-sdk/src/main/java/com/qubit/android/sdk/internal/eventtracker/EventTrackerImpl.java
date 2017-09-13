@@ -15,13 +15,18 @@ import com.qubit.android.sdk.internal.eventtracker.repository.EventModel;
 import com.qubit.android.sdk.internal.eventtracker.repository.EventsRepository;
 import com.qubit.android.sdk.internal.logging.QBLogger;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
+import com.qubit.android.sdk.internal.session.SessionResponse;
+import com.qubit.android.sdk.internal.session.SessionService;
+import com.qubit.android.sdk.internal.session.model.EmptySessionResponse;
 import com.qubit.android.sdk.internal.util.DateTimeUtils;
+import com.qubit.android.sdk.internal.util.Uninterruptibles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 public class EventTrackerImpl implements EventTracker {
 
@@ -36,6 +41,7 @@ public class EventTrackerImpl implements EventTracker {
 
   private final ConfigurationService configurationService;
   private final NetworkStateService networkStateService;
+  private final SessionService sessionService;
   private final EventsRepository eventsRepository;
   private final EventsRestAPIConnectorBuilder eventsRestAPIConnectorBuilder;
   private final EventRestModelCreator eventRestModelCreator;
@@ -55,10 +61,13 @@ public class EventTrackerImpl implements EventTracker {
 
   public EventTrackerImpl(String trackingId, String deviceId,
                           ConfigurationService configurationService,
-                          NetworkStateService networkStateService, EventsRepository eventsRepository,
+                          NetworkStateService networkStateService,
+                          SessionService sessionService,
+                          EventsRepository eventsRepository,
                           EventsRestAPIConnectorBuilder eventsRestAPIConnectorBuilder) {
     this.configurationService = configurationService;
     this.networkStateService = networkStateService;
+    this.sessionService = sessionService;
     this.eventsRepository = new CachingEventsRepository(eventsRepository);
     this.eventsRestAPIConnectorBuilder = eventsRestAPIConnectorBuilder;
     eventRestModelCreator = new EventRestModelCreator(trackingId, deviceId);
@@ -121,10 +130,24 @@ public class EventTrackerImpl implements EventTracker {
     @Override
     public void run() {
       LOGGER.d("Storing event");
+      long now = System.currentTimeMillis();
+      SessionResponse sessionResponse = getOrCreateSession(qbEvent.getType(), now);
+      LOGGER.d("Got session response. New Session?" + sessionResponse.isNewSession()
+          + " SessionData: " + sessionResponse.getSessionData());
 
+      // TODO
       String globalId = UUID.randomUUID().toString();
       eventsRepository.insert(qbEvent.getType(), globalId, qbEvent.toJsonObject().toString());
       scheduleNextSendEventsTask();
+    }
+  }
+
+  private SessionResponse getOrCreateSession(String eventType, long now) {
+    try {
+      return Uninterruptibles.getUninterruptibly(sessionService.getOrCreateSession(eventType, now));
+    } catch (ExecutionException e) {
+      LOGGER.e("Unexpected error while getting session", e);
+      return new EmptySessionResponse();
     }
   }
 

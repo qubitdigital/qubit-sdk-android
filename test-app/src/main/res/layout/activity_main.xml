@@ -8,16 +8,28 @@
     tools:context="com.qubit.android.sdk.testapp.MainActivity">
 
   <Button
-      android:id="@+id/send_event_button"
+      android:id="@+id/send_view_event_button"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="Send event"
+      android:text="Send view event"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintLeft_toLeftOf="parent"
       app:layout_constraintRight_toRightOf="parent"
       app:layout_constraintTop_toTopOf="parent"
       app:layout_constraintHorizontal_bias="0.115"
       app:layout_constraintVertical_bias="0.034" />
+
+  <Button
+      android:id="@+id/send_interaction_event_button"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Send interaction event"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintRight_toRightOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintHorizontal_bias="0.153"
+      app:layout_constraintVertical_bias="0.157" />
 
   <Button
       android:id="@+id/send_20_events_button"
@@ -28,7 +40,7 @@
       app:layout_constraintLeft_toLeftOf="parent"
       app:layout_constraintRight_toRightOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintHorizontal_bias="0.115"
-      app:layout_constraintVertical_bias="0.166" />
+      app:layout_constraintHorizontal_bias="0.112"
+      app:layout_constraintVertical_bias="0.28" />
 
 </android.support.constraint.ConstraintLayout>

@@ -1,5 +1,7 @@
 package com.qubit.android.sdk.internal.util;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
@@ -30,4 +32,22 @@ public final class Uninterruptibles {
       }
     }
   }
+
+  public static <V> V getUninterruptibly(Future<V> future) throws ExecutionException {
+    boolean interrupted = false;
+    try {
+      while (true) {
+        try {
+          return future.get();
+        } catch (InterruptedException e) {
+          interrupted = true;
+        }
+      }
+    } finally {
+      if (interrupted) {
+        Thread.currentThread().interrupt();
+      }
+    }
+  }
+
 }

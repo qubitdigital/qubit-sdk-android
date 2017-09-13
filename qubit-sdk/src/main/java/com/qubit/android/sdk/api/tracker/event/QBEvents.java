@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import com.qubit.android.sdk.internal.common.model.QBEventImpl;
 import java.util.Map;
 
 public final class QBEvents {
@@ -64,25 +65,5 @@ public final class QBEvents {
     }
   }
 
-
-  private static final class QBEventImpl implements QBEvent {
-    private final String type;
-    private final JsonObject jsonObject;
-
-    private QBEventImpl(String type, JsonObject jsonObject) {
-      this.type = type;
-      this.jsonObject = jsonObject;
-    }
-
-    @Override
-    public String getType() {
-      return type;
-    }
-
-    @Override
-    public JsonObject toJsonObject() {
-      return jsonObject;
-    }
-  }
 
 }
