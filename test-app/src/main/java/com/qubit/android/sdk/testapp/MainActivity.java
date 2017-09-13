@@ -34,7 +34,8 @@ public class MainActivity extends AppCompatActivity {
       public void onClick(View view) {
         Log.i(TAG, "Send interaction event button clicked");
         // Example of sending event
-        QubitSDK.tracker().sendEvent(QBEvents.fromJsonString(EVENT_TYPE_INTERACTION, "{ \"type\" : \"buttonInteraction\" }"));
+        QubitSDK.tracker().sendEvent(
+            QBEvents.fromJsonString(EVENT_TYPE_INTERACTION, "{ \"type\" : \"buttonInteraction\" }"));
       }
     });
 
