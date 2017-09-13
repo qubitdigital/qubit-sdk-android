@@ -7,8 +7,8 @@ import com.google.gson.Gson;
 
 public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 
-  private static final String PREFERENCES_FILE = "PREFERENCES_FILE";
-  private static final String CONFIGURATION_KEY = "CONFIGURATION_KEY";
+  private static final String PREFERENCES_FILE = "qubit_configuration";
+  private static final String CONFIGURATION_KEY = "configuration";
 
   private final Context appContext;
   private Gson gson;
@@ -22,7 +22,7 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
     SharedPreferences sharedPreferences = appContext.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE);
     sharedPreferences.edit()
         .putString(CONFIGURATION_KEY, getGson().toJson(configuration))
-        .apply();
+        .commit();
   }
 
   @Override
