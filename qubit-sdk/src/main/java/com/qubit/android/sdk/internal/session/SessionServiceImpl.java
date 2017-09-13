@@ -67,6 +67,7 @@ public class SessionServiceImpl implements SessionService {
     public void run() {
       currentSessionData = sessionRepository.load();
       LOGGER.d("Session loaded from local store: " + currentSessionData);
+      currentSessionData.setLastEventTs(0);
     }
   }
 

@@ -20,12 +20,10 @@ public class EventsRepositoryMock implements EventsRepository {
   }
 
   @Override
-  public EventModel insert(String type, String globalId, String jsonEvent) {
+  public EventModel insert(EventModel newEvent) {
     LOGGER.d("insert");
-    long id = idSequence++;
-    // TODO propert id generation
-    EventModel newEvent = new EventModel(id, globalId, type, jsonEvent, false, System.currentTimeMillis());
-    events.add(newEvent);
+    newEvent.setId(idSequence++);
+    events.add(new EventModel(newEvent));
     return newEvent;
   }
 

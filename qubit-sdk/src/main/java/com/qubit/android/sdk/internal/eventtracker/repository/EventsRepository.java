@@ -7,7 +7,7 @@ public interface EventsRepository {
 
   boolean init();
 
-  EventModel insert(String type, String globalId, String jsonEvent);
+  EventModel insert(EventModel newEvent);
 
   EventModel selectFirst();
 

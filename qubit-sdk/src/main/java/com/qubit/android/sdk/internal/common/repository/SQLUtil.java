@@ -1,5 +1,7 @@
 package com.qubit.android.sdk.internal.common.repository;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteStatement;
 import java.util.Collection;
 
 public final class SQLUtil {
@@ -73,4 +75,19 @@ public final class SQLUtil {
     return builder;
   }
 
+  public static Long getNullableLong(Cursor cursor, int i) {
+    return cursor.isNull(i) ? null : cursor.getLong(i);
+  }
+
+  public static void bindNullableLong(SQLiteStatement stmt, int index, Long value) {
+    if (value != null) {
+      stmt.bindLong(index, value);
+    }
+  }
+
+  public static void bindNullableString(SQLiteStatement stmt, int index, String value) {
+    if (value != null) {
+      stmt.bindString(index, value);
+    }
+  }
 }

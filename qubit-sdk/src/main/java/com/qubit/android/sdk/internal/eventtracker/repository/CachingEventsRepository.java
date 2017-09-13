@@ -31,11 +31,11 @@ public class CachingEventsRepository implements EventsRepository {
   }
 
   @Override
-  public EventModel insert(String type, String globalId, String jsonEvent) {
+  public EventModel insert(EventModel newEvent) {
     int sizeBefore = count();
-    EventModel newEvent = eventsRepository.insert(type, globalId, jsonEvent);
+    EventModel insertedNewEvent = eventsRepository.insert(newEvent);
     if (queueBeginningCache != null && sizeBefore == queueBeginningCache.size()) {
-      queueBeginningCache.add(newEvent);
+      queueBeginningCache.add(insertedNewEvent);
     }
     queueSize++;
     return newEvent;
