@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.NonNull;
-import com.qubit.android.sdk.internal.common.repository.SQLUtil;
 import com.qubit.android.sdk.internal.common.repository.TableInitializer;
 import com.qubit.android.sdk.internal.logging.QBLogger;
 import java.util.ArrayList;
@@ -13,6 +12,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
+import static com.qubit.android.sdk.internal.common.repository.SQLUtil.*;
 
 public class SQLLiteEventsRepository implements EventsRepository {
 
@@ -22,7 +23,9 @@ public class SQLLiteEventsRepository implements EventsRepository {
   private static final String TABLE_NAME = "EVENT";
   private static final String WAS_TRIED_TO_SEND_COLUMN = "WAS_TRIED_TO_SEND";
   private static final String[] ALL_COLUMNS =
-      { "_id", "GLOBAL_ID", "TYPE", "EVENT_BODY", WAS_TRIED_TO_SEND_COLUMN, "CREATION_TIMESTAMP"};
+      { "_id", "GLOBAL_ID", "TYPE", "EVENT_BODY", WAS_TRIED_TO_SEND_COLUMN, "CREATION_TIMESTAMP",
+      "CONTEXT_VIEW_NUMBER", "CONTEXT_SESSION_NUMBER", "CONTEXT_SESSION_VIEW_NUMBER",
+      "CONTEXT_VIEW_TIMESTAMP", "CONTEXT_SESSION_TIMESTAMP"};
 
   private final Future<SQLiteDatabase> databaseFuture;
   private SQLiteDatabase database;
@@ -45,8 +48,8 @@ public class SQLLiteEventsRepository implements EventsRepository {
     try {
       LOGGER.d("init()");
       database = databaseFuture.get();
-      insertStatement = database.compileStatement(SQLUtil.createSqlInsert(TABLE_NAME, ALL_COLUMNS));
-      selectFirstSql = SQLUtil.createSqlSelect(TABLE_NAME, ALL_COLUMNS, "_id ASC", "?");
+      insertStatement = database.compileStatement(createSqlInsert(TABLE_NAME, ALL_COLUMNS));
+      selectFirstSql = createSqlSelect(TABLE_NAME, ALL_COLUMNS, "_id ASC", "?");
       selectCountStatement = database.compileStatement("SELECT COUNT(*) FROM " + TABLE_NAME);
       deleteOneStatement = database.compileStatement("DELETE FROM " + TABLE_NAME + " WHERE _id = ?");
       updateWasTriedToSendOneStatement = database.compileStatement(
@@ -61,9 +64,8 @@ public class SQLLiteEventsRepository implements EventsRepository {
   }
 
   @Override
-  public EventModel insert(String type, String globalId, String jsonEvent) {
+  public EventModel insert(EventModel newEvent) {
     LOGGER.d("insert");
-    EventModel newEvent = new EventModel(globalId, type, jsonEvent, System.currentTimeMillis());
     bindValues(insertStatement, newEvent);
     long id = insertStatement.executeInsert();
     newEvent.setId(id);
@@ -107,7 +109,7 @@ public class SQLLiteEventsRepository implements EventsRepository {
   @Override
   public int delete(Collection<Long> ids) {
     LOGGER.d("delete(N)");
-    return database.delete(TABLE_NAME, getWhereIdInClause(ids.size()), SQLUtil.toSqlArgs(ids));
+    return database.delete(TABLE_NAME, getWhereIdInClause(ids.size()), toSqlArgs(ids));
   }
 
   @Override
@@ -123,7 +125,7 @@ public class SQLLiteEventsRepository implements EventsRepository {
     LOGGER.d("updateSetWasTriedToSend(N)");
     ContentValues contentValues = new ContentValues(1);
     contentValues.put(WAS_TRIED_TO_SEND_COLUMN, 1L);
-    return database.update(TABLE_NAME, contentValues, getWhereIdInClause(ids.size()), SQLUtil.toSqlArgs(ids));
+    return database.update(TABLE_NAME, contentValues, getWhereIdInClause(ids.size()), toSqlArgs(ids));
   }
 
   @Override
@@ -156,7 +158,14 @@ public class SQLLiteEventsRepository implements EventsRepository {
           + "TYPE TEXT NOT NULL ," // 2: type
           + "EVENT_BODY TEXT NOT NULL ," // 3: eventBody
           + "WAS_TRIED_TO_SEND INTEGER NOT NULL ," // 4: wasTriedToSend
-          + "CREATION_TIMESTAMP INTEGER NOT NULL );"); // 5: creationTimestamp
+          + "CREATION_TIMESTAMP INTEGER NOT NULL ," // 5: creationTimestamp
+          + "CONTEXT_VIEW_NUMBER INTEGER NULL ," // 6: contextViewNumber
+          + "CONTEXT_SESSION_NUMBER INTEGER NULL ," // 7: contextSessionNumber
+          + "CONTEXT_SESSION_VIEW_NUMBER INTEGER NULL ," // 8: contextSessionViewNumber
+          + "CONTEXT_VIEW_TIMESTAMP INTEGER NULL ," // 9: contextViewTs
+          + "CONTEXT_SESSION_TIMESTAMP INTEGER NULL " // 10: contextSessionTs
+          + ");"
+      );
       // Add Indexes
       db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_EVENT_GLOBAL_ID ON " + TABLE_NAME + " (GLOBAL_ID ASC);");
     }
@@ -171,7 +180,7 @@ public class SQLLiteEventsRepository implements EventsRepository {
 
   @NonNull
   private static String getWhereIdInClause(int count) {
-    return "_id in " + SQLUtil.createInParametersSet(count);
+    return "_id in " + createInParametersSet(count);
   }
 
 
@@ -179,19 +188,17 @@ public class SQLLiteEventsRepository implements EventsRepository {
   private static void bindValues(SQLiteStatement stmt, EventModel entity) {
     stmt.clearBindings();
 
-    Long id = entity.getId();
-    if (id != null) {
-      stmt.bindLong(1, id);
-    }
-
-    String globalId = entity.getGlobalId();
-    if (globalId != null) {
-      stmt.bindString(2, globalId);
-    }
+    bindNullableLong(stmt, 1, entity.getId());
+    bindNullableString(stmt, 2, entity.getGlobalId());
     stmt.bindString(3, entity.getType());
     stmt.bindString(4, entity.getEventBody());
     stmt.bindLong(5, entity.getWasTriedToSend() ? 1L : 0L);
-    stmt.bindLong(6, entity.getCreationTimestamp());
+    bindNullableLong(stmt, 6, entity.getCreationTimestamp());
+    bindNullableLong(stmt, 7, entity.getContextViewNumber());
+    bindNullableLong(stmt, 8, entity.getContextSessionNumber());
+    bindNullableLong(stmt, 9, entity.getContextSessionViewNumber());
+    bindNullableLong(stmt, 10, entity.getContextViewTimestamp());
+    bindNullableLong(stmt, 11, entity.getContextSessionTimestamp());
   }
 
   private static EventModel readEntity(Cursor cursor) {
@@ -202,13 +209,17 @@ public class SQLLiteEventsRepository implements EventsRepository {
 
   @SuppressWarnings("checkstyle:magicnumber")
   private static void readEntity(Cursor cursor, EventModel entity) {
-    entity.setId(cursor.isNull(0) ? null : cursor.getLong(0));
+    entity.setId(getNullableLong(cursor, 0));
     entity.setGlobalId(cursor.isNull(1) ? null : cursor.getString(1));
     entity.setType(cursor.getString(2));
     entity.setEventBody(cursor.getString(3));
     entity.setWasTriedToSend(cursor.getShort(4) != 0);
     entity.setCreationTimestamp(cursor.getLong(5));
+    entity.setContextViewNumber(getNullableLong(cursor, 6));
+    entity.setContextSessionNumber(getNullableLong(cursor, 7));
+    entity.setContextSessionViewNumber(getNullableLong(cursor, 8));
+    entity.setContextViewTimestamp(getNullableLong(cursor, 9));
+    entity.setContextSessionTimestamp(getNullableLong(cursor, 10));
   }
-
 
 }

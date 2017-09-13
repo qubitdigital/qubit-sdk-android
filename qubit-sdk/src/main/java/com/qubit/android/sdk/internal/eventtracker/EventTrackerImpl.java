@@ -15,6 +15,7 @@ import com.qubit.android.sdk.internal.eventtracker.repository.EventModel;
 import com.qubit.android.sdk.internal.eventtracker.repository.EventsRepository;
 import com.qubit.android.sdk.internal.logging.QBLogger;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
+import com.qubit.android.sdk.internal.session.SessionData;
 import com.qubit.android.sdk.internal.session.SessionResponse;
 import com.qubit.android.sdk.internal.session.SessionService;
 import com.qubit.android.sdk.internal.session.model.EmptySessionResponse;
@@ -132,12 +133,19 @@ public class EventTrackerImpl implements EventTracker {
       LOGGER.d("Storing event");
       long now = System.currentTimeMillis();
       SessionResponse sessionResponse = getOrCreateSession(qbEvent.getType(), now);
+      SessionData sessionData = sessionResponse.getSessionData();
       LOGGER.d("Got session response. New Session?" + sessionResponse.isNewSession()
           + " SessionData: " + sessionResponse.getSessionData());
 
       // TODO
+
       String globalId = UUID.randomUUID().toString();
-      eventsRepository.insert(qbEvent.getType(), globalId, qbEvent.toJsonObject().toString());
+      EventModel newEvent = new EventModel(null, globalId,
+          qbEvent.getType(), qbEvent.toJsonObject().toString(), false, now,
+          sessionData.getViewNumber(), sessionData.getSessionNumber(), sessionData.getSessionViewNumber(),
+          sessionData.getViewTs(), sessionData.getSessionTs());
+      eventsRepository.insert(newEvent);
+
       scheduleNextSendEventsTask();
     }
   }
