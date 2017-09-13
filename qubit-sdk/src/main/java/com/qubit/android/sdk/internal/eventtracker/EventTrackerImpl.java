@@ -137,17 +137,29 @@ public class EventTrackerImpl implements EventTracker {
       LOGGER.d("Got session response. New Session?" + sessionResponse.isNewSession()
           + " SessionData: " + sessionResponse.getSessionData());
 
-      // TODO
+      if (sessionResponse.isNewSession()) {
+        QBEvent sessionEvent = sessionResponse.getSessionEvent();
+        eventsRepository.insert(createNewEventModel(now, sessionEvent, sessionData));
+      }
 
-      String globalId = UUID.randomUUID().toString();
-      EventModel newEvent = new EventModel(null, globalId,
-          qbEvent.getType(), qbEvent.toJsonObject().toString(), false, now,
-          sessionData.getViewNumber(), sessionData.getSessionNumber(), sessionData.getSessionViewNumber(),
-          sessionData.getViewTs(), sessionData.getSessionTs());
-      eventsRepository.insert(newEvent);
+      eventsRepository.insert(createNewEventModel(now, qbEvent, sessionData));
 
       scheduleNextSendEventsTask();
     }
+  }
+
+  private static EventModel createNewEventModel(long now, QBEvent qbEvent, SessionData sessionData) {
+    String globalId = UUID.randomUUID().toString();
+    EventModel newEvent = new EventModel(null, globalId,
+        qbEvent.getType(), qbEvent.toJsonObject().toString(), false, now);
+    if (sessionData != null) {
+      newEvent.setContextViewNumber(sessionData.getViewNumber());
+      newEvent.setContextSessionNumber(sessionData.getSessionNumber());
+      newEvent.setContextSessionViewNumber(sessionData.getSessionViewNumber());
+      newEvent.setContextViewTimestamp(sessionData.getViewTs());
+      newEvent.setContextSessionTimestamp(sessionData.getSessionTs());
+    }
+    return newEvent;
   }
 
   private SessionResponse getOrCreateSession(String eventType, long now) {
