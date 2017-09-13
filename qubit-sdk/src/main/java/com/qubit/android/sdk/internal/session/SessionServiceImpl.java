@@ -25,8 +25,8 @@ public class SessionServiceImpl implements SessionService {
   private static final String VIEW_TYPE_POSTFIX = "view";
   private static final String SESSION_EVENT_TYPE = "qubit.session";
 
-  private final SessionRepository sessionRepository;
   private final SessionEventGenerator sessionEventGenerator;
+  private final SessionRepository sessionRepository;
 
   private Handler handler;
   private boolean isStarted = false;
@@ -34,7 +34,8 @@ public class SessionServiceImpl implements SessionService {
 
   private SessionDataModel currentSessionData;
 
-  public SessionServiceImpl(SessionRepository sessionRepository, SessionEventGenerator sessionEventGenerator) {
+  public SessionServiceImpl(SessionRepository sessionRepository,
+                            SessionEventGenerator sessionEventGenerator) {
     this.sessionRepository = sessionRepository;
     this.sessionEventGenerator = sessionEventGenerator;
   }
@@ -64,8 +65,7 @@ public class SessionServiceImpl implements SessionService {
   private class InitialSessionLoadTask implements Runnable {
     @Override
     public void run() {
-      currentSessionData = null;
-      // TODO
+      currentSessionData = sessionRepository.load();
       LOGGER.d("Session loaded from local store: " + currentSessionData);
     }
   }
@@ -85,7 +85,6 @@ public class SessionServiceImpl implements SessionService {
 
   private SessionResponse getOrCreateSessionSynch(String eventType, long nowEpochTimeMs) {
     LOGGER.d("getOrCreateSessionSynch() eventType: " + eventType);
-
     boolean isNewSession = false;
     if (!isCurrentSessionValid(nowEpochTimeMs)) {
       currentSessionData = createNextSession(currentSessionData, nowEpochTimeMs);
@@ -93,11 +92,13 @@ public class SessionServiceImpl implements SessionService {
     }
 
     currentSessionData = registerEvent(eventType, nowEpochTimeMs, currentSessionData);
+    sessionRepository.save(currentSessionData);
 
     QBEvent sessionEvent = isNewSession ? generateSessionEvent(currentSessionData) : null;
 
     return new SessionResponseImpl(currentSessionData, sessionEvent);
   }
+
 
   private boolean isCurrentSessionValid(long nowEpochTimeMs) {
     return currentSessionData != null

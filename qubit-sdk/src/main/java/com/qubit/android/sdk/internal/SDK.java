@@ -34,11 +34,11 @@ public class SDK {
     this.configurationService =
         new ConfigurationServiceImpl(trackingId, networkStateService, configurationRepository);
 
-//    EventsRepository eventsRepository = new EventsRepositoryMock();
-    SessionRepository sessionRepository = new SessionRepositoryImpl();
+    SessionRepository sessionRepository = new SessionRepositoryImpl(appContext);
     SessionEventGenerator sessionEventGenerator = new SessionEventGeneratorImpl();
     sessionService = new SessionServiceImpl(sessionRepository, sessionEventGenerator);
 
+//    EventsRepository eventsRepository = new EventsRepositoryMock();
     Future<SQLiteDatabase> databaseFuture =
         new DatabaseInitializer(appContext, SQLLiteEventsRepository.tableInitializer()).initDatabaseAsync();
     EventsRepository eventsRepository = new SQLLiteEventsRepository(databaseFuture);
