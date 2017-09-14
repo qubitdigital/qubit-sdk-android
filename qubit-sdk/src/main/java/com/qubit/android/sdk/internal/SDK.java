@@ -14,6 +14,8 @@ import com.qubit.android.sdk.internal.eventtracker.repository.SQLLiteEventsRepos
 import com.qubit.android.sdk.internal.initialization.SecureAndroidIdDeviceIdProvider;
 import com.qubit.android.sdk.internal.network.NetworkStateServiceImpl;
 import com.qubit.android.sdk.internal.session.SessionServiceImpl;
+import com.qubit.android.sdk.internal.session.event.AppPropertiesProvider;
+import com.qubit.android.sdk.internal.session.event.ManifestAppPropertiesProvider;
 import com.qubit.android.sdk.internal.session.event.ScreenSizeProvider;
 import com.qubit.android.sdk.internal.session.event.ScreenSizeProviderImpl;
 import com.qubit.android.sdk.internal.session.event.SessionEventGenerator;
@@ -38,7 +40,9 @@ public class SDK {
 
     SessionRepository sessionRepository = new SessionRepositoryImpl(appContext);
     ScreenSizeProvider screenSizeProvider = new ScreenSizeProviderImpl(appContext);
-    SessionEventGenerator sessionEventGenerator = new SessionEventGeneratorImpl(screenSizeProvider);
+    AppPropertiesProvider appPropertiesProvider = new ManifestAppPropertiesProvider(appContext);
+    SessionEventGenerator sessionEventGenerator =
+        new SessionEventGeneratorImpl(screenSizeProvider, appPropertiesProvider);
     sessionService = new SessionServiceImpl(sessionRepository, sessionEventGenerator);
 
 //    EventsRepository eventsRepository = new EventsRepositoryMock();

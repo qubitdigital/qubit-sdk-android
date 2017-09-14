@@ -11,25 +11,26 @@ public class SessionEventGeneratorImpl implements SessionEventGenerator {
   private static final double MIN_TABLET_SIZE_IN = 7.0;
 
   private final ScreenSizeProvider screenSizeProvider;
+  private final AppPropertiesProvider appPropertiesProvider;
   private final String deviceName = getIfNotNull(Build.MANUFACTURER, "") + "/" + getIfNotNull(Build.MODEL, "");
-  private final String deviceType;
 
-  public SessionEventGeneratorImpl(ScreenSizeProvider screenSizeProvider) {
+  public SessionEventGeneratorImpl(ScreenSizeProvider screenSizeProvider, AppPropertiesProvider appPropertiesProvider) {
     this.screenSizeProvider = screenSizeProvider;
-    this.deviceType = screenSizeProvider.getSizeInches() >= MIN_TABLET_SIZE_IN ? "tablet" : "mobile";
+    this.appPropertiesProvider = appPropertiesProvider;
   }
 
   @Override
   public SessionEvent generateSessionEvent(SessionData sessionData) {
     SessionEvent sessionEvent = new SessionEvent();
-    sessionEvent.setDeviceType(deviceType);
+    sessionEvent.setDeviceType(screenSizeProvider.getSizeInches() >= MIN_TABLET_SIZE_IN ? "tablet" : "mobile");
     sessionEvent.setDeviceName(deviceName);
     sessionEvent.setScreenWidth(screenSizeProvider.getWidthPx());
     sessionEvent.setScreenHeight(screenSizeProvider.getHeightPx());
     sessionEvent.setOsName("Android");
     sessionEvent.setOsVersion(Build.VERSION.RELEASE);
     sessionEvent.setAppType("app");
-    // TODO
+    sessionEvent.setAppName(appPropertiesProvider.getAppName());
+    sessionEvent.setAppVersion(appPropertiesProvider.getAppVersion());
     return sessionEvent;
   }
 
