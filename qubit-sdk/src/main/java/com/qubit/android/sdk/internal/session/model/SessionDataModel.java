@@ -7,6 +7,7 @@ public class SessionDataModel implements SessionData {
   private long sessionNumber;
   private long sessionTs;
   private long lastEventTs;
+  private long sessionEventsNumber;
   private Long viewNumber;
   private Long sessionViewNumber;
   private Long viewTs;
@@ -30,6 +31,7 @@ public class SessionDataModel implements SessionData {
     this.sessionNumber = sessionData.getSessionNumber();
     this.sessionTs = sessionData.getSessionTs();
     this.lastEventTs = sessionData.getLastEventTs();
+    this.sessionEventsNumber = sessionData.getSessionEventsNumber();
     this.viewNumber = sessionData.getViewNumber();
     this.sessionViewNumber = sessionData.getSessionViewNumber();
     this.viewTs = sessionData.getViewTs();
@@ -81,6 +83,15 @@ public class SessionDataModel implements SessionData {
     this.lastEventTs = lastEventTs;
   }
 
+  @Override
+  public long getSessionEventsNumber() {
+    return sessionEventsNumber;
+  }
+
+  public void incrementSessionEventsNumber() {
+    sessionEventsNumber++;
+  }
+
   private static Long incrementValue(Long previousValue) {
     return previousValue == null ? 1 : previousValue + 1;
   }
@@ -92,6 +103,7 @@ public class SessionDataModel implements SessionData {
         + "sessionNumber=" + sessionNumber
         + ", sessionTs=" + sessionTs
         + ", lastEventTs=" + lastEventTs
+        + ", sessionEventsNumber=" + sessionEventsNumber
         + ", viewNumber=" + viewNumber
         + ", sessionViewNumber=" + sessionViewNumber
         + ", viewTs=" + viewTs

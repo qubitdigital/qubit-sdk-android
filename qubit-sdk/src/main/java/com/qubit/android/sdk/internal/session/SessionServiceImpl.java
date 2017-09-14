@@ -8,9 +8,10 @@ import com.qubit.android.sdk.api.tracker.event.QBEvent;
 import com.qubit.android.sdk.internal.common.model.QBEventImpl;
 import com.qubit.android.sdk.internal.logging.QBLogger;
 import com.qubit.android.sdk.internal.session.event.SessionEventGenerator;
+import com.qubit.android.sdk.internal.session.model.NewSessionRequestImpl;
 import com.qubit.android.sdk.internal.session.model.SessionDataModel;
 import com.qubit.android.sdk.internal.session.model.SessionEvent;
-import com.qubit.android.sdk.internal.session.model.SessionResponseImpl;
+import com.qubit.android.sdk.internal.session.model.SessionForEventImpl;
 import com.qubit.android.sdk.internal.session.repository.SessionRepository;
 import com.qubit.android.sdk.internal.util.DateTimeUtils;
 import java.util.concurrent.Callable;
@@ -55,8 +56,8 @@ public class SessionServiceImpl implements SessionService {
   }
 
   @Override
-  public Future<SessionResponse> getOrCreateSession(String eventType, long nowEpochTimeMs) {
-    GetOrCreateSessionTask task = new GetOrCreateSessionTask(eventType, nowEpochTimeMs);
+  public Future<SessionForEvent> getSessionDataForNextEvent(String eventType, long nowEpochTimeMs) {
+    GetSessionDataForNextEventTask task = new GetSessionDataForNextEventTask(eventType, nowEpochTimeMs);
     handler.post(task);
     return task;
   }
@@ -67,43 +68,61 @@ public class SessionServiceImpl implements SessionService {
     public void run() {
       currentSessionData = sessionRepository.load();
       LOGGER.d("Session loaded from local store: " + currentSessionData);
-      currentSessionData.setLastEventTs(0);
+      if (currentSessionData != null) {
+        currentSessionData.setLastEventTs(0);
+      }
     }
   }
 
-  private final class GetOrCreateSessionTask extends FutureTask<SessionResponse> implements Runnable {
+  private final class GetSessionDataForNextEventTask extends FutureTask<SessionForEvent> implements Runnable {
 
-    private GetOrCreateSessionTask(final String eventType, final long nowEpochTimeMs) {
-      super(new Callable<SessionResponse>() {
+    private GetSessionDataForNextEventTask(final String eventType, final long nowEpochTimeMs) {
+      super(new Callable<SessionForEvent>() {
         @Override
-        public SessionResponse call() throws Exception {
-          return getOrCreateSessionSynch(eventType, nowEpochTimeMs);
+        public SessionForEvent call() throws Exception {
+          return getSessionDataForNextEventSynch(eventType, nowEpochTimeMs);
         }
       });
     }
 
   }
 
-  private SessionResponse getOrCreateSessionSynch(String eventType, long nowEpochTimeMs) {
-    LOGGER.d("getOrCreateSessionSynch() eventType: " + eventType);
-    boolean isNewSession = false;
-    if (!isCurrentSessionValid(nowEpochTimeMs)) {
-      currentSessionData = createNextSession(currentSessionData, nowEpochTimeMs);
-      isNewSession = true;
-    }
+  private SessionForEvent getSessionDataForNextEventSynch(String eventType, long nowEpochTimeMs) {
+    LOGGER.d("getSessionDataForNextEventSynch() eventType: " + eventType);
 
-    currentSessionData = registerEvent(eventType, nowEpochTimeMs, currentSessionData);
+    NewSessionRequestImpl newSession = createNewSessionIfNeeded(currentSessionData, nowEpochTimeMs);
+
+    SessionDataModel sessionDataBeforeEvent = newSession != null ? newSession.getSessionData() : currentSessionData;
+
+    SessionDataModel sessionDataModelOfEvent =
+        createSessionDataForEvent(sessionDataBeforeEvent, eventType, nowEpochTimeMs);
+
+    currentSessionData = sessionDataModelOfEvent;
     sessionRepository.save(currentSessionData);
 
-    QBEvent sessionEvent = isNewSession ? generateSessionEvent(currentSessionData) : null;
-
-    return new SessionResponseImpl(currentSessionData, sessionEvent);
+    return new SessionForEventImpl(sessionDataModelOfEvent, newSession);
   }
 
+  private static SessionDataModel createSessionDataForEvent(SessionData oldSessionData, String eventType,
+                                                            long nowEpochTimeMs) {
+    SessionDataModel newSessionData = new SessionDataModel(oldSessionData);
+    registerEvent(newSessionData, eventType, nowEpochTimeMs);
+    return newSessionData;
+  }
 
-  private boolean isCurrentSessionValid(long nowEpochTimeMs) {
-    return currentSessionData != null
-        && currentSessionData.getLastEventTs() + SESSION_VALIDITY_PERIOD_MS > nowEpochTimeMs;
+  private NewSessionRequestImpl createNewSessionIfNeeded(SessionData oldSessionData, long nowEpochTimeMs) {
+    if (isSessionValid(oldSessionData, nowEpochTimeMs)) {
+      return null;
+    }
+    SessionDataModel newSessionData = createNextSession(oldSessionData, nowEpochTimeMs);
+    registerEvent(newSessionData, SESSION_EVENT_TYPE, nowEpochTimeMs);
+    QBEvent sessionEvent = generateSessionEvent(newSessionData);
+    return new NewSessionRequestImpl(sessionEvent, newSessionData);
+  }
+
+  private static boolean isSessionValid(SessionData sessionData, long nowEpochTimeMs) {
+    return sessionData != null
+        && sessionData.getLastEventTs() + SESSION_VALIDITY_PERIOD_MS > nowEpochTimeMs;
   }
 
   private static SessionDataModel createNextSession(SessionData oldSessionData, long nowEpochTimeMs) {
@@ -115,15 +134,14 @@ public class SessionServiceImpl implements SessionService {
     }
   }
 
-  private static SessionDataModel registerEvent(String eventType, long nowEpochTimeMs, SessionData sessionData) {
-    SessionDataModel newSessionData = new SessionDataModel(sessionData);
+  private static void registerEvent(SessionDataModel sessionData, String eventType, long nowEpochTimeMs) {
     if (isViewEvent(eventType)) {
-      newSessionData.incrementViewNumber();
-      newSessionData.incrementSessionViewNumber();
-      newSessionData.setViewTs(nowEpochTimeMs);
+      sessionData.incrementViewNumber();
+      sessionData.incrementSessionViewNumber();
+      sessionData.setViewTs(nowEpochTimeMs);
     }
-    newSessionData.setLastEventTs(nowEpochTimeMs);
-    return newSessionData;
+    sessionData.setLastEventTs(nowEpochTimeMs);
+    sessionData.incrementSessionEventsNumber();
   }
 
   private static boolean isViewEvent(String eventType) {

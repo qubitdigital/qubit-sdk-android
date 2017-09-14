@@ -34,7 +34,7 @@ class EventRestModelCreator {
         eventModel.getContextSessionViewNumber(), eventModel.getContextViewNumber(),
         eventModel.getContextViewTimestamp());
     EventMeta meta = new EventMeta(eventModel.getGlobalId(), eventModel.getCreationTimestamp(), eventModel.getType(),
-        trackingId, eventModel.getId() /* TODO */, null, batchTimestamp);
+        trackingId, eventModel.getSeq(), null, batchTimestamp);
 
     return new EventRestModel(event, meta, context);
   }

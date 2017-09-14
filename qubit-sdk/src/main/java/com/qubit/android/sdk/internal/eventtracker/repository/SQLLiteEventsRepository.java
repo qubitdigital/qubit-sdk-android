@@ -23,7 +23,7 @@ public class SQLLiteEventsRepository implements EventsRepository {
   private static final String TABLE_NAME = "EVENT";
   private static final String WAS_TRIED_TO_SEND_COLUMN = "WAS_TRIED_TO_SEND";
   private static final String[] ALL_COLUMNS =
-      { "_id", "GLOBAL_ID", "TYPE", "EVENT_BODY", WAS_TRIED_TO_SEND_COLUMN, "CREATION_TIMESTAMP",
+      { "_id", "GLOBAL_ID", "SEQ", "TYPE", "EVENT_BODY", WAS_TRIED_TO_SEND_COLUMN, "CREATION_TIMESTAMP",
       "CONTEXT_VIEW_NUMBER", "CONTEXT_SESSION_NUMBER", "CONTEXT_SESSION_VIEW_NUMBER",
       "CONTEXT_VIEW_TIMESTAMP", "CONTEXT_SESSION_TIMESTAMP"};
 
@@ -163,7 +163,8 @@ public class SQLLiteEventsRepository implements EventsRepository {
           + "CONTEXT_SESSION_NUMBER INTEGER NULL ," // 7: contextSessionNumber
           + "CONTEXT_SESSION_VIEW_NUMBER INTEGER NULL ," // 8: contextSessionViewNumber
           + "CONTEXT_VIEW_TIMESTAMP INTEGER NULL ," // 9: contextViewTs
-          + "CONTEXT_SESSION_TIMESTAMP INTEGER NULL " // 10: contextSessionTs
+          + "CONTEXT_SESSION_TIMESTAMP INTEGER NULL, " // 10: contextSessionTs
+          + "SEQ INTEGER NOT NULL " // 11: seq
           + ");"
       );
       // Add Indexes
@@ -199,6 +200,7 @@ public class SQLLiteEventsRepository implements EventsRepository {
     bindNullableLong(stmt, 9, entity.getContextSessionViewNumber());
     bindNullableLong(stmt, 10, entity.getContextViewTimestamp());
     bindNullableLong(stmt, 11, entity.getContextSessionTimestamp());
+    stmt.bindLong(12, entity.getSeq());
   }
 
   private static EventModel readEntity(Cursor cursor) {
@@ -220,6 +222,7 @@ public class SQLLiteEventsRepository implements EventsRepository {
     entity.setContextSessionViewNumber(getNullableLong(cursor, 8));
     entity.setContextViewTimestamp(getNullableLong(cursor, 9));
     entity.setContextSessionTimestamp(getNullableLong(cursor, 10));
+    entity.setSeq(cursor.getLong(11));
   }
 
 }

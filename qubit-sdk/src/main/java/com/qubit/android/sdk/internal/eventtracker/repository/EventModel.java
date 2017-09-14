@@ -8,6 +8,7 @@ public class EventModel {
   private String eventBody;
   private boolean wasTriedToSend;
   private long creationTimestamp;
+  private long seq;
 
   private Long contextViewNumber;
   private Long contextSessionNumber;
@@ -18,29 +19,25 @@ public class EventModel {
   public EventModel() {
   }
 
-  public EventModel(String globalId, String type, String eventBody, long creationTimestamp) {
-    this.globalId = globalId;
-    this.type = type;
-    this.eventBody = eventBody;
-    this.creationTimestamp = creationTimestamp;
-  }
 
-  public EventModel(Long id, String globalId, String type,
+  public EventModel(Long id, String globalId, long seq, String type,
                     String eventBody, boolean wasTriedToSend, long creationTimestamp) {
     this.id = id;
     this.globalId = globalId;
+    this.seq = seq;
     this.type = type;
     this.eventBody = eventBody;
     this.wasTriedToSend = wasTriedToSend;
     this.creationTimestamp = creationTimestamp;
   }
 
-  public EventModel(Long id, String globalId, String type, String eventBody, boolean wasTriedToSend,
+  public EventModel(Long id, String globalId, long seq, String type, String eventBody, boolean wasTriedToSend,
                     long creationTimestamp,
                     Long contextViewNumber, Long contextSessionNumber, Long contextSessionViewNumber,
                     Long contextViewTimestamp, Long contextSessionTimestamp) {
     this.id = id;
     this.globalId = globalId;
+    this.seq = seq;
     this.type = type;
     this.eventBody = eventBody;
     this.wasTriedToSend = wasTriedToSend;
@@ -53,7 +50,7 @@ public class EventModel {
   }
 
   public EventModel(EventModel source) {
-    this(source.id, source.globalId, source.type, source.eventBody, source.wasTriedToSend,
+    this(source.id, source.globalId, source.seq, source.type, source.eventBody, source.wasTriedToSend,
         source.creationTimestamp,
         source.contextViewNumber, source.contextSessionNumber, source.contextSessionViewNumber,
         source.contextViewTimestamp, source.contextSessionTimestamp);
@@ -101,6 +98,14 @@ public class EventModel {
 
   public void setGlobalId(String globalId) {
     this.globalId = globalId;
+  }
+
+  public long getSeq() {
+    return seq;
+  }
+
+  public void setSeq(long seq) {
+    this.seq = seq;
   }
 
   public boolean getWasTriedToSend() {
