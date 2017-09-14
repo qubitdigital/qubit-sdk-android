@@ -8,6 +8,7 @@ public class EventMeta {
   private final String trackingId;
   private Long seq;
   private String source;
+  private Long batchTs;
 
   public EventMeta(String id, long ts, String type, String trackingId) {
     this.id = id;
@@ -16,13 +17,14 @@ public class EventMeta {
     this.trackingId = trackingId;
   }
 
-  public EventMeta(String id, long ts, String type, String trackingId, long seq, String source) {
+  public EventMeta(String id, long ts, String type, String trackingId, long seq, String source, Long batchTs) {
     this.id = id;
     this.ts = ts;
     this.type = type;
     this.trackingId = trackingId;
     this.seq = seq;
     this.source = source;
+    this.batchTs = batchTs;
   }
 
 
@@ -46,15 +48,23 @@ public class EventMeta {
     return source;
   }
 
-  public long getSeq() {
+  public void setSource(String source) {
+    this.source = source;
+  }
+
+  public Long getSeq() {
     return seq;
   }
 
-  public void setSeq(long seq) {
+  public void setSeq(Long seq) {
     this.seq = seq;
   }
 
-  public void setSource(String source) {
-    this.source = source;
+  public Long getBatchTs() {
+    return batchTs;
+  }
+
+  public void setBatchTs(Long batchTs) {
+    this.batchTs = batchTs;
   }
 }

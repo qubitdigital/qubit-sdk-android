@@ -342,9 +342,10 @@ public class EventTrackerImpl implements EventTracker {
   }
 
   private List<EventRestModel> translateEvents(List<EventModel> events) {
+    Long batchTimestamp = !events.isEmpty() ? events.get(0).getCreationTimestamp() : null;
     List<EventRestModel> eventRestModels = new ArrayList<>(events.size());
     for (EventModel event : events) {
-      EventRestModel eventRestModel = eventRestModelCreator.create(event);
+      EventRestModel eventRestModel = eventRestModelCreator.create(event, batchTimestamp);
       if (eventRestModel != null) {
         eventRestModels.add(eventRestModel);
       }
