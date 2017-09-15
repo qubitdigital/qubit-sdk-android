@@ -19,7 +19,7 @@ import com.qubit.android.sdk.internal.session.NewSessionRequest;
 import com.qubit.android.sdk.internal.session.SessionData;
 import com.qubit.android.sdk.internal.session.SessionForEvent;
 import com.qubit.android.sdk.internal.session.SessionService;
-import com.qubit.android.sdk.internal.session.model.EmptySessionForEvent;
+import com.qubit.android.sdk.internal.session.model.SessionForEventImpl;
 import com.qubit.android.sdk.internal.util.DateTimeUtils;
 import com.qubit.android.sdk.internal.util.Uninterruptibles;
 import java.util.ArrayList;
@@ -171,7 +171,7 @@ public class EventTrackerImpl implements EventTracker {
       return Uninterruptibles.getUninterruptibly(sessionService.getSessionDataForNextEvent(eventType, now));
     } catch (ExecutionException e) {
       LOGGER.e("Unexpected error while getting session", e);
-      return new EmptySessionForEvent();
+      return new SessionForEventImpl(null, null);
     }
   }
 
