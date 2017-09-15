@@ -3,6 +3,7 @@ package com.qubit.android.sdk.internal.eventtracker;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import com.qubit.android.sdk.BuildConfig;
 import com.qubit.android.sdk.internal.eventtracker.connector.EventContext;
 import com.qubit.android.sdk.internal.eventtracker.connector.EventMeta;
 import com.qubit.android.sdk.internal.eventtracker.connector.EventRestModel;
@@ -18,6 +19,7 @@ class EventRestModelCreator {
   private final String trackingId;
   private final String deviceId;
   private final int sample;
+  private final String source = "Android@" + BuildConfig.VERSION_NAME;
 
   EventRestModelCreator(String trackingId, String deviceId) {
     this.trackingId = trackingId;
@@ -38,7 +40,7 @@ class EventRestModelCreator {
         eventModel.getContextViewTimestamp());
     context.setTimezoneOffset(timezoneOffsetMins);
     EventMeta meta = new EventMeta(eventModel.getGlobalId(), eventModel.getCreationTimestamp(), eventModel.getType(),
-        trackingId, eventModel.getSeq(), null, batchTimestamp);
+        trackingId, eventModel.getSeq(), source, batchTimestamp);
 
     return new EventRestModel(event, meta, context);
   }
