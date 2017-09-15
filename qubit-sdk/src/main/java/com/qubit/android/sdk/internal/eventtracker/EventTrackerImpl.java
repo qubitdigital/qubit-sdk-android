@@ -3,6 +3,7 @@ package com.qubit.android.sdk.internal.eventtracker;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
+import android.text.TextUtils;
 import com.qubit.android.sdk.api.tracker.EventTracker;
 import com.qubit.android.sdk.api.tracker.event.QBEvent;
 import com.qubit.android.sdk.internal.configuration.Configuration;
@@ -140,9 +141,9 @@ public class EventTrackerImpl implements EventTracker {
           + " SessionData: " + sessionForEvent.getEventSessionData());
 
       if (newSessionRequest != null) {
-        EventModel newEventModel =
+        EventModel sessionEventModel =
             createNewEventModel(now, newSessionRequest.getSessionEvent(), newSessionRequest.getSessionData());
-        eventsRepository.insert(newEventModel);
+        eventsRepository.insert(sessionEventModel);
       }
 
       eventsRepository.insert(createNewEventModel(now, qbEvent, sessionDataForEvent));
@@ -151,11 +152,12 @@ public class EventTrackerImpl implements EventTracker {
     }
   }
 
-  private static EventModel createNewEventModel(long now, QBEvent qbEvent, SessionData sessionData) {
+  private EventModel createNewEventModel(long now, QBEvent qbEvent, SessionData sessionData) {
     String globalId = UUID.randomUUID().toString();
+    String eventType = transformEventType(qbEvent.getType());
     EventModel newEvent = new EventModel(null, globalId,
         sessionData != null ? sessionData.getSessionEventsNumber() : 1,
-        qbEvent.getType(), qbEvent.toJsonObject().toString(), false, now);
+        eventType, qbEvent.toJsonObject().toString(), false, now);
     if (sessionData != null) {
       newEvent.setContextViewNumber(sessionData.getViewNumber());
       newEvent.setContextSessionNumber(sessionData.getSessionNumber());
@@ -164,6 +166,23 @@ public class EventTrackerImpl implements EventTracker {
       newEvent.setContextSessionTimestamp(sessionData.getSessionTs());
     }
     return newEvent;
+  }
+
+  private String transformEventType(String sourceEventType) {
+    return sourceEventType.startsWith("qubit.")
+        ? sourceEventType
+        : addNamespace(sourceEventType);
+  }
+
+  private String addNamespace(String sourceEventType) {
+    String namespace = currentConfiguration.getNamespace();
+    if (TextUtils.isEmpty(namespace)) {
+      return sourceEventType;
+    }
+    String namespaceDot = namespace + ".";
+    return sourceEventType.startsWith(namespaceDot)
+        ? sourceEventType
+        : namespaceDot + sourceEventType;
   }
 
   private SessionForEvent getSessionDataForNextEvent(String eventType, long now) {
