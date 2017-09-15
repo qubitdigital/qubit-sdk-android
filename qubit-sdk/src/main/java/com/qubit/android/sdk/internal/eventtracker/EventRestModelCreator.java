@@ -27,33 +27,55 @@ class EventRestModelCreator {
     this.sample = evaluateSample(deviceId);
   }
 
-  public EventRestModel create(EventModel eventModel, Long batchTimestamp, Integer timezoneOffsetMins) {
-
-    JsonObject event = parseJsonEvent(eventModel.getEventBody());
-    if (event == null) {
-      return null;
-    }
-
-    EventContext context = new EventContext(deviceId, sample);
-    context.setSessionData(eventModel.getContextSessionNumber(), eventModel.getContextSessionTimestamp(),
-        eventModel.getContextSessionViewNumber(), eventModel.getContextViewNumber(),
-        eventModel.getContextViewTimestamp());
-    context.setTimezoneOffset(timezoneOffsetMins);
-    EventMeta meta = new EventMeta(eventModel.getGlobalId(), eventModel.getCreationTimestamp(), eventModel.getType(),
-        trackingId, eventModel.getSeq(), source, batchTimestamp);
-
-    return new EventRestModel(event, meta, context);
+  public BatchEventRestModelCreator forBatch(Long batchTimestamp, Integer timezoneOffsetMins,
+                                             EventTypeTransformer eventTypeTransformer) {
+    return new BatchEventRestModelCreator(batchTimestamp, timezoneOffsetMins, eventTypeTransformer);
   }
 
-  private JsonObject parseJsonEvent(String jsonEvent) {
-    try {
-      return jsonParser.parse(jsonEvent).getAsJsonObject();
-    } catch (JsonSyntaxException | NullPointerException | IllegalStateException e) {
-      LOGGER.w("Event body stored in database cannot be parsed from JSON. Event: "
-          + jsonEvent + ". Omiting event.", e);
-      return null;
+  public final class BatchEventRestModelCreator {
+    private final Long batchTimestamp;
+    private final Integer timezoneOffsetMins;
+    private final EventTypeTransformer eventTypeTransformer;
+
+    private BatchEventRestModelCreator(long batchTimestamp, Integer timezoneOffsetMins,
+                                      EventTypeTransformer eventTypeTransformer) {
+      this.batchTimestamp = batchTimestamp;
+      this.timezoneOffsetMins = timezoneOffsetMins;
+      this.eventTypeTransformer = eventTypeTransformer;
     }
+
+    public EventRestModel create(EventModel eventModel) {
+
+      JsonObject event = parseJsonEvent(eventModel.getEventBody());
+      if (event == null) {
+        return null;
+      }
+
+      EventContext context = new EventContext(deviceId, sample);
+      context.setSessionData(eventModel.getContextSessionNumber(), eventModel.getContextSessionTimestamp(),
+          eventModel.getContextSessionViewNumber(), eventModel.getContextViewNumber(),
+          eventModel.getContextViewTimestamp());
+      context.setTimezoneOffset(timezoneOffsetMins);
+
+      String eventType = eventTypeTransformer.transform(eventModel.getType());
+      EventMeta meta = new EventMeta(eventModel.getGlobalId(), eventModel.getCreationTimestamp(), eventType,
+          trackingId, eventModel.getSeq(), source, batchTimestamp);
+
+      return new EventRestModel(event, meta, context);
+    }
+
+    private JsonObject parseJsonEvent(String jsonEvent) {
+      try {
+        return jsonParser.parse(jsonEvent).getAsJsonObject();
+      } catch (JsonSyntaxException | NullPointerException | IllegalStateException e) {
+        LOGGER.w("Event body stored in database cannot be parsed from JSON. Event: "
+            + jsonEvent + ". Omiting event.", e);
+        return null;
+      }
+    }
+
   }
+
 
   private static int evaluateSample(String deviceId) {
     int mod = deviceId.hashCode() % MAX_SAMPLE;

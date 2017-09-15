@@ -16,7 +16,7 @@ public class ConfigurationModel implements Configuration {
   private static final int DEFAULT_CONFIGURATION_RELOAD_INTERVAL = 60;
   private static final int DEFAULT_QUEUE_TIMEOUT = 60;
   private static final String DEFAULT_VERTICAL = "ec";
-  private static final String DEFAULT_NAMESPACE = "";
+  private static final String DEFAULT_NAMESPACE = null;
   private static final int DEFAULT_PROPERTY_ID = 1234;
   private static final boolean DEFAULT_DISABLED = false;
   private static final String DEFAULT_LOOKUP_ATTRIBUTE_URL = "https://lookup.qubit.com";
