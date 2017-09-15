@@ -12,6 +12,9 @@ public final class QubitSDK {
   }
 
   public static InitializationBuilder initialization() {
+    if (sdkSingleton != null) {
+      throw new IllegalStateException("QubitSDK has been already started.");
+    }
     return new InitializationBuilder(new InitializationBuilder.SdkConsumer() {
       @Override
       public void accept(SDK sdk) {
