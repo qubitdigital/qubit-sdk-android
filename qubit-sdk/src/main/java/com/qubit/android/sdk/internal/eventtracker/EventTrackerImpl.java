@@ -3,7 +3,6 @@ package com.qubit.android.sdk.internal.eventtracker;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
-import android.text.TextUtils;
 import com.qubit.android.sdk.api.tracker.EventTracker;
 import com.qubit.android.sdk.api.tracker.event.QBEvent;
 import com.qubit.android.sdk.internal.configuration.Configuration;
@@ -57,6 +56,7 @@ public class EventTrackerImpl implements EventTracker {
   private boolean isEnabled = true;
 
   private Configuration currentConfiguration = null;
+  private EventTypeTransformer eventTypeTransformer = null;
   private boolean isConnected = false;
   private EventsRestAPIConnector apiConnector = null;
   private int sendingAttempts = 0;
@@ -154,10 +154,9 @@ public class EventTrackerImpl implements EventTracker {
 
   private EventModel createNewEventModel(long now, QBEvent qbEvent, SessionData sessionData) {
     String globalId = UUID.randomUUID().toString();
-    String eventType = transformEventType(qbEvent.getType());
     EventModel newEvent = new EventModel(null, globalId,
         sessionData != null ? sessionData.getSessionEventsNumber() : 1,
-        eventType, qbEvent.toJsonObject().toString(), false, now);
+        qbEvent.getType(), qbEvent.toJsonObject().toString(), false, now);
     if (sessionData != null) {
       newEvent.setContextViewNumber(sessionData.getViewNumber());
       newEvent.setContextSessionNumber(sessionData.getSessionNumber());
@@ -166,23 +165,6 @@ public class EventTrackerImpl implements EventTracker {
       newEvent.setContextSessionTimestamp(sessionData.getSessionTs());
     }
     return newEvent;
-  }
-
-  private String transformEventType(String sourceEventType) {
-    return sourceEventType.startsWith("qubit.")
-        ? sourceEventType
-        : addNamespace(sourceEventType);
-  }
-
-  private String addNamespace(String sourceEventType) {
-    String namespace = currentConfiguration.getNamespace();
-    if (TextUtils.isEmpty(namespace)) {
-      return sourceEventType;
-    }
-    String namespaceDot = namespace + ".";
-    return sourceEventType.startsWith(namespaceDot)
-        ? sourceEventType
-        : namespaceDot + sourceEventType;
   }
 
   private SessionForEvent getSessionDataForNextEvent(String eventType, long now) {
@@ -207,6 +189,7 @@ public class EventTrackerImpl implements EventTracker {
       currentConfiguration = configuration;
       try {
         apiConnector = eventsRestAPIConnectorBuilder.buildFor(currentConfiguration.getEndpoint());
+        eventTypeTransformer = new EventTypeTransformer(currentConfiguration);
       } catch (IllegalArgumentException e) {
         LOGGER.e("Cannot create Rest API connector. Most likely endpoint url is incorrect.", e);
       }
@@ -367,9 +350,11 @@ public class EventTrackerImpl implements EventTracker {
   private List<EventRestModel> translateEvents(List<EventModel> events) {
     Long batchTimestamp = !events.isEmpty() ? events.get(0).getCreationTimestamp() : null;
     Integer timezoneOffsetMins = DateTimeUtils.getTimezoneOffsetMins();
+    EventRestModelCreator.BatchEventRestModelCreator restModelCreator =
+        eventRestModelCreator.forBatch(batchTimestamp, timezoneOffsetMins, eventTypeTransformer);
     List<EventRestModel> eventRestModels = new ArrayList<>(events.size());
     for (EventModel event : events) {
-      EventRestModel eventRestModel = eventRestModelCreator.create(event, batchTimestamp, timezoneOffsetMins);
+      EventRestModel eventRestModel = restModelCreator.create(event);
       if (eventRestModel != null) {
         eventRestModels.add(eventRestModel);
       }

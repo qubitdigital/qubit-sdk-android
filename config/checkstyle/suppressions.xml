@@ -7,4 +7,5 @@
   <suppress checks="MagicNumberCheck" files=".*src/(test|androidTest)/java/*"/>
   <suppress checks="AvoidStarImport" files=".*src/(test|androidTest)/java/*"/>
   <suppress checks="MethodName" files=".*src/(test|androidTest)/java/*"/>
+  <suppress checks="MultipleStringLiterals" files=".*src/(test|androidTest)/java/*"/>
 </suppressions>

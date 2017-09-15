@@ -63,6 +63,9 @@ public final class QBEvents {
     if (type == null) {
       throw new NullPointerException("type parameter cannot be null");
     }
+    if (type.isEmpty()) {
+      throw new IllegalArgumentException("Type parameter cannot be empty");
+    }
   }
 
 
