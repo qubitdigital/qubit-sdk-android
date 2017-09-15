@@ -132,6 +132,10 @@ public class EventTrackerImpl implements EventTracker {
 
     @Override
     public void run() {
+      if (currentConfiguration != null && currentConfiguration.isDisabled()) {
+        LOGGER.d("Centrally disabled. Event omitted.");
+        return;
+      }
       LOGGER.d("Storing event");
       long now = System.currentTimeMillis();
       SessionForEvent sessionForEvent = getSessionDataForNextEvent(qbEvent.getType(), now);
