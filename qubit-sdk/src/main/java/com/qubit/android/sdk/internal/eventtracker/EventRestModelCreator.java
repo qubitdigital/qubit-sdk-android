@@ -25,7 +25,7 @@ class EventRestModelCreator {
     this.sample = evaluateSample(deviceId);
   }
 
-  public EventRestModel create(EventModel eventModel, Long batchTimestamp) {
+  public EventRestModel create(EventModel eventModel, Long batchTimestamp, Integer timezoneOffsetMins) {
 
     JsonObject event = parseJsonEvent(eventModel.getEventBody());
     if (event == null) {
@@ -36,6 +36,7 @@ class EventRestModelCreator {
     context.setSessionData(eventModel.getContextSessionNumber(), eventModel.getContextSessionTimestamp(),
         eventModel.getContextSessionViewNumber(), eventModel.getContextViewNumber(),
         eventModel.getContextViewTimestamp());
+    context.setTimezoneOffset(timezoneOffsetMins);
     EventMeta meta = new EventMeta(eventModel.getGlobalId(), eventModel.getCreationTimestamp(), eventModel.getType(),
         trackingId, eventModel.getSeq(), null, batchTimestamp);
 
@@ -56,6 +57,5 @@ class EventRestModelCreator {
     int mod = deviceId.hashCode() % MAX_SAMPLE;
     return mod >= 0 ? mod : mod + MAX_SAMPLE;
   }
-
 
 }
