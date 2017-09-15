@@ -12,14 +12,17 @@ import com.qubit.android.sdk.internal.logging.QBLogger;
 class EventRestModelCreator {
 
   private static final QBLogger LOGGER = QBLogger.getFor("EventRestModelCreator");
+  private static final int MAX_SAMPLE = 100000;
 
   private final JsonParser jsonParser = new JsonParser();
   private final String trackingId;
   private final String deviceId;
+  private final int sample;
 
   EventRestModelCreator(String trackingId, String deviceId) {
     this.trackingId = trackingId;
     this.deviceId = deviceId;
+    this.sample = evaluateSample(deviceId);
   }
 
   public EventRestModel create(EventModel eventModel, Long batchTimestamp) {
@@ -29,7 +32,7 @@ class EventRestModelCreator {
       return null;
     }
 
-    EventContext context = new EventContext(deviceId);
+    EventContext context = new EventContext(deviceId, sample);
     context.setSessionData(eventModel.getContextSessionNumber(), eventModel.getContextSessionTimestamp(),
         eventModel.getContextSessionViewNumber(), eventModel.getContextViewNumber(),
         eventModel.getContextViewTimestamp());
@@ -48,4 +51,11 @@ class EventRestModelCreator {
       return null;
     }
   }
+
+  private static int evaluateSample(String deviceId) {
+    int mod = deviceId.hashCode() % MAX_SAMPLE;
+    return mod >= 0 ? mod : mod + MAX_SAMPLE;
+  }
+
+
 }

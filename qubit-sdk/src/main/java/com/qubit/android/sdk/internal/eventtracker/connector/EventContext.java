@@ -3,14 +3,16 @@ package com.qubit.android.sdk.internal.eventtracker.connector;
 public class EventContext {
 
   private final String id;
+  private final int sample;
   private Long sessionNumber;
   private Long sessionTs;
   private Long sessionViewNumber;
   private Long viewNumber;
   private Long viewTs;
 
-  public EventContext(String id) {
+  public EventContext(String id, int sample) {
     this.id = id;
+    this.sample = sample;
   }
 
   public void setSessionData(Long sessionNumber, Long sessionTs, Long sessionViewNumber,
@@ -29,6 +31,10 @@ public class EventContext {
 
   public String getId() {
     return id;
+  }
+
+  public int getSample() {
+    return sample;
   }
 
   public long getSessionNumber() {

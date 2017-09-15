@@ -42,7 +42,7 @@ public class EventsRestAPITest {
 
   @Test
   public void sendEvents() throws Exception {
-    EventContext context = new EventContext("12345");
+    EventContext context = new EventContext("12345", 13);
 
     Object eventObject1 = new EcViewEvent("button1");
     QBEvent qbEvent1 = QBEvents.fromObject(EVENT_TYPE, eventObject1);
