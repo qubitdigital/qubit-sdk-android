@@ -5,7 +5,6 @@ import android.os.StrictMode;
 import android.util.Log;
 import com.qubit.android.sdk.api.QubitSDK;
 import com.qubit.android.sdk.api.logging.QBLogLevel;
-import com.qubit.android.sdk.internal.configuration.ConfigurationServiceImpl;
 
 public class TestApplication extends Application {
 
