@@ -138,7 +138,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
       if (downloadedConfiguration != null) {
         downloadedConfiguration.setLastUpdateTimestamp(now);
         configurationRepository.save(downloadedConfiguration);
-        if (!downloadedConfiguration.equals(currentConfiguration)) {
+        if (!downloadedConfiguration.equalsIgnoreLastUpdateTimestamp(currentConfiguration)) {
           currentConfiguration = downloadedConfiguration;
           notifyListenersConfigurationChange();
           LOGGER.d("Configuration data changed");

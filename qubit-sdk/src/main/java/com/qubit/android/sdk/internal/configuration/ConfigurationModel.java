@@ -174,17 +174,7 @@ public class ConfigurationModel implements Configuration {
         + '}';
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    ConfigurationModel that = (ConfigurationModel) o;
-
+  public boolean equalsIgnoreLastUpdateTimestamp(ConfigurationModel that) {
     if (configurationReloadInterval != that.configurationReloadInterval) {
       return false;
     }
@@ -219,6 +209,23 @@ public class ConfigurationModel implements Configuration {
         ? !lookupAttributeUrl.equals(that.lookupAttributeUrl) : that.lookupAttributeUrl != null) {
       return false;
     }
+    return true;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    ConfigurationModel that = (ConfigurationModel) o;
+    if (!equalsIgnoreLastUpdateTimestamp(that)) {
+      return false;
+    }
+
     return lastUpdateTimestamp != null
         ? lastUpdateTimestamp.equals(that.lastUpdateTimestamp) : that.lastUpdateTimestamp == null;
 
