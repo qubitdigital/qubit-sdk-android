@@ -23,9 +23,9 @@ public class SQLLiteEventsRepository implements EventsRepository {
   private static final String TABLE_NAME = "EVENT";
   private static final String WAS_TRIED_TO_SEND_COLUMN = "WAS_TRIED_TO_SEND";
   private static final String[] ALL_COLUMNS =
-      { "_id", "GLOBAL_ID", "SEQ", "TYPE", "EVENT_BODY", WAS_TRIED_TO_SEND_COLUMN, "CREATION_TIMESTAMP",
+      { "_id", "GLOBAL_ID", "TYPE", "EVENT_BODY", WAS_TRIED_TO_SEND_COLUMN, "CREATION_TIMESTAMP",
       "CONTEXT_VIEW_NUMBER", "CONTEXT_SESSION_NUMBER", "CONTEXT_SESSION_VIEW_NUMBER",
-      "CONTEXT_VIEW_TIMESTAMP", "CONTEXT_SESSION_TIMESTAMP"};
+      "CONTEXT_VIEW_TIMESTAMP", "CONTEXT_SESSION_TIMESTAMP", "SEQ"};
 
   private final Future<SQLiteDatabase> databaseFuture;
   private SQLiteDatabase database;

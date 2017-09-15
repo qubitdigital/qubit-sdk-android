@@ -9,6 +9,7 @@ public class EventContext {
   private Long sessionViewNumber;
   private Long viewNumber;
   private Long viewTs;
+  private Integer timezoneOffset;
 
   public EventContext(String id, int sample) {
     this.id = id;
@@ -75,5 +76,13 @@ public class EventContext {
 
   public void setViewTs(long viewTs) {
     this.viewTs = viewTs;
+  }
+
+  public Integer getTimezoneOffset() {
+    return timezoneOffset;
+  }
+
+  public void setTimezoneOffset(Integer timezoneOffset) {
+    this.timezoneOffset = timezoneOffset;
   }
 }
