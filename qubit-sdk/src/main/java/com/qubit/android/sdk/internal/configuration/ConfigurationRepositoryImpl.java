@@ -4,8 +4,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.qubit.android.sdk.internal.logging.QBLogger;
 
 public class ConfigurationRepositoryImpl implements ConfigurationRepository {
+
+  private static final QBLogger LOGGER = QBLogger.getFor("ConfigurationRepository");
 
   private static final String PREFERENCES_FILE = "qubit_configuration";
   private static final String CONFIGURATION_KEY = "configuration";
@@ -28,9 +32,14 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
   @Override
   @Nullable
   public ConfigurationModel load() {
-    SharedPreferences sharedPref = appContext.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE);
-    String configurationJson = sharedPref.getString(CONFIGURATION_KEY, null);
-    return configurationJson != null ? getGson().fromJson(configurationJson, ConfigurationModel.class) : null;
+    try {
+      SharedPreferences sharedPref = appContext.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE);
+      String configurationJson = sharedPref.getString(CONFIGURATION_KEY, null);
+      return configurationJson != null ? getGson().fromJson(configurationJson, ConfigurationModel.class) : null;
+    } catch (JsonSyntaxException e) {
+      LOGGER.e("Error parsing configuration JSON from local storage.", e);
+      return null;
+    }
   }
 
   private Gson getGson() {
