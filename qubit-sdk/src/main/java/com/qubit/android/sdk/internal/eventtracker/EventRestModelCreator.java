@@ -22,7 +22,7 @@ class EventRestModelCreator {
     this.deviceId = deviceId;
   }
 
-  public EventRestModel create(EventModel eventModel) {
+  public EventRestModel create(EventModel eventModel, Long batchTimestamp) {
 
     JsonObject event = parseJsonEvent(eventModel.getEventBody());
     if (event == null) {
@@ -34,7 +34,7 @@ class EventRestModelCreator {
         eventModel.getContextSessionViewNumber(), eventModel.getContextViewNumber(),
         eventModel.getContextViewTimestamp());
     EventMeta meta = new EventMeta(eventModel.getGlobalId(), eventModel.getCreationTimestamp(), eventModel.getType(),
-        trackingId);
+        trackingId, eventModel.getSeq(), null, batchTimestamp);
 
     return new EventRestModel(event, meta, context);
   }

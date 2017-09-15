@@ -4,6 +4,6 @@ import java.util.concurrent.Future;
 
 public interface SessionService {
 
-  Future<SessionResponse> getOrCreateSession(String eventType, long nowEpochTimeMs);
+  Future<SessionForEvent> getSessionDataForNextEvent(String eventType, long nowEpochTimeMs);
 
 }

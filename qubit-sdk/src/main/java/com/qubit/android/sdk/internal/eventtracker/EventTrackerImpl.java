@@ -15,10 +15,11 @@ import com.qubit.android.sdk.internal.eventtracker.repository.EventModel;
 import com.qubit.android.sdk.internal.eventtracker.repository.EventsRepository;
 import com.qubit.android.sdk.internal.logging.QBLogger;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
+import com.qubit.android.sdk.internal.session.NewSessionRequest;
 import com.qubit.android.sdk.internal.session.SessionData;
-import com.qubit.android.sdk.internal.session.SessionResponse;
+import com.qubit.android.sdk.internal.session.SessionForEvent;
 import com.qubit.android.sdk.internal.session.SessionService;
-import com.qubit.android.sdk.internal.session.model.EmptySessionResponse;
+import com.qubit.android.sdk.internal.session.model.SessionForEventImpl;
 import com.qubit.android.sdk.internal.util.DateTimeUtils;
 import com.qubit.android.sdk.internal.util.Uninterruptibles;
 import java.util.ArrayList;
@@ -132,17 +133,19 @@ public class EventTrackerImpl implements EventTracker {
     public void run() {
       LOGGER.d("Storing event");
       long now = System.currentTimeMillis();
-      SessionResponse sessionResponse = getOrCreateSession(qbEvent.getType(), now);
-      SessionData sessionData = sessionResponse.getSessionData();
-      LOGGER.d("Got session response. New Session?" + sessionResponse.isNewSession()
-          + " SessionData: " + sessionResponse.getSessionData());
+      SessionForEvent sessionForEvent = getSessionDataForNextEvent(qbEvent.getType(), now);
+      SessionData sessionDataForEvent = sessionForEvent.getEventSessionData();
+      NewSessionRequest newSessionRequest = sessionForEvent.getNewSessionRequest();
+      LOGGER.d("Got session response. New Session? " + ( newSessionRequest != null)
+          + " SessionData: " + sessionForEvent.getEventSessionData());
 
-      if (sessionResponse.isNewSession()) {
-        QBEvent sessionEvent = sessionResponse.getSessionEvent();
-        eventsRepository.insert(createNewEventModel(now, sessionEvent, sessionData));
+      if (newSessionRequest != null) {
+        EventModel newEventModel =
+            createNewEventModel(now, newSessionRequest.getSessionEvent(), newSessionRequest.getSessionData());
+        eventsRepository.insert(newEventModel);
       }
 
-      eventsRepository.insert(createNewEventModel(now, qbEvent, sessionData));
+      eventsRepository.insert(createNewEventModel(now, qbEvent, sessionDataForEvent));
 
       scheduleNextSendEventsTask();
     }
@@ -151,6 +154,7 @@ public class EventTrackerImpl implements EventTracker {
   private static EventModel createNewEventModel(long now, QBEvent qbEvent, SessionData sessionData) {
     String globalId = UUID.randomUUID().toString();
     EventModel newEvent = new EventModel(null, globalId,
+        sessionData != null ? sessionData.getSessionEventsNumber() : 1,
         qbEvent.getType(), qbEvent.toJsonObject().toString(), false, now);
     if (sessionData != null) {
       newEvent.setContextViewNumber(sessionData.getViewNumber());
@@ -162,12 +166,12 @@ public class EventTrackerImpl implements EventTracker {
     return newEvent;
   }
 
-  private SessionResponse getOrCreateSession(String eventType, long now) {
+  private SessionForEvent getSessionDataForNextEvent(String eventType, long now) {
     try {
-      return Uninterruptibles.getUninterruptibly(sessionService.getOrCreateSession(eventType, now));
+      return Uninterruptibles.getUninterruptibly(sessionService.getSessionDataForNextEvent(eventType, now));
     } catch (ExecutionException e) {
       LOGGER.e("Unexpected error while getting session", e);
-      return new EmptySessionResponse();
+      return new SessionForEventImpl(null, null);
     }
   }
 
@@ -342,9 +346,10 @@ public class EventTrackerImpl implements EventTracker {
   }
 
   private List<EventRestModel> translateEvents(List<EventModel> events) {
+    Long batchTimestamp = !events.isEmpty() ? events.get(0).getCreationTimestamp() : null;
     List<EventRestModel> eventRestModels = new ArrayList<>(events.size());
     for (EventModel event : events) {
-      EventRestModel eventRestModel = eventRestModelCreator.create(event);
+      EventRestModel eventRestModel = eventRestModelCreator.create(event, batchTimestamp);
       if (eventRestModel != null) {
         eventRestModels.add(eventRestModel);
       }
