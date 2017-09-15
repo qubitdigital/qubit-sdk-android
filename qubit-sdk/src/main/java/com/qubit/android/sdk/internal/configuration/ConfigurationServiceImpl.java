@@ -20,9 +20,10 @@ import static com.qubit.android.sdk.internal.util.Elvis.*;
 
 public class ConfigurationServiceImpl implements ConfigurationService {
 
-  private static final QBLogger LOGGER = QBLogger.getFor("ConfigurationService");
+  public static String configurationUrl = "https://s3-eu-west-1.amazonaws.com/qubit-mobile-config/";
+  public static boolean enforceDownloadOnStart = false;
 
-  private static final String CONFIGURATION_URL = "https://s3-eu-west-1.amazonaws.com/";
+  private static final QBLogger LOGGER = QBLogger.getFor("ConfigurationService");
 
   private final String trackingId;
   private final NetworkStateService networkStateService;
@@ -95,6 +96,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
       currentConfiguration = configurationRepository.load();
       if (currentConfiguration != null) {
         LOGGER.d("Configuration loaded from local storage");
+        if (enforceDownloadOnStart) {
+          currentConfiguration.setLastUpdateTimestamp(null);
+        }
         notifyListenersConfigurationChange();
       }
     }
@@ -171,7 +175,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   private ConfigurationConnector getConfigurationConnector() {
     if (configurationConnector == null) {
       configurationConnector = new Retrofit.Builder()
-          .baseUrl(CONFIGURATION_URL)
+          .baseUrl(configurationUrl)
           .addConverterFactory(GsonConverterFactory.create())
           .build()
           .create(ConfigurationConnector.class);
@@ -247,7 +251,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   private long evaluateNextConfigurationDownloadIntervalMs() {
-    if (lastUpdateAttemptTimestamp == null && currentConfiguration == null) {
+    if (lastUpdateAttemptTimestamp == null
+        && (currentConfiguration == null || currentConfiguration.getLastUpdateTimestamp() == null)) {
       return 0;
     }
     long reloadIntervalMs = DateTimeUtils.minToMs(currentConfiguration.getConfigurationReloadInterval());
