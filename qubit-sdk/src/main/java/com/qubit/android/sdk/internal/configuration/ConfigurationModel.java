@@ -175,6 +175,13 @@ public class ConfigurationModel implements Configuration {
   }
 
   public boolean equalsIgnoreLastUpdateTimestamp(ConfigurationModel that) {
+    if (this == that) {
+      return true;
+    }
+    if (that == null) {
+      return false;
+    }
+
     if (configurationReloadInterval != that.configurationReloadInterval) {
       return false;
     }
