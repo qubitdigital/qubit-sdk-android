@@ -8,7 +8,4 @@ public class RestApiResponse {
     return status;
   }
 
-  public void setStatus(Status status) {
-    this.status = status;
-  }
 }

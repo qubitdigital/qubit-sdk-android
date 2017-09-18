@@ -69,7 +69,7 @@ class EventRestModelCreator {
         return jsonParser.parse(jsonEvent).getAsJsonObject();
       } catch (JsonSyntaxException | NullPointerException | IllegalStateException e) {
         LOGGER.w("Event body stored in database cannot be parsed from JSON. Event: "
-            + jsonEvent + ". Omiting event.", e);
+            + jsonEvent + ". Omitting event.", e);
         return null;
       }
     }

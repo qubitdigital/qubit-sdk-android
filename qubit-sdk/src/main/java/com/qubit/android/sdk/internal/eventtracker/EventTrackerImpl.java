@@ -246,23 +246,23 @@ public class EventTrackerImpl implements EventTracker {
         return;
       }
 
-      List<EventModel> eventsToSent = eventsRepository.selectFirst(BATCH_MAX_SIZE);
-      Collection<Long> eventsToSentIds = extractEventsIds(eventsToSent);
+      List<EventModel> eventsToSend = eventsRepository.selectFirst(BATCH_MAX_SIZE);
+      Collection<Long> eventsToSendIds = extractEventsIds(eventsToSend);
 
-      boolean dedupe = wasAtLeastOneTriedToSent(eventsToSent);
-      List<EventRestModel> eventRestModels = translateEvents(eventsToSent);
+      boolean dedupe = wasAtLeastOneTriedToSent(eventsToSend);
+      List<EventRestModel> eventRestModels = translateEvents(eventsToSend);
       LOGGER.d("SendEventTask: Sending events: " + eventRestModels.size() + ", dedupe=" + dedupe);
       EventsRestAPIConnector.ResponseStatus status = apiConnector.sendEvents(eventRestModels, dedupe);
       LOGGER.d("SendEventTask: Events sent. Status: " + status);
       if (status == EventsRestAPIConnector.ResponseStatus.OK) {
-        eventsRepository.delete(eventsToSentIds);
+        eventsRepository.delete(eventsToSendIds);
         clearAttempts();
       } else if (status == EventsRestAPIConnector.ResponseStatus.RETRYABLE_ERROR) {
-        eventsRepository.updateSetWasTriedToSend(eventsToSentIds);
+        eventsRepository.updateSetWasTriedToSend(eventsToSendIds);
         registerFailedAttempt();
         LOGGER.e("SendEventTask: Sending events failed");
       } else {
-        eventsRepository.delete(eventsToSentIds);
+        eventsRepository.delete(eventsToSendIds);
         clearAttempts();
       }
       scheduleNextSendEventsTask();

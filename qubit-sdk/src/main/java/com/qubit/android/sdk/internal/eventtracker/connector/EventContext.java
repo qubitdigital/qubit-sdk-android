@@ -25,11 +25,6 @@ public class EventContext {
     this.viewTs = viewTs;
   }
 
-  public void setViewData(long viewNumber, long viewTs) {
-    this.viewNumber = viewNumber;
-    this.viewTs = viewTs;
-  }
-
   public String getId() {
     return id;
   }
