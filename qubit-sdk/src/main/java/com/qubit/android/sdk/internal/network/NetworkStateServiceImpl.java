@@ -58,7 +58,7 @@ public class NetworkStateServiceImpl implements NetworkStateService {
       LOGGER.d("Handling Message from Connectivity service. isConnected: " + newIsConnected);
       networkInfo = newNetworkInfo;
       if (oldIsConnected != newIsConnected
-          || newIsConnected && areSameNetworks(oldNetworkInfo, newNetworkInfo)) {
+          || newIsConnected && !areSameNetworks(oldNetworkInfo, newNetworkInfo)) {
         notifyListenersNetworkStateChange(newIsConnected);
       }
     }
