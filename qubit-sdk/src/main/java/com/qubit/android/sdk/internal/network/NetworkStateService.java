@@ -7,5 +7,6 @@ public interface NetworkStateService {
   }
 
   void registerNetworkStateListener(NetworkStateListener networkStateListener);
+  void unregisterNetworkStateListener(NetworkStateListener listener);
 
 }

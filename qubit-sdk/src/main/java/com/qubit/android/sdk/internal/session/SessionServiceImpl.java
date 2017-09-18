@@ -1,11 +1,9 @@
 package com.qubit.android.sdk.internal.session;
 
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Process;
 import com.google.gson.Gson;
 import com.qubit.android.sdk.api.tracker.event.QBEvent;
 import com.qubit.android.sdk.internal.common.model.QBEventImpl;
+import com.qubit.android.sdk.internal.common.service.QBService;
 import com.qubit.android.sdk.internal.logging.QBLogger;
 import com.qubit.android.sdk.internal.session.event.SessionEventGenerator;
 import com.qubit.android.sdk.internal.session.model.NewSessionRequestImpl;
@@ -18,9 +16,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
-public class SessionServiceImpl implements SessionService {
+public class SessionServiceImpl extends QBService implements SessionService {
 
-  private static final QBLogger LOGGER = QBLogger.getFor("SessionService");
+  private static final String SERVICE_NAME = "SessionService";
+  private static final QBLogger LOGGER = QBLogger.getFor(SERVICE_NAME);
 
   private static final long SESSION_VALIDITY_PERIOD_MS = DateTimeUtils.minToMs(30);
   private static final String VIEW_TYPE_POSTFIX = "view";
@@ -29,36 +28,31 @@ public class SessionServiceImpl implements SessionService {
   private final SessionEventGenerator sessionEventGenerator;
   private final SessionRepository sessionRepository;
 
-  private Handler handler;
-  private boolean isStarted = false;
   private Gson gson;
 
   private SessionDataModel currentSessionData;
 
   public SessionServiceImpl(SessionRepository sessionRepository,
                             SessionEventGenerator sessionEventGenerator) {
+    super(SERVICE_NAME);
     this.sessionRepository = sessionRepository;
     this.sessionEventGenerator = sessionEventGenerator;
   }
 
-  public synchronized void start() {
-    if (isStarted) {
-      throw new IllegalStateException("SessionService is already started");
-    }
 
-    HandlerThread thread = new HandlerThread("SessionServiceThread", Process.THREAD_PRIORITY_BACKGROUND);
-    thread.start();
-    handler = new Handler(thread.getLooper());
+  @Override
+  protected void onStart() {
+    postTask(new InitialSessionLoadTask());
+  }
 
-    handler.post(new InitialSessionLoadTask());
-
-    isStarted = true;
+  @Override
+  protected void onStop() {
   }
 
   @Override
   public Future<SessionForEvent> getSessionDataForNextEvent(String eventType, long nowEpochTimeMs) {
     GetSessionDataForNextEventTask task = new GetSessionDataForNextEventTask(eventType, nowEpochTimeMs);
-    handler.post(task);
+    postTask(task);
     return task;
   }
 

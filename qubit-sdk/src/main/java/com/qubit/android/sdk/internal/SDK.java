@@ -62,6 +62,13 @@ public class SDK {
     eventTracker.start();
   }
 
+  public void stop() {
+    eventTracker.stop();
+    sessionService.stop();
+    configurationService.stop();
+    networkStateService.stop();
+  }
+
   public EventTrackerImpl getEventTracker() {
     return eventTracker;
   }
