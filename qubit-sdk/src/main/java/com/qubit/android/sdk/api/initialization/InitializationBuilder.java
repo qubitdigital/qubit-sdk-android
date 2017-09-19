@@ -46,7 +46,10 @@ public class InitializationBuilder {
       TimingLogger timings = new TimingLogger("qb-sdk", "initialization");
       timings.reset();
 
-      QBLogger.logLevel = logLevel;
+      if (logLevel != null) {
+        QBLogger.logLevel = logLevel;
+      }
+
       SDK sdk = new SDK(appContext, trackingId);
       timings.addSplit("creation");
       sdk.start();

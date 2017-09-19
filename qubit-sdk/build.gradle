@@ -9,7 +9,7 @@ android {
     minSdkVersion 15
     targetSdkVersion 26
     versionCode 1
-    versionName "0.1"
+    versionName "0.2"
 
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -27,7 +27,7 @@ dependencies {
   androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
     exclude group: 'com.android.support', module: 'support-annotations'
   })
-  compile 'com.android.support:appcompat-v7:26.0.0-alpha1'
+  provided 'com.android.support:appcompat-v7:26.0.0-alpha1'
   compile 'com.squareup.retrofit2:retrofit:2.3.0'
   compile 'com.squareup.retrofit2:converter-gson:2.3.0'
 
@@ -47,4 +47,16 @@ task checkstyle(type: Checkstyle) {
   ignoreFailures = false
   classpath = files()
   outputs.upToDateWhen { false }
+}
+
+apply plugin: 'digital.wup.android-maven-publish'
+publishing {
+  publications {
+    mavenAar(MavenPublication) {
+      groupId 'com.qubit'
+      artifactId 'qubit-sdk-android'
+      version '0.2-SNAPSHOT'
+      from components.android
+    }
+  }
 }
