@@ -15,6 +15,8 @@ import com.qubit.android.sdk.internal.initialization.SecureAndroidIdDeviceIdProv
 import com.qubit.android.sdk.internal.lookup.LookupServiceImpl;
 import com.qubit.android.sdk.internal.lookup.connector.LookupConnectorBuilder;
 import com.qubit.android.sdk.internal.lookup.connector.LookupConnectorBuilderImpl;
+import com.qubit.android.sdk.internal.lookup.repository.LookupRepository;
+import com.qubit.android.sdk.internal.lookup.repository.LookupRepositoryImpl;
 import com.qubit.android.sdk.internal.network.NetworkStateServiceImpl;
 import com.qubit.android.sdk.internal.session.SessionServiceImpl;
 import com.qubit.android.sdk.internal.session.event.AppPropertiesProvider;
@@ -44,9 +46,10 @@ public class SDK {
 
     String deviceId = new SecureAndroidIdDeviceIdProvider(appContext).getDeviceId();
 
+    LookupRepository lookupRepository = new LookupRepositoryImpl();
     LookupConnectorBuilder lookupConnectorBuilder = new LookupConnectorBuilderImpl(trackingId, deviceId);
-    lookupService = new LookupServiceImpl(trackingId, deviceId, configurationService, networkStateService,
-        lookupConnectorBuilder);
+    lookupService = new LookupServiceImpl(configurationService, networkStateService,
+        lookupRepository, lookupConnectorBuilder);
 
     SessionRepository sessionRepository = new SessionRepositoryImpl(appContext);
     ScreenSizeProvider screenSizeProvider = new ScreenSizeProviderImpl(appContext);

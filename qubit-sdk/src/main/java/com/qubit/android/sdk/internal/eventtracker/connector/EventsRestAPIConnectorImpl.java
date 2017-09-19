@@ -24,10 +24,6 @@ public class EventsRestAPIConnectorImpl implements EventsRestAPIConnector {
   @SuppressWarnings("checkstyle:illegalcatch")
   @Override
   public ResponseStatus sendEvents(List<EventRestModel> events, boolean dedupe) {
-    if (api == null) {
-      throw new IllegalStateException("EventSender: Before sending events, endpoint url has to be set. "
-          + "Use setEndpointUrl method");
-    }
     try {
       Response<RestApiResponse> response =
           api.sendEvents(trackingId, dedupe, events.toArray(EMPTY_EVENT_LIST)).execute();

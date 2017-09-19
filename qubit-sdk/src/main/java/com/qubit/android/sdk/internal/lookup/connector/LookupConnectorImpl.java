@@ -1,8 +1,13 @@
 package com.qubit.android.sdk.internal.lookup.connector;
 
+import com.qubit.android.sdk.internal.logging.QBLogger;
 import com.qubit.android.sdk.internal.lookup.model.LookupModel;
+import java.io.IOException;
+import retrofit2.Response;
 
 public class LookupConnectorImpl implements LookupConnector {
+
+  private static final QBLogger LOGGER = QBLogger.getFor("LookupConnector");
 
   private final String trackingId;
   private final String deviceId;
@@ -14,9 +19,24 @@ public class LookupConnectorImpl implements LookupConnector {
     this.lookupAPI = lookupAPI;
   }
 
+  @SuppressWarnings("checkstyle:illegalcatch")
   @Override
   public LookupModel getLookupData() {
-    // TODO
-    return null;
+    try {
+      Response<LookupModel> response = lookupAPI.getLookup(trackingId, deviceId).execute();
+
+      LookupModel responseBody = response.body();
+      if (responseBody == null) {
+        LOGGER.e("Response doesn't contain body.");
+      }
+      return responseBody;
+    } catch (IOException e) {
+      LOGGER.e("Error connecting to server.", e);
+      return null;
+    } catch (RuntimeException e) {
+      LOGGER.e("Unexpected exception while getting lookup.", e);
+      return null;
+    }
   }
+
 }
