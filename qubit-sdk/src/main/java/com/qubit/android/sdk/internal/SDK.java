@@ -12,6 +12,9 @@ import com.qubit.android.sdk.internal.eventtracker.connector.EventsRestAPIConnec
 import com.qubit.android.sdk.internal.eventtracker.repository.EventsRepository;
 import com.qubit.android.sdk.internal.eventtracker.repository.SQLLiteEventsRepository;
 import com.qubit.android.sdk.internal.initialization.SecureAndroidIdDeviceIdProvider;
+import com.qubit.android.sdk.internal.lookup.LookupServiceImpl;
+import com.qubit.android.sdk.internal.lookup.connector.LookupConnectorBuilder;
+import com.qubit.android.sdk.internal.lookup.connector.LookupConnectorBuilderImpl;
 import com.qubit.android.sdk.internal.network.NetworkStateServiceImpl;
 import com.qubit.android.sdk.internal.session.SessionServiceImpl;
 import com.qubit.android.sdk.internal.session.event.AppPropertiesProvider;
@@ -28,6 +31,7 @@ public class SDK {
 
   private NetworkStateServiceImpl networkStateService;
   private ConfigurationServiceImpl configurationService;
+  private LookupServiceImpl lookupService;
   private SessionServiceImpl sessionService;
   private EventTrackerImpl eventTracker;
 
@@ -37,6 +41,12 @@ public class SDK {
     ConfigurationRepository configurationRepository = new ConfigurationRepositoryImpl(appContext);
     this.configurationService =
         new ConfigurationServiceImpl(trackingId, networkStateService, configurationRepository);
+
+    String deviceId = new SecureAndroidIdDeviceIdProvider(appContext).getDeviceId();
+
+    LookupConnectorBuilder lookupConnectorBuilder = new LookupConnectorBuilderImpl(trackingId, deviceId);
+    lookupService = new LookupServiceImpl(trackingId, deviceId, configurationService, networkStateService,
+        lookupConnectorBuilder);
 
     SessionRepository sessionRepository = new SessionRepositoryImpl(appContext);
     ScreenSizeProvider screenSizeProvider = new ScreenSizeProviderImpl(appContext);
@@ -49,7 +59,6 @@ public class SDK {
     Future<SQLiteDatabase> databaseFuture =
         new DatabaseInitializer(appContext, SQLLiteEventsRepository.tableInitializer()).initDatabaseAsync();
     EventsRepository eventsRepository = new SQLLiteEventsRepository(databaseFuture);
-    String deviceId = new SecureAndroidIdDeviceIdProvider(appContext).getDeviceId();
     EventsRestAPIConnectorBuilder eventsRestAPIConnectorBuilder = new EventsRestAPIConnectorBuilderImpl(trackingId);
     this.eventTracker = new EventTrackerImpl(trackingId, deviceId,
         configurationService, networkStateService, sessionService, eventsRepository, eventsRestAPIConnectorBuilder);
@@ -58,6 +67,7 @@ public class SDK {
   public void start() {
     networkStateService.start();
     configurationService.start();
+    lookupService.start();
     sessionService.start();
     eventTracker.start();
   }
@@ -65,6 +75,7 @@ public class SDK {
   public void stop() {
     eventTracker.stop();
     sessionService.stop();
+    lookupService.stop();
     configurationService.stop();
     networkStateService.stop();
   }
