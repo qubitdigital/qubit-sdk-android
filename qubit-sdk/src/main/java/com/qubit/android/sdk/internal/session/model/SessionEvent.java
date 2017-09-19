@@ -2,6 +2,7 @@ package com.qubit.android.sdk.internal.session.model;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.qubit.android.sdk.internal.common.model.IpLocation;
 
 public class SessionEvent {
 

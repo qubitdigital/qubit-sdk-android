@@ -1,4 +1,4 @@
-package com.qubit.android.sdk.internal.session.model;
+package com.qubit.android.sdk.internal.common.model;
 
 public class IpLocation {
 
