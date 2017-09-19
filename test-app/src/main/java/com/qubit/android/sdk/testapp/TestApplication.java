@@ -35,4 +35,11 @@ public class TestApplication extends Application {
     Log.i(TAG, "Test application initialized");
   }
 
+  @Override
+  public void onTerminate() {
+    super.onTerminate();
+    QubitSDK.release();
+    Log.i(TAG, "QubitSDK stopped");
+  }
+
 }

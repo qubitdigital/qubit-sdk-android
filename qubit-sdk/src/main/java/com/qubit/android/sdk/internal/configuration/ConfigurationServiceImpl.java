@@ -1,9 +1,7 @@
 package com.qubit.android.sdk.internal.configuration;
 
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Process;
 import android.support.annotation.Nullable;
+import com.qubit.android.sdk.internal.common.service.QBService;
 import com.qubit.android.sdk.internal.logging.QBLogger;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
 import com.qubit.android.sdk.internal.util.DateTimeUtils;
@@ -18,24 +16,24 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.qubit.android.sdk.internal.util.Elvis.*;
 
-public class ConfigurationServiceImpl implements ConfigurationService {
+public class ConfigurationServiceImpl extends QBService implements ConfigurationService {
 
   public static String configurationUrl = "https://s3-eu-west-1.amazonaws.com/qubit-mobile-config/";
   public static boolean enforceDownloadOnStart = false;
 
-  private static final QBLogger LOGGER = QBLogger.getFor("ConfigurationService");
+  private static final String SERVICE_NAME = "ConfigurationService";
+
+  private static final QBLogger LOGGER = QBLogger.getFor(SERVICE_NAME);
 
   private final String trackingId;
   private final NetworkStateService networkStateService;
   private final ConfigurationRepository configurationRepository;
   private final ConfigurationDownloadTask configurationDownloadTask = new ConfigurationDownloadTask();
+  private final NetworkStateService.NetworkStateListener networkStateListener;
 
-  private Handler handler;
   private ConfigurationConnector configurationConnector;
 
-  private boolean isStarted = false;
   private Collection<ConfigurationListener> listeners = new CopyOnWriteArraySet<>();
-
   private ConfigurationModel currentConfiguration;
   private boolean isConnected;
   private Long lastUpdateAttemptTimestamp;
@@ -43,52 +41,52 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   public ConfigurationServiceImpl(String trackingId, NetworkStateService networkStateService,
                                   ConfigurationRepository configurationRepository) {
+    super(SERVICE_NAME);
     this.trackingId = trackingId;
     this.networkStateService = networkStateService;
     this.configurationRepository = configurationRepository;
+    networkStateListener = new NetworkStateService.NetworkStateListener() {
+      @Override
+      public void onNetworkStateChange(boolean isConnected) {
+        postTask(new NetworkStateChangeTask(isConnected));
+      }
+    };
   }
 
   @Override
-  public void registerConfigurationListener(ConfigurationListener configurationListener) {
-    handler.post(new RegisterConfigurationListenerTask(configurationListener));
+  protected void onStart() {
+    postTask(new InitialConfigurationLoadTask());
+    networkStateService.registerNetworkStateListener(networkStateListener);
   }
 
-  public synchronized void start() {
-    if (isStarted) {
-      throw new IllegalStateException("ConfigurationService is already started");
-    }
+  @Override
+  protected void onStop() {
+    networkStateService.unregisterNetworkStateListener(networkStateListener);
+  }
 
-    HandlerThread thread = new HandlerThread("ConfigurationServiceThread", Process.THREAD_PRIORITY_BACKGROUND);
-    thread.start();
-    handler = new Handler(thread.getLooper());
-
-    handler.post(new InitialConfigurationLoadTask());
-
-    networkStateService.registerNetworkStateListener(new NetworkStateService.NetworkStateListener() {
+  @Override
+  public void registerConfigurationListener(final ConfigurationListener configurationListener) {
+    postTask(new Runnable() {
       @Override
-      public void onNetworkStateChange(boolean isConnected) {
-        handler.post(new NetworkStateChangeTask(isConnected));
+      public void run() {
+        listeners.add(configurationListener);
+        if (currentConfiguration != null) {
+          notifyConfigurationChange(configurationListener, currentConfiguration);
+        }
       }
     });
-
-    isStarted = true;
   }
 
-  private final class RegisterConfigurationListenerTask implements Runnable {
-    private final ConfigurationListener listener;
-
-    private RegisterConfigurationListenerTask(ConfigurationListener listener) {
-      this.listener = listener;
-    }
-
-    @Override
-    public void run() {
-      listeners.add(listener);
-      if (currentConfiguration != null) {
-        notifyConfigurationChange(listener, currentConfiguration);
+  @Override
+  public void unregisterConfigurationListener(final ConfigurationListener configurationListener) {
+    postTask(new Runnable() {
+      @Override
+      public void run() {
+        listeners.remove(configurationListener);
       }
-    }
+    });
   }
+
 
   private class InitialConfigurationLoadTask implements Runnable {
     @Override
@@ -236,16 +234,16 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   private void scheduleNextConfigurationDownloadTask() {
-    handler.removeCallbacks(configurationDownloadTask);
+    removeTask(configurationDownloadTask);
     if (!isConnected) {
       return;
     }
     long nextDownloadIntervalMs = evaluateNextConfigurationDownloadIntervalMs();
     if (nextDownloadIntervalMs > 0) {
-      handler.postDelayed(configurationDownloadTask, nextDownloadIntervalMs);
+      postTaskDelayed(configurationDownloadTask, nextDownloadIntervalMs);
       LOGGER.d("Next ConfigurationDownloadTask scheduled for " + nextDownloadIntervalMs);
     } else {
-      handler.post(configurationDownloadTask);
+      postTask(configurationDownloadTask);
       LOGGER.d("Next ConfigurationDownloadTask scheduled for NOW");
     }
   }

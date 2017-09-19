@@ -31,4 +31,12 @@ public final class QubitSDK {
     return sdkSingleton.getEventTracker();
   }
 
+  public static void release() {
+    if (sdkSingleton == null) {
+      throw new IllegalStateException("QubitSDK is not initialized..");
+    }
+    sdkSingleton.stop();
+    sdkSingleton = null;
+  }
+
 }

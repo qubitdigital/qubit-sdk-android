@@ -1,10 +1,8 @@
 package com.qubit.android.sdk.internal.eventtracker;
 
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Process;
 import com.qubit.android.sdk.api.tracker.EventTracker;
 import com.qubit.android.sdk.api.tracker.event.QBEvent;
+import com.qubit.android.sdk.internal.common.service.QBService;
 import com.qubit.android.sdk.internal.configuration.Configuration;
 import com.qubit.android.sdk.internal.configuration.ConfigurationService;
 import com.qubit.android.sdk.internal.eventtracker.connector.EventRestModel;
@@ -30,9 +28,10 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
-public class EventTrackerImpl implements EventTracker {
+public class EventTrackerImpl extends QBService implements EventTracker {
 
-  private static final QBLogger LOGGER = QBLogger.getFor("EventTracker");
+  private static final String SERVICE_NAME = "EventTracker";
+  private static final QBLogger LOGGER = QBLogger.getFor(SERVICE_NAME);
 
   private static final int BATCH_MAX_SIZE = 15;
   private static final int BATCH_INTERVAL_MS = 500;
@@ -49,10 +48,9 @@ public class EventTrackerImpl implements EventTracker {
   private final EventRestModelCreator eventRestModelCreator;
   private final SendEventsTask sendEventsTask = new SendEventsTask();
   private final Random random = new Random();
+  private final ConfigurationService.ConfigurationListener configurationListener;
+  private final NetworkStateService.NetworkStateListener networkStateListener;
 
-  private Handler handler;
-
-  private boolean isStarted = false;
   private boolean isEnabled = true;
 
   private Configuration currentConfiguration = null;
@@ -68,18 +66,44 @@ public class EventTrackerImpl implements EventTracker {
                           SessionService sessionService,
                           EventsRepository eventsRepository,
                           EventsRestAPIConnectorBuilder eventsRestAPIConnectorBuilder) {
+    super(SERVICE_NAME);
     this.configurationService = configurationService;
     this.networkStateService = networkStateService;
     this.sessionService = sessionService;
     this.eventsRepository = new CachingEventsRepository(eventsRepository);
     this.eventsRestAPIConnectorBuilder = eventsRestAPIConnectorBuilder;
     eventRestModelCreator = new EventRestModelCreator(trackingId, deviceId);
+    configurationListener = new ConfigurationService.ConfigurationListener() {
+      @Override
+      public void onConfigurationChange(Configuration configuration) {
+        postTask(new ConfigurationChangeTask(configuration));
+      }
+    };
+    networkStateListener = new NetworkStateService.NetworkStateListener() {
+      @Override
+      public void onNetworkStateChange(boolean isConnected) {
+        postTask(new NetworkStateChangeTask(isConnected));
+      }
+    };
+  }
+
+  @Override
+  protected void onStart() {
+    postTask(new RepositoryInitTask());
+    configurationService.registerConfigurationListener(configurationListener);
+    networkStateService.registerNetworkStateListener(networkStateListener);
+  }
+
+  @Override
+  protected void onStop() {
+    configurationService.unregisterConfigurationListener(configurationListener);
+    networkStateService.unregisterNetworkStateListener(networkStateListener);
   }
 
   @Override
   public synchronized void sendEvent(QBEvent event) {
-    if (isStarted && isEnabled) {
-      handler.post(new StoreEventTask(event));
+    if (isEnabled) {
+      postTask(new StoreEventTask(event));
     }
   }
 
@@ -88,31 +112,6 @@ public class EventTrackerImpl implements EventTracker {
     isEnabled = enable;
   }
 
-  public synchronized void start() {
-    if (isStarted) {
-      throw new IllegalStateException("EventTracker is already started");
-    }
-    HandlerThread thread = new HandlerThread("EventTrackerThread", Process.THREAD_PRIORITY_BACKGROUND);
-    thread.start();
-    handler = new Handler(thread.getLooper());
-
-    handler.post(new RepositoryInitTask());
-
-    configurationService.registerConfigurationListener(new ConfigurationService.ConfigurationListener() {
-      @Override
-      public void onConfigurationChange(Configuration configuration) {
-        handler.post(new ConfigurationChangeTask(configuration));
-      }
-    });
-
-    networkStateService.registerNetworkStateListener(new NetworkStateService.NetworkStateListener() {
-      @Override
-      public void onNetworkStateChange(boolean isConnected) {
-        handler.post(new NetworkStateChangeTask(isConnected));
-      }
-    });
-    isStarted = true;
-  }
 
   private class RepositoryInitTask implements Runnable {
     @Override
@@ -242,7 +241,7 @@ public class EventTrackerImpl implements EventTracker {
       if (timeMsToSendEvents > 0) {
         LOGGER.d("SendEventsTask: Batch is not full. Postponing sending events by "
             + timeMsToSendEvents + " ms.");
-        handler.postDelayed(sendEventsTask, timeMsToSendEvents);
+        postTaskDelayed(sendEventsTask, timeMsToSendEvents);
         return;
       }
 
@@ -280,7 +279,7 @@ public class EventTrackerImpl implements EventTracker {
   }
 
   private void scheduleNextSendEventsTask() {
-    handler.removeCallbacks(sendEventsTask);
+    removeTask(sendEventsTask);
     if (!isConnected || currentConfiguration == null) {
       return;
     }
@@ -291,10 +290,10 @@ public class EventTrackerImpl implements EventTracker {
 
     if (timeMsToNextSendEvents != null) {
       if (timeMsToNextSendEvents > 0) {
-        handler.postDelayed(sendEventsTask, timeMsToNextSendEvents);
+        postTaskDelayed(sendEventsTask, timeMsToNextSendEvents);
         LOGGER.d("Next SendEventsTask scheduled for " + timeMsToNextSendEvents);
       } else {
-        handler.post(sendEventsTask);
+        postTask(sendEventsTask);
         LOGGER.d("Next SendEventsTask scheduled for NOW");
       }
     }

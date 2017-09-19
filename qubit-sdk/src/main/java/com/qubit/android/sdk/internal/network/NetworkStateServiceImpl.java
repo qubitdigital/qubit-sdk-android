@@ -6,47 +6,65 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Process;
 import android.text.TextUtils;
+import com.qubit.android.sdk.internal.common.service.QBService;
 import com.qubit.android.sdk.internal.logging.QBLogger;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public class NetworkStateServiceImpl implements NetworkStateService {
+public class NetworkStateServiceImpl extends QBService implements NetworkStateService {
 
-  private static final QBLogger LOGGER = QBLogger.getFor("NetworkStateService");
+  private static final String SERVICE_NAME = "NetworkStateService";
+  private static final QBLogger LOGGER = QBLogger.getFor(SERVICE_NAME);
 
   private final Context appContext;
   private final Collection<NetworkStateListener> listeners = new CopyOnWriteArraySet<>();
-  private Handler handler;
+  private final BroadcastReceiver broadcastReceiver;
   private NetworkInfo networkInfo;
 
   public NetworkStateServiceImpl(Context appContext) {
+    super(SERVICE_NAME);
     this.appContext = appContext;
     networkInfo = requestForActiveNetworkInfo();
-  }
-
-  @Override
-  public void registerNetworkStateListener(NetworkStateListener listener) {
-    handler.post(new RegisterListenerTask(listener));
-  }
-
-  public void start() {
-    HandlerThread thread = new HandlerThread("ConfigurationServiceThread", Process.THREAD_PRIORITY_BACKGROUND);
-    thread.start();
-    handler = new Handler(thread.getLooper());
-
-    appContext.registerReceiver(new BroadcastReceiver() {
+    broadcastReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
         LOGGER.d("Message from Connectivity service");
-        handler.post(new ReceiveConnectivityActionTask());
+        postTask(new ReceiveConnectivityActionTask());
       }
-    }, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+    };
   }
 
+  @Override
+  protected void onStart() {
+    appContext.registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+  }
+
+  @Override
+  protected void onStop() {
+    appContext.unregisterReceiver(broadcastReceiver);
+  }
+
+  @Override
+  public void registerNetworkStateListener(final NetworkStateListener listener) {
+    postTask(new Runnable() {
+      @Override
+      public void run() {
+        listeners.add(listener);
+        notifyListenerNetworkStateChange(listener, isConnected(networkInfo));
+      }
+    });
+  }
+
+  @Override
+  public void unregisterNetworkStateListener(final NetworkStateListener listener) {
+    postTask(new Runnable() {
+      @Override
+      public void run() {
+        listeners.remove(listener);
+      }
+    });
+  }
 
   private final class ReceiveConnectivityActionTask implements Runnable {
     @Override
@@ -61,20 +79,6 @@ public class NetworkStateServiceImpl implements NetworkStateService {
           || newIsConnected && !areSameNetworks(oldNetworkInfo, newNetworkInfo)) {
         notifyListenersNetworkStateChange(newIsConnected);
       }
-    }
-  }
-
-  private final class RegisterListenerTask implements Runnable {
-    private final NetworkStateListener listener;
-
-    private RegisterListenerTask(NetworkStateListener listener) {
-      this.listener = listener;
-    }
-
-    @Override
-    public void run() {
-      listeners.add(listener);
-      notifyListenerNetworkStateChange(listener, isConnected(networkInfo));
     }
   }
 
