@@ -10,6 +10,9 @@ public class EventContext {
   private Long viewNumber;
   private Long viewTs;
   private Integer timezoneOffset;
+  private Long conversionNumber;
+  private Long conversionCycleNumber;
+  private LifetimeValue lifetimeValue;
 
   public EventContext(String id, int sample) {
     this.id = id;
@@ -79,5 +82,29 @@ public class EventContext {
 
   public void setTimezoneOffset(Integer timezoneOffset) {
     this.timezoneOffset = timezoneOffset;
+  }
+
+  public Long getConversionNumber() {
+    return conversionNumber;
+  }
+
+  public void setConversionNumber(Long conversionNumber) {
+    this.conversionNumber = conversionNumber;
+  }
+
+  public Long getConversionCycleNumber() {
+    return conversionCycleNumber;
+  }
+
+  public void setConversionCycleNumber(Long conversionCycleNumber) {
+    this.conversionCycleNumber = conversionCycleNumber;
+  }
+
+  public LifetimeValue getLifetimeValue() {
+    return lifetimeValue;
+  }
+
+  public void setLifetimeValue(LifetimeValue lifetimeValue) {
+    this.lifetimeValue = lifetimeValue;
   }
 }

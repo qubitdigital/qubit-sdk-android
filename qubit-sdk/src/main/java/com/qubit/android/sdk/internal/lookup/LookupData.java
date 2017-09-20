@@ -1,6 +1,7 @@
 package com.qubit.android.sdk.internal.lookup;
 
 import com.qubit.android.sdk.internal.common.model.IpLocation;
+import java.math.BigDecimal;
 
 public interface LookupData {
 
@@ -13,7 +14,7 @@ public interface LookupData {
   Long getFirstViewTs();
   Long getFirstConversionTs();
   Long getLastConversionTs();
-  Long getLifetimeValue();
+  BigDecimal getLifetimeValue();
   Long getLastViewTs();
   Long getConversionCycleNumber();
 
