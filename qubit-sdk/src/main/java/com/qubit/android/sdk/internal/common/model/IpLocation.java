@@ -3,13 +3,15 @@ package com.qubit.android.sdk.internal.common.model;
 public class IpLocation {
 
   String country;
-  String countyCode;
+  String countryCode;
   String region;
   String regionCode;
   String area;
   String areaCode;
   String city;
   String cityCode;
+  Double longitude;
+  Double latitude;
 
   public String getCountry() {
     return country;
@@ -19,12 +21,12 @@ public class IpLocation {
     this.country = country;
   }
 
-  public String getCountyCode() {
-    return countyCode;
+  public String getCountryCode() {
+    return countryCode;
   }
 
-  public void setCountyCode(String countyCode) {
-    this.countyCode = countyCode;
+  public void setCountryCode(String countryCode) {
+    this.countryCode = countryCode;
   }
 
   public String getRegion() {
@@ -73,5 +75,21 @@ public class IpLocation {
 
   public void setCityCode(String cityCode) {
     this.cityCode = cityCode;
+  }
+
+  @Override
+  public String toString() {
+    return "IpLocation{"
+        + "country='" + country + '\''
+        + ", countryCode='" + countryCode + '\''
+        + ", region='" + region + '\''
+        + ", regionCode='" + regionCode + '\''
+        + ", area='" + area + '\''
+        + ", areaCode='" + areaCode + '\''
+        + ", city='" + city + '\''
+        + ", cityCode='" + cityCode + '\''
+        + ", longitude=" + longitude
+        + ", latitude=" + latitude
+        + '}';
   }
 }

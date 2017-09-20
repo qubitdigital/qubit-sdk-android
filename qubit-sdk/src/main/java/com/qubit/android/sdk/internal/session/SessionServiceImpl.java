@@ -5,6 +5,8 @@ import com.qubit.android.sdk.api.tracker.event.QBEvent;
 import com.qubit.android.sdk.internal.common.model.QBEventImpl;
 import com.qubit.android.sdk.internal.common.service.QBService;
 import com.qubit.android.sdk.internal.logging.QBLogger;
+import com.qubit.android.sdk.internal.lookup.LookupData;
+import com.qubit.android.sdk.internal.lookup.LookupService;
 import com.qubit.android.sdk.internal.session.event.SessionEventGenerator;
 import com.qubit.android.sdk.internal.session.model.NewSessionRequestImpl;
 import com.qubit.android.sdk.internal.session.model.SessionDataModel;
@@ -12,6 +14,8 @@ import com.qubit.android.sdk.internal.session.model.SessionEvent;
 import com.qubit.android.sdk.internal.session.model.SessionForEventImpl;
 import com.qubit.android.sdk.internal.session.repository.SessionRepository;
 import com.qubit.android.sdk.internal.util.DateTimeUtils;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -25,34 +29,61 @@ public class SessionServiceImpl extends QBService implements SessionService {
   private static final String VIEW_TYPE_POSTFIX = "view";
   private static final String SESSION_EVENT_TYPE = "qubit.session";
 
+  private final LookupService lookupService;
   private final SessionEventGenerator sessionEventGenerator;
   private final SessionRepository sessionRepository;
+
+  private final LookupService.LookupListener lookupListener;
 
   private Gson gson;
 
   private SessionDataModel currentSessionData;
 
-  public SessionServiceImpl(SessionRepository sessionRepository,
+  private LookupData currentLookupData;
+
+  private final Long lookupLockObject = System.currentTimeMillis();
+  private List<GetSessionDataForNextEventTask> getTasksWaitingForLookup = new ArrayList<>();
+  private boolean isLookupReceived = false;
+
+  public SessionServiceImpl(LookupService lookupService, SessionRepository sessionRepository,
                             SessionEventGenerator sessionEventGenerator) {
     super(SERVICE_NAME);
+    this.lookupService = lookupService;
     this.sessionRepository = sessionRepository;
     this.sessionEventGenerator = sessionEventGenerator;
+    lookupListener = new LookupService.LookupListener() {
+      @Override
+      public void onLookupDataChange(LookupData lookupData) {
+        postTask(new LookupChangeTask(lookupData));
+      }
+    };
   }
 
 
   @Override
   protected void onStart() {
     postTask(new InitialSessionLoadTask());
+    lookupService.registerLookupListener(lookupListener);
+
   }
 
   @Override
   protected void onStop() {
+    lookupService.unregisterLookupListener(lookupListener);
   }
 
   @Override
   public Future<SessionForEvent> getSessionDataForNextEvent(String eventType, long nowEpochTimeMs) {
     GetSessionDataForNextEventTask task = new GetSessionDataForNextEventTask(eventType, nowEpochTimeMs);
-    postTask(task);
+
+    synchronized (lookupLockObject) {
+      if (isLookupReceived) {
+        postTask(task);
+      } else {
+        LOGGER.d("Save GetTask in queue waiting for Lookup");
+        getTasksWaitingForLookup.add(task);
+      }
+    }
     return task;
   }
 
@@ -64,6 +95,33 @@ public class SessionServiceImpl extends QBService implements SessionService {
       LOGGER.d("Session loaded from local store: " + currentSessionData);
       if (currentSessionData != null) {
         currentSessionData.setLastEventTs(0);
+      }
+    }
+  }
+
+  private class LookupChangeTask implements Runnable {
+    private final LookupData lookupData;
+
+    LookupChangeTask(LookupData lookupData) {
+      this.lookupData = lookupData;
+    }
+
+    @Override
+    public void run() {
+      LOGGER.d("Lookup changed");
+      currentLookupData = lookupData;
+      // TODO
+      synchronized (lookupLockObject) {
+        if (!isLookupReceived) {
+          isLookupReceived = true;
+          if (!getTasksWaitingForLookup.isEmpty()) {
+            LOGGER.d("Posting gathered Get*Task (" + getTasksWaitingForLookup.size() + ") to execution");
+            for (GetSessionDataForNextEventTask waitingGetTask : getTasksWaitingForLookup) {
+              postTask(waitingGetTask);
+            }
+            getTasksWaitingForLookup.clear();
+          }
+        }
       }
     }
   }

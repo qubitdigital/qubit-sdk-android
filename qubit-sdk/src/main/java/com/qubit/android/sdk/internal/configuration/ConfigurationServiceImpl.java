@@ -97,6 +97,7 @@ public class ConfigurationServiceImpl extends QBService implements Configuration
         if (enforceDownloadOnStart) {
           currentConfiguration.setLastUpdateTimestamp(null);
         }
+        scheduleNextConfigurationDownloadTask();
         notifyListenersConfigurationChange();
       }
     }

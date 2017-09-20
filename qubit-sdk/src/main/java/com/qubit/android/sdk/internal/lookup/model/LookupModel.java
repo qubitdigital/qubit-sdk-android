@@ -125,4 +125,22 @@ public class LookupModel implements LookupData {
   public void setConversionCycleNumber(Long conversionCycleNumber) {
     this.conversionCycleNumber = conversionCycleNumber;
   }
+
+  @Override
+  public String toString() {
+    return "LookupModel{"
+        + "ipLocation=" + ipLocation
+        + ", ipAddress='" + ipAddress + '\''
+        + ", viewNumber=" + viewNumber
+        + ", sessionNumber=" + sessionNumber
+        + ", conversionNumber=" + conversionNumber
+        + ", entranceNumber=" + entranceNumber
+        + ", firstViewTs=" + firstViewTs
+        + ", firstConversionTs=" + firstConversionTs
+        + ", lastConversionTs=" + lastConversionTs
+        + ", lifetimeValue=" + lifetimeValue
+        + ", lastViewTs=" + lastViewTs
+        + ", conversionCycleNumber=" + conversionCycleNumber
+        + '}';
+  }
 }
