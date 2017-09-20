@@ -46,7 +46,7 @@ public class SDK {
 
     String deviceId = new SecureAndroidIdDeviceIdProvider(appContext).getDeviceId();
 
-    LookupRepository lookupRepository = new LookupRepositoryImpl();
+    LookupRepository lookupRepository = new LookupRepositoryImpl(appContext);
     LookupConnectorBuilder lookupConnectorBuilder = new LookupConnectorBuilderImpl(trackingId, deviceId);
     lookupService = new LookupServiceImpl(configurationService, networkStateService,
         lookupRepository, lookupConnectorBuilder);

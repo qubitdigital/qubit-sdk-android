@@ -23,6 +23,7 @@ public class LookupServiceImpl extends QBService implements LookupService {
   private static final int EXP_BACKOFF_BASE_TIME_SECS = 1;
   private static final int EXP_BACKOFF_MAX_SENDING_ATTEMPTS = 7;
   private static final int MAX_RETRY_INTERVAL_SECS = 60 * 5;
+  private static final int DEFAULT_FAILOVER_TIME_SECS = 5;
 
   private final ConfigurationService configurationService;
   private final NetworkStateService networkStateService;
@@ -32,7 +33,7 @@ public class LookupServiceImpl extends QBService implements LookupService {
   private final ConfigurationService.ConfigurationListener configurationListener;
   private final NetworkStateService.NetworkStateListener networkStateListener;
   private LookupRequestTask lookupRequestTask = new LookupRequestTask();
-  private SetDefaultLookupTask setDefaultLookupTask = new SetDefaultLookupTask();
+  private FailoverLookupTask failoverLookupTask = new FailoverLookupTask();
 
   private Collection<LookupListener> listeners = new CopyOnWriteArraySet<>();
   private LookupConnector lookupConnector = null;
@@ -71,7 +72,7 @@ public class LookupServiceImpl extends QBService implements LookupService {
 
   @Override
   protected void onStart() {
-    postTask(new InitialLookupLoadTask());
+    postTask(new InitialTask());
     configurationService.registerConfigurationListener(configurationListener);
     networkStateService.registerNetworkStateListener(networkStateListener);
   }
@@ -106,17 +107,11 @@ public class LookupServiceImpl extends QBService implements LookupService {
     });
   }
 
-  private class InitialLookupLoadTask implements Runnable {
+  private class InitialTask implements Runnable {
     @Override
     public void run() {
       initTime = System.currentTimeMillis();
-      currentLookupCache = lookupRepository.load();
-      if (currentLookupCache != null) {
-        LOGGER.d("Lookup loaded from local storage");
-        notifyListenersLookupDataChange();
-      } else {
-        scheduleSetDefaultLookupTask();
-      }
+      scheduleFailoverLookupTask();
       scheduleNextLookupRequestTask();
     }
   }
@@ -136,7 +131,6 @@ public class LookupServiceImpl extends QBService implements LookupService {
         lookupConnector = lookupConnectorBuilder.buildFor(currentConfiguration.getLookupAttributeUrl());
         clearAttempts();
         scheduleNextLookupRequestTask();
-        scheduleSetDefaultLookupTask();
       } catch (IllegalArgumentException e) {
         LOGGER.e("Cannot create Rest API connector. Most likely endpoint url is incorrect.", e);
       }
@@ -194,15 +188,20 @@ public class LookupServiceImpl extends QBService implements LookupService {
     }
   }
 
-  private class SetDefaultLookupTask implements Runnable {
+  private class FailoverLookupTask implements Runnable {
     @Override
     public void run() {
-      LOGGER.d("SetDefaultLookupTask");
+      LOGGER.d("FailoverLookupTask");
       if (currentLookupCache != null) {
         return;
       }
-      currentLookupCache = LookupCache.EMPTY;
-      LOGGER.d("Default empty lookup data set");
+      currentLookupCache = lookupRepository.load();
+      if (currentLookupCache != null) {
+        LOGGER.d("Lookup loaded from local storage");
+      } else {
+        currentLookupCache = LookupCache.EMPTY;
+        LOGGER.d("Default empty lookup data set");
+      }
       notifyListenersLookupDataChange();
     }
   }
@@ -220,17 +219,19 @@ public class LookupServiceImpl extends QBService implements LookupService {
     }
   }
 
-  private void scheduleSetDefaultLookupTask() {
-    removeTask(setDefaultLookupTask);
-    if (currentLookupCache != null || currentConfiguration == null) {
+  private void scheduleFailoverLookupTask() {
+    removeTask(failoverLookupTask);
+    if (currentLookupCache != null) {
       return;
     }
 
-    long setDefaultTime = initTime + DateTimeUtils.secToMs(currentConfiguration.getLookupGetRequestTimeout());
+    int timeout = currentConfiguration != null
+        ? currentConfiguration.getLookupGetRequestTimeout() : DEFAULT_FAILOVER_TIME_SECS;
+    long setDefaultTime = initTime + DateTimeUtils.secToMs(timeout);
     long now = System.currentTimeMillis();
     long timeToSetDefault = setDefaultTime > now ? setDefaultTime - now : 0;
-    postTaskDelayed(setDefaultLookupTask, timeToSetDefault);
-    LOGGER.d("SetDefaultLookupTask scheduled for " + timeToSetDefault);
+    postTaskDelayed(failoverLookupTask, timeToSetDefault);
+    LOGGER.d("FailoverLookupTask scheduled for " + timeToSetDefault);
   }
 
   private void scheduleNextLookupRequestTask() {
