@@ -14,6 +14,7 @@ import com.qubit.android.sdk.internal.session.model.SessionEvent;
 import com.qubit.android.sdk.internal.session.model.SessionForEventImpl;
 import com.qubit.android.sdk.internal.session.repository.SessionRepository;
 import com.qubit.android.sdk.internal.util.DateTimeUtils;
+import com.qubit.android.sdk.internal.util.Elvis;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -166,7 +167,7 @@ public class SessionServiceImpl extends QBService implements SessionService {
     if (isSessionValid(oldSessionData, nowEpochTimeMs)) {
       return null;
     }
-    SessionDataModel newSessionData = createNextSession(oldSessionData, nowEpochTimeMs);
+    SessionDataModel newSessionData = createNextSession(oldSessionData, currentLookupData, nowEpochTimeMs);
     registerEvent(newSessionData, SESSION_EVENT_TYPE, nowEpochTimeMs);
     QBEvent sessionEvent = generateSessionEvent(newSessionData);
     return new NewSessionRequestImpl(sessionEvent, newSessionData);
@@ -177,13 +178,26 @@ public class SessionServiceImpl extends QBService implements SessionService {
         && sessionData.getLastEventTs() + SESSION_VALIDITY_PERIOD_MS > nowEpochTimeMs;
   }
 
-  private static SessionDataModel createNextSession(SessionData oldSessionData, long nowEpochTimeMs) {
-    if (oldSessionData == null) {
-      return new SessionDataModel(1, nowEpochTimeMs, nowEpochTimeMs);
-    } else {
-      return new SessionDataModel(oldSessionData.getSessionNumber() + 1, nowEpochTimeMs, nowEpochTimeMs,
-          oldSessionData.getViewNumber(), oldSessionData.getViewTs());
-    }
+  private static SessionDataModel createNextSession(SessionData oldSessionData, LookupData lookupData,
+                                                    long nowEpochTimeMs) {
+    long currentSessionNumber = maxFromNullable(
+        oldSessionData != null ? oldSessionData.getSessionNumber() : 0,
+        lookupData != null ? lookupData.getSessionNumber() : null);
+    long nextSessionNumber = currentSessionNumber + 1;
+
+    long viewNumber = maxFromNullable(
+        oldSessionData != null ? oldSessionData.getViewNumber() : null,
+        lookupData != null ? lookupData.getViewNumber() : null);
+
+    long viewTs = maxFromNullable(
+        oldSessionData != null ? oldSessionData.getViewTs() : null,
+        lookupData != null ? lookupData.getLastViewTs() : null);
+
+    return new SessionDataModel(nextSessionNumber, nowEpochTimeMs, nowEpochTimeMs, viewNumber, viewTs);
+  }
+
+  private static long maxFromNullable(Long number1, Long number2) {
+    return Math.max(Elvis.getIfNotNull(number1, 0L), Elvis.getIfNotNull(number2, 0L));
   }
 
   private static void registerEvent(SessionDataModel sessionData, String eventType, long nowEpochTimeMs) {
@@ -203,7 +217,7 @@ public class SessionServiceImpl extends QBService implements SessionService {
   }
 
   private QBEvent generateSessionEvent(SessionData sessionData) {
-    SessionEvent sessionEvent = sessionEventGenerator.generateSessionEvent(sessionData);
+    SessionEvent sessionEvent = sessionEventGenerator.generateSessionEvent(sessionData, currentLookupData);
     return new QBEventImpl(SESSION_EVENT_TYPE, getGson().toJsonTree(sessionEvent).getAsJsonObject());
   }
 
