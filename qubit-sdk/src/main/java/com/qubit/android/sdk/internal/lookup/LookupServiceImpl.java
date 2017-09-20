@@ -156,6 +156,7 @@ public class LookupServiceImpl extends QBService implements LookupService {
       LookupServiceImpl.this.isConnected = isConnected;
       if (isConnected) {
         clearAttempts();
+        invalidateLookupCache();
       }
       scheduleNextLookupRequestTask();
     }
@@ -259,6 +260,12 @@ public class LookupServiceImpl extends QBService implements LookupService {
     long nextDownloadTime = currentLookupCache.getLastUpdateTimestamp() + lookupExpiryTimeMs;
     long now = System.currentTimeMillis();
     return nextDownloadTime > now ? nextDownloadTime - now : 0;
+  }
+
+  private void invalidateLookupCache() {
+    if (currentLookupCache != null) {
+      currentLookupCache.setLastUpdateTimestamp(0);
+    }
   }
 
   private void registerSuccessfulAttempt() {

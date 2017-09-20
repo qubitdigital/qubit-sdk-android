@@ -56,7 +56,7 @@ public class SDK {
     AppPropertiesProvider appPropertiesProvider = new ManifestAppPropertiesProvider(appContext);
     SessionEventGenerator sessionEventGenerator =
         new SessionEventGeneratorImpl(screenSizeProvider, appPropertiesProvider);
-    sessionService = new SessionServiceImpl(sessionRepository, sessionEventGenerator);
+    sessionService = new SessionServiceImpl(lookupService, sessionRepository, sessionEventGenerator);
 
 //    EventsRepository eventsRepository = new EventsRepositoryMock();
     Future<SQLiteDatabase> databaseFuture =

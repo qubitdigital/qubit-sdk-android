@@ -20,6 +20,9 @@ public class MainActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    Log.i(TAG, "Send view event Main activity");
+    QubitSDK.tracker().sendEvent(QBEvents.fromJsonString(EVENT_TYPE_VIEW, "{ \"type\" : \"Main\" }"));
+
     findViewById(R.id.send_view_event_button).setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
