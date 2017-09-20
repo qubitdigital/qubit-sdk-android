@@ -7,8 +7,10 @@ import com.qubit.android.sdk.BuildConfig;
 import com.qubit.android.sdk.internal.eventtracker.connector.EventContext;
 import com.qubit.android.sdk.internal.eventtracker.connector.EventMeta;
 import com.qubit.android.sdk.internal.eventtracker.connector.EventRestModel;
+import com.qubit.android.sdk.internal.eventtracker.connector.LifetimeValue;
 import com.qubit.android.sdk.internal.eventtracker.repository.EventModel;
 import com.qubit.android.sdk.internal.logging.QBLogger;
+import com.qubit.android.sdk.internal.lookup.LookupData;
 
 class EventRestModelCreator {
 
@@ -28,20 +30,23 @@ class EventRestModelCreator {
   }
 
   public BatchEventRestModelCreator forBatch(Long batchTimestamp, Integer timezoneOffsetMins,
-                                             EventTypeTransformer eventTypeTransformer) {
-    return new BatchEventRestModelCreator(batchTimestamp, timezoneOffsetMins, eventTypeTransformer);
+                                             EventTypeTransformer eventTypeTransformer,
+                                             LookupData lookupData) {
+    return new BatchEventRestModelCreator(batchTimestamp, timezoneOffsetMins, eventTypeTransformer, lookupData);
   }
 
   public final class BatchEventRestModelCreator {
     private final Long batchTimestamp;
     private final Integer timezoneOffsetMins;
     private final EventTypeTransformer eventTypeTransformer;
+    private final LookupData lookupData;
 
     private BatchEventRestModelCreator(long batchTimestamp, Integer timezoneOffsetMins,
-                                      EventTypeTransformer eventTypeTransformer) {
+                                       EventTypeTransformer eventTypeTransformer, LookupData lookupData) {
       this.batchTimestamp = batchTimestamp;
       this.timezoneOffsetMins = timezoneOffsetMins;
       this.eventTypeTransformer = eventTypeTransformer;
+      this.lookupData = lookupData;
     }
 
     public EventRestModel create(EventModel eventModel) {
@@ -56,6 +61,14 @@ class EventRestModelCreator {
           eventModel.getContextSessionViewNumber(), eventModel.getContextViewNumber(),
           eventModel.getContextViewTimestamp());
       context.setTimezoneOffset(timezoneOffsetMins);
+
+      if (lookupData != null) {
+        if (lookupData.getLifetimeValue() != null) {
+          context.setLifetimeValue(new LifetimeValue(lookupData.getLifetimeValue(), "USD"));
+        }
+        context.setConversionNumber(lookupData.getConversionNumber());
+        context.setConversionCycleNumber(lookupData.getConversionCycleNumber());
+      }
 
       String eventType = eventTypeTransformer.transform(eventModel.getType());
       EventMeta meta = new EventMeta(eventModel.getGlobalId(), eventModel.getCreationTimestamp(), eventType,

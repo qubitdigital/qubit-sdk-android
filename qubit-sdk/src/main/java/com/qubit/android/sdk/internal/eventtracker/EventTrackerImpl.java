@@ -12,6 +12,8 @@ import com.qubit.android.sdk.internal.eventtracker.repository.CachingEventsRepos
 import com.qubit.android.sdk.internal.eventtracker.repository.EventModel;
 import com.qubit.android.sdk.internal.eventtracker.repository.EventsRepository;
 import com.qubit.android.sdk.internal.logging.QBLogger;
+import com.qubit.android.sdk.internal.lookup.LookupData;
+import com.qubit.android.sdk.internal.lookup.LookupService;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
 import com.qubit.android.sdk.internal.session.NewSessionRequest;
 import com.qubit.android.sdk.internal.session.SessionData;
@@ -43,6 +45,7 @@ public class EventTrackerImpl extends QBService implements EventTracker {
   private final ConfigurationService configurationService;
   private final NetworkStateService networkStateService;
   private final SessionService sessionService;
+  private final LookupService lookupService;
   private final EventsRepository eventsRepository;
   private final EventsRestAPIConnectorBuilder eventsRestAPIConnectorBuilder;
   private final EventRestModelCreator eventRestModelCreator;
@@ -50,12 +53,14 @@ public class EventTrackerImpl extends QBService implements EventTracker {
   private final Random random = new Random();
   private final ConfigurationService.ConfigurationListener configurationListener;
   private final NetworkStateService.NetworkStateListener networkStateListener;
+  private final LookupService.LookupListener lookupListener;
 
   private boolean isEnabled = true;
 
   private Configuration currentConfiguration = null;
   private EventTypeTransformer eventTypeTransformer = null;
   private boolean isConnected = false;
+  private LookupData currentLookupData = null;
   private EventsRestAPIConnector apiConnector = null;
   private int sendingAttempts = 0;
   private long lastAttemptTime = 0;
@@ -64,12 +69,14 @@ public class EventTrackerImpl extends QBService implements EventTracker {
                           ConfigurationService configurationService,
                           NetworkStateService networkStateService,
                           SessionService sessionService,
+                          LookupService lookupService,
                           EventsRepository eventsRepository,
                           EventsRestAPIConnectorBuilder eventsRestAPIConnectorBuilder) {
     super(SERVICE_NAME);
     this.configurationService = configurationService;
     this.networkStateService = networkStateService;
     this.sessionService = sessionService;
+    this.lookupService = lookupService;
     this.eventsRepository = new CachingEventsRepository(eventsRepository);
     this.eventsRestAPIConnectorBuilder = eventsRestAPIConnectorBuilder;
     eventRestModelCreator = new EventRestModelCreator(trackingId, deviceId);
@@ -85,6 +92,12 @@ public class EventTrackerImpl extends QBService implements EventTracker {
         postTask(new NetworkStateChangeTask(isConnected));
       }
     };
+    lookupListener = new LookupService.LookupListener() {
+      @Override
+      public void onLookupDataChange(LookupData lookupData) {
+        postTask(new LookupDataChangeTask(lookupData));
+      }
+    };
   }
 
   @Override
@@ -92,12 +105,14 @@ public class EventTrackerImpl extends QBService implements EventTracker {
     postTask(new RepositoryInitTask());
     configurationService.registerConfigurationListener(configurationListener);
     networkStateService.registerNetworkStateListener(networkStateListener);
+    lookupService.registerLookupListener(lookupListener);
   }
 
   @Override
   protected void onStop() {
     configurationService.unregisterConfigurationListener(configurationListener);
     networkStateService.unregisterNetworkStateListener(networkStateListener);
+    lookupService.unregisterLookupListener(lookupListener);
   }
 
   @Override
@@ -214,6 +229,20 @@ public class EventTrackerImpl extends QBService implements EventTracker {
         clearAttempts();
       }
       scheduleNextSendEventsTask();
+    }
+  }
+
+  private class LookupDataChangeTask implements Runnable {
+    private final LookupData newLookupData;
+
+    LookupDataChangeTask(LookupData newLookupData) {
+      this.newLookupData = newLookupData;
+    }
+
+    @Override
+    public void run() {
+      LOGGER.d("Lookup data changed.");
+      EventTrackerImpl.this.currentLookupData = newLookupData;
     }
   }
 
@@ -354,7 +383,7 @@ public class EventTrackerImpl extends QBService implements EventTracker {
     Long batchTimestamp = !events.isEmpty() ? events.get(0).getCreationTimestamp() : null;
     Integer timezoneOffsetMins = DateTimeUtils.getTimezoneOffsetMins();
     EventRestModelCreator.BatchEventRestModelCreator restModelCreator =
-        eventRestModelCreator.forBatch(batchTimestamp, timezoneOffsetMins, eventTypeTransformer);
+        eventRestModelCreator.forBatch(batchTimestamp, timezoneOffsetMins, eventTypeTransformer, currentLookupData);
     List<EventRestModel> eventRestModels = new ArrayList<>(events.size());
     for (EventModel event : events) {
       EventRestModel eventRestModel = restModelCreator.create(event);

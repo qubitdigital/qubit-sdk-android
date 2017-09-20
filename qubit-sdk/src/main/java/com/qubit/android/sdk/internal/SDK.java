@@ -64,7 +64,8 @@ public class SDK {
     EventsRepository eventsRepository = new SQLLiteEventsRepository(databaseFuture);
     EventsRestAPIConnectorBuilder eventsRestAPIConnectorBuilder = new EventsRestAPIConnectorBuilderImpl(trackingId);
     this.eventTracker = new EventTrackerImpl(trackingId, deviceId,
-        configurationService, networkStateService, sessionService, eventsRepository, eventsRestAPIConnectorBuilder);
+        configurationService, networkStateService, sessionService, lookupService,
+        eventsRepository, eventsRestAPIConnectorBuilder);
   }
 
   public void start() {

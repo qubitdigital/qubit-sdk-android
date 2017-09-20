@@ -2,6 +2,7 @@ package com.qubit.android.sdk.internal.lookup.model;
 
 import com.qubit.android.sdk.internal.common.model.IpLocation;
 import com.qubit.android.sdk.internal.lookup.LookupData;
+import java.math.BigDecimal;
 
 public class LookupModel implements LookupData {
 
@@ -14,7 +15,7 @@ public class LookupModel implements LookupData {
   private Long firstViewTs;
   private Long firstConversionTs;
   private Long lastConversionTs;
-  private Long lifetimeValue;
+  private BigDecimal lifetimeValue;
   private Long lastViewTs;
   private Long conversionCycleNumber;
 
@@ -100,11 +101,11 @@ public class LookupModel implements LookupData {
   }
 
   @Override
-  public Long getLifetimeValue() {
+  public BigDecimal getLifetimeValue() {
     return lifetimeValue;
   }
 
-  public void setLifetimeValue(Long lifetimeValue) {
+  public void setLifetimeValue(BigDecimal lifetimeValue) {
     this.lifetimeValue = lifetimeValue;
   }
 
