@@ -4,6 +4,8 @@ import com.qubit.android.sdk.internal.lookup.model.LookupModel;
 
 public class LookupCache {
 
+  public static final LookupCache EMPTY = new LookupCache(null, 0);
+
   private LookupModel lookupModel;
   private long lastUpdateTimestamp;
 

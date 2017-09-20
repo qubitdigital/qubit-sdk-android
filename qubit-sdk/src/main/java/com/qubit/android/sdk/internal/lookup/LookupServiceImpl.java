@@ -133,7 +133,7 @@ public class LookupServiceImpl extends QBService implements LookupService {
       LOGGER.d("Configuration Changed");
       currentConfiguration = configuration;
       try {
-        lookupConnector = lookupConnectorBuilder.buildFor(currentConfiguration.getEndpoint());
+        lookupConnector = lookupConnectorBuilder.buildFor(currentConfiguration.getLookupAttributeUrl());
         clearAttempts();
         scheduleNextLookupRequestTask();
         scheduleSetDefaultLookupTask();
@@ -200,7 +200,7 @@ public class LookupServiceImpl extends QBService implements LookupService {
       if (currentLookupCache != null) {
         return;
       }
-      currentLookupCache = new LookupCache(new LookupModel(), 0);
+      currentLookupCache = LookupCache.EMPTY;
       LOGGER.d("Default empty lookup data set");
       notifyListenersLookupDataChange();
     }
@@ -225,7 +225,7 @@ public class LookupServiceImpl extends QBService implements LookupService {
       return;
     }
 
-    long setDefaultTime = initTime + DateTimeUtils.minToMs(currentConfiguration.getLookupGetRequestTimeout());
+    long setDefaultTime = initTime + DateTimeUtils.secToMs(currentConfiguration.getLookupGetRequestTimeout());
     long now = System.currentTimeMillis();
     long timeToSetDefault = setDefaultTime > now ? setDefaultTime - now : 0;
     postTaskDelayed(setDefaultLookupTask, timeToSetDefault);
@@ -282,11 +282,11 @@ public class LookupServiceImpl extends QBService implements LookupService {
     return Math.max(nextRetryTimeMs - now, 0);
   }
 
-  private long evaluateIntervalSecsToNextRetry(int sendingAttemptsDone) {
+  private static long evaluateIntervalSecsToNextRetry(int sendingAttemptsDone) {
     if (sendingAttemptsDone > EXP_BACKOFF_MAX_SENDING_ATTEMPTS) {
       return MAX_RETRY_INTERVAL_SECS;
     } else {
-      return 2 ^ (sendingAttemptsDone - 1) * EXP_BACKOFF_BASE_TIME_SECS;
+      return (1L << (sendingAttemptsDone - 1)) * EXP_BACKOFF_BASE_TIME_SECS;
     }
   }
 
