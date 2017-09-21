@@ -37,7 +37,7 @@ public final class QBTrackingManager {
   }
 
   /**
-   * Sent empty event.
+   * Send empty event.
    * Method created only for temporary backward compatibility with com.apps.qubittrackerandroid:qubit_tracker library.
    * Use QubitSDK.tracker().sendEvent(QBEvents.fromJsonString(type, jsonString)) instead.
    * @deprecated
