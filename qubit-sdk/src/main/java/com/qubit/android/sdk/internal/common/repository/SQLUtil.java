@@ -22,12 +22,12 @@ public final class SQLUtil {
   public static String createSqlSelect(String tableName, String[] columns, String orderBy, String limit) {
     StringBuilder builder = new StringBuilder("SELECT ");
     appendColumns(builder, columns);
-    builder.append(" FROM ").append(tableName);
+    builder.append(" FROM ").append('"').append(tableName).append('"');
     if (orderBy != null) {
-      builder.append(" ORDER BY " + orderBy);
+      builder.append(" ORDER BY ").append(orderBy);
     }
     if (limit != null) {
-      builder.append(" LIMIT " + limit);
+      builder.append(" LIMIT ").append(limit);
     }
     return builder.toString();
   }

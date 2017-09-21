@@ -54,7 +54,7 @@ public class SQLLiteEventsRepository implements EventsRepository {
       selectCountStatement = database.compileStatement("SELECT COUNT(*) FROM " + TABLE_NAME);
       deleteOneStatement = database.compileStatement("DELETE FROM " + TABLE_NAME + " WHERE _id = ?");
       updateWasTriedToSendOneStatement = database.compileStatement(
-          "UPDATE " + TABLE_NAME + " SET WAS_TRIED_TO_SEND = 1 WHERE _id = ?");
+          "UPDATE " + TABLE_NAME + " SET " + WAS_TRIED_TO_SEND_COLUMN + " = 1 WHERE _id = ?");
 
       LOGGER.d("EventRepository initialized");
       return true;
@@ -165,7 +165,7 @@ public class SQLLiteEventsRepository implements EventsRepository {
           + "GLOBAL_ID TEXT," // 1: globalId
           + "TYPE TEXT NOT NULL ," // 2: type
           + "EVENT_BODY TEXT NOT NULL ," // 3: eventBody
-          + "WAS_TRIED_TO_SEND INTEGER NOT NULL ," // 4: wasTriedToSend
+          + WAS_TRIED_TO_SEND_COLUMN + " INTEGER NOT NULL ," // 4: wasTriedToSend
           + "CREATION_TIMESTAMP INTEGER NOT NULL ," // 5: creationTimestamp
           + "CONTEXT_VIEW_NUMBER INTEGER NULL ," // 6: contextViewNumber
           + "CONTEXT_SESSION_NUMBER INTEGER NULL ," // 7: contextSessionNumber
