@@ -7,6 +7,9 @@ import com.google.gson.JsonSyntaxException;
 import com.qubit.android.sdk.internal.common.model.QBEventImpl;
 import java.util.Map;
 
+/**
+ * Collection of methods for building events.
+ */
 public final class QBEvents {
 
   private static final Gson GSON = new Gson();
@@ -20,6 +23,14 @@ public final class QBEvents {
   private QBEvents() {
   }
 
+  /**
+   * Builds event from string containing JSON object.
+   * @param type Type of event e.g. "ecView"
+   * @param jsonString String containing JSON object e.g. "{ \"type\" : \"home\" }
+   * @return QBEvent object which can be used in
+   * {@link com.qubit.android.sdk.api.tracker.EventTracker#sendEvent(QBEvent)}
+   * @throws JsonParseException string is not well formatted JSON or it doesn't contain JSON object.
+   */
   public static QBEvent fromJsonString(final String type, final String jsonString) throws JsonParseException {
     validateType(type);
     validateEventBody("jsonString", jsonString);
@@ -32,12 +43,28 @@ public final class QBEvents {
     }
   }
 
+  /**
+   * Builds event from GSON's JsonObject.
+   * @param type Type of event e.g. "ecView"
+   * @param jsonObject GSON's JsonObject
+   * @return QBEvent object which can be used in
+   * {@link com.qubit.android.sdk.api.tracker.EventTracker#sendEvent(QBEvent)}
+   */
   public static QBEvent fromJson(final String type, final JsonObject jsonObject) {
     validateType(type);
     validateEventBody("jsonObject", jsonObject);
     return new QBEventImpl(type, jsonObject);
   }
 
+  /**
+   * Builds event from Object.
+   * Object is converted using GSON library (https://github.com/google/gson)
+   *
+   * @param type Type of event e.g. "ecView"
+   * @param object Any object.
+   * @return QBEvent object which can be used in
+   * {@link com.qubit.android.sdk.api.tracker.EventTracker#sendEvent(QBEvent)}
+   */
   public static QBEvent fromObject(final String type, final Object object) {
     validateType(type);
     if (object == null) {
@@ -47,6 +74,15 @@ public final class QBEvents {
   }
 
 
+  /**
+   * Builds event from Map.
+   * Map is converted using GSON library (https://github.com/google/gson)
+   *
+   * @param type Type of event e.g. "ecView"
+   * @param map Map containing properties of event.
+   * @return QBEvent object which can be used in
+   * {@link com.qubit.android.sdk.api.tracker.EventTracker#sendEvent(QBEvent)}
+   */
   public static QBEvent fromMap(final String type, final Map<String, Object> map) {
     validateType(type);
     validateEventBody("map", map);
