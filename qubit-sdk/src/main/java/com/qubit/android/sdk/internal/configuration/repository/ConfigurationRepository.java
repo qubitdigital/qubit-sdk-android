@@ -1,4 +1,4 @@
-package com.qubit.android.sdk.internal.configuration;
+package com.qubit.android.sdk.internal.configuration.repository;
 
 public interface ConfigurationRepository {
 

@@ -3,8 +3,10 @@ package com.qubit.android.sdk.internal;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import com.qubit.android.sdk.internal.common.repository.DatabaseInitializer;
-import com.qubit.android.sdk.internal.configuration.ConfigurationRepository;
-import com.qubit.android.sdk.internal.configuration.ConfigurationRepositoryImpl;
+import com.qubit.android.sdk.internal.configuration.connector.ConfigurationConnectorBuilder;
+import com.qubit.android.sdk.internal.configuration.connector.ConfigurationConnectorBuilderImpl;
+import com.qubit.android.sdk.internal.configuration.repository.ConfigurationRepository;
+import com.qubit.android.sdk.internal.configuration.repository.ConfigurationRepositoryImpl;
 import com.qubit.android.sdk.internal.configuration.ConfigurationServiceImpl;
 import com.qubit.android.sdk.internal.eventtracker.EventTrackerImpl;
 import com.qubit.android.sdk.internal.eventtracker.connector.EventsRestAPIConnectorBuilder;
@@ -41,8 +43,9 @@ public class SDK {
     this.networkStateService = new NetworkStateServiceImpl(appContext);
 
     ConfigurationRepository configurationRepository = new ConfigurationRepositoryImpl(appContext);
+    ConfigurationConnectorBuilder configurationConnectorBuilder = new ConfigurationConnectorBuilderImpl(trackingId);
     this.configurationService =
-        new ConfigurationServiceImpl(trackingId, networkStateService, configurationRepository);
+        new ConfigurationServiceImpl(networkStateService, configurationRepository, configurationConnectorBuilder);
 
     String deviceId = new SecureAndroidIdDeviceIdProvider(appContext).getDeviceId();
 
