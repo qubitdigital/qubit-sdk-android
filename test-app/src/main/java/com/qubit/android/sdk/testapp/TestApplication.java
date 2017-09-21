@@ -5,7 +5,6 @@ import android.os.StrictMode;
 import android.util.Log;
 import com.qubit.android.sdk.api.QubitSDK;
 import com.qubit.android.sdk.api.logging.QBLogLevel;
-import com.qubit.android.sdk.internal.configuration.ConfigurationServiceImpl;
 
 public class TestApplication extends Application {
 
@@ -24,8 +23,8 @@ public class TestApplication extends Application {
         .build());
 
     // Only for debugging purposes. It is not officially public API. DO NOT USE IT.
-    ConfigurationServiceImpl.configurationUrl = "http://s3-eu-west-1.amazonaws.com/ljazgar-qubit/config/";
-    ConfigurationServiceImpl.enforceDownloadOnStart = true;
+//    ConfigurationServiceImpl.configurationUrl = "http://s3-eu-west-1.amazonaws.com/ljazgar-qubit/config/";
+//    ConfigurationServiceImpl.enforceDownloadOnStart = true;
 
     QubitSDK.initialization()
         .inAppContext(this)
