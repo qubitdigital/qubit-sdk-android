@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.NonNull;
 import com.qubit.android.sdk.internal.common.repository.TableInitializer;
 import com.qubit.android.sdk.internal.logging.QBLogger;
+import com.qubit.android.sdk.internal.session.SessionService;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -113,6 +114,13 @@ public class SQLLiteEventsRepository implements EventsRepository {
   }
 
   @Override
+  public int deleteOlderThan(long timeMs) {
+    LOGGER.d("deleteOlderThan");
+    return database.delete(TABLE_NAME, "CREATION_TIMESTAMP < ? AND TYPE <> ?",
+        new String[] { Long.toString(timeMs), SessionService.SESSION_EVENT_TYPE});
+  }
+
+  @Override
   public boolean updateSetWasTriedToSend(long id) {
     LOGGER.d("updateSetWasTriedToSend(1)");
     updateWasTriedToSendOneStatement.bindLong(0, id);
@@ -169,6 +177,8 @@ public class SQLLiteEventsRepository implements EventsRepository {
       );
       // Add Indexes
       db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_EVENT_GLOBAL_ID ON " + TABLE_NAME + " (GLOBAL_ID ASC);");
+      db.execSQL("CREATE INDEX " + constraint + "IDX_CREATION_TIMESTAMP ON "
+          + TABLE_NAME + " (CREATION_TIMESTAMP ASC);");
     }
 
     /** Drops the underlying database table. */

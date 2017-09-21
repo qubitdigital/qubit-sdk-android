@@ -28,7 +28,6 @@ public class SessionServiceImpl extends QBService implements SessionService {
 
   private static final long SESSION_VALIDITY_PERIOD_MS = DateTimeUtils.minToMs(30);
   private static final String VIEW_TYPE_POSTFIX = "view";
-  private static final String SESSION_EVENT_TYPE = "qubit.session";
 
   private final LookupService lookupService;
   private final SessionEventGenerator sessionEventGenerator;

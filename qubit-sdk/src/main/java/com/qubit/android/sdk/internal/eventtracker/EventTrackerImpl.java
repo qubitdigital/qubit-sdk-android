@@ -166,6 +166,9 @@ public class EventTrackerImpl extends QBService implements EventTracker {
 
       eventsRepository.insert(createNewEventModel(now, qbEvent, sessionDataForEvent));
 
+      if (!isConnected) {
+        deleteTheOldestEvents();
+      }
       scheduleNextSendEventsTask();
     }
   }
@@ -359,6 +362,17 @@ public class EventTrackerImpl extends QBService implements EventTracker {
     } else {
       int maxSecs = 2 ^ (sendingAttemptsDone - 1) * EXP_BACKOFF_BASE_TIME_SECS;
       return Math.min(random.nextInt(maxSecs) + 1, MAX_RETRY_INTERVAL_SECS);
+    }
+  }
+
+  private void deleteTheOldestEvents() {
+    EventModel firstEvent = eventsRepository.selectFirst();
+    long now = System.currentTimeMillis();
+    long queueTimeoutMs = DateTimeUtils.minToMs(currentConfiguration.getQueueTimeout());
+    long timeoutTimestampMs = now - queueTimeoutMs;
+    if (firstEvent.getCreationTimestamp() < timeoutTimestampMs) {
+      int deleted = eventsRepository.deleteOlderThan(timeoutTimestampMs);
+      LOGGER.d("Deleted old events: " + deleted);
     }
   }
 

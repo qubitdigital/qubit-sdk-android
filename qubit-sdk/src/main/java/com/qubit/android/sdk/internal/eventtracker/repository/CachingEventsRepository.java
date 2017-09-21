@@ -1,6 +1,7 @@
 package com.qubit.android.sdk.internal.eventtracker.repository;
 
 import com.qubit.android.sdk.internal.logging.QBLogger;
+import com.qubit.android.sdk.internal.session.SessionService;
 import com.qubit.android.sdk.internal.util.DateTimeUtils;
 import com.qubit.android.sdk.internal.util.ListUtil;
 import java.util.ArrayList;
@@ -113,6 +114,15 @@ public class CachingEventsRepository implements EventsRepository {
   }
 
   @Override
+  public int deleteOlderThan(long timeMs) {
+    int removed = eventsRepository.deleteOlderThan(timeMs);
+    int removedFromCache = deleteFromCacheOlderThan(timeMs);
+    LOGGER.d("Old events removed from cache: " + removedFromCache);
+    queueSize -= removed;
+    return removed;
+  }
+
+  @Override
   public boolean updateSetWasTriedToSend(long id) {
     updateWasTriedToSendInCache(Collections.singletonList(id));
     return eventsRepository.updateSetWasTriedToSend(id);
@@ -144,6 +154,21 @@ public class CachingEventsRepository implements EventsRepository {
     while (eventsIterator.hasNext()) {
       EventModel event = eventsIterator.next();
       if (ids.contains(event.getId())) {
+        eventsIterator.remove();
+      }
+    }
+    return eventsSizeBefore - queueBeginningCache.size();
+  }
+
+  private int deleteFromCacheOlderThan(long timeMs) {
+    if (queueBeginningCache == null) {
+      return 0;
+    }
+    Iterator<EventModel> eventsIterator = queueBeginningCache.iterator();
+    int eventsSizeBefore = queueBeginningCache.size();
+    while (eventsIterator.hasNext()) {
+      EventModel event = eventsIterator.next();
+      if (event.getCreationTimestamp() < timeMs && !event.getType().equals(SessionService.SESSION_EVENT_TYPE)) {
         eventsIterator.remove();
       }
     }
