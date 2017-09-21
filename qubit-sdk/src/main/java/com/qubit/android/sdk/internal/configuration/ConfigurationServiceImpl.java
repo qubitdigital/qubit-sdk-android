@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArraySet;
-import okhttp3.HttpUrl;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -180,13 +179,6 @@ public class ConfigurationServiceImpl extends QBService implements Configuration
           .create(ConfigurationConnector.class);
     }
     return configurationConnector;
-  }
-
-  private static void validateUrl(String url) {
-    HttpUrl httpUrl = HttpUrl.parse(url);
-    if (httpUrl == null) {
-      throw new IllegalArgumentException("Illegal Configuration URL: " + url);
-    }
   }
 
   private static ConfigurationModel enrichWithDefaultConfiguration(ConfigurationResponse newConfiguration) {
