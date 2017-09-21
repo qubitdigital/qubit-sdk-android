@@ -77,6 +77,7 @@ public class ConfigurationModel implements Configuration {
     this.configurationReloadInterval = configurationReloadInterval;
   }
 
+  @Override
   public int getQueueTimeout() {
     return queueTimeout;
   }

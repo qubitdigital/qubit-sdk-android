@@ -1,6 +1,7 @@
 package com.qubit.android.sdk.internal.eventtracker.repository;
 
 import com.qubit.android.sdk.internal.logging.QBLogger;
+import com.qubit.android.sdk.internal.session.SessionService;
 import com.qubit.android.sdk.internal.util.ListUtil;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -61,6 +62,19 @@ public class EventsRepositoryMock implements EventsRepository {
     while (eventsIterator.hasNext()) {
       EventModel event = eventsIterator.next();
       if (ids.contains(event.getId())) {
+        eventsIterator.remove();
+      }
+    }
+    return eventsSizeBefore - events.size();
+  }
+
+  @Override
+  public int deleteOlderThan(long timeMs) {
+    Iterator<EventModel> eventsIterator = events.iterator();
+    int eventsSizeBefore = events.size();
+    while (eventsIterator.hasNext()) {
+      EventModel event = eventsIterator.next();
+      if (event.getCreationTimestamp() < timeMs && !event.getType().equals(SessionService.SESSION_EVENT_TYPE)) {
         eventsIterator.remove();
       }
     }

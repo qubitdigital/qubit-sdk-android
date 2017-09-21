@@ -17,6 +17,8 @@ public interface EventsRepository {
 
   int delete(Collection<Long> ids);
 
+  int deleteOlderThan(long timeMs);
+
   boolean updateSetWasTriedToSend(long id);
 
   int updateSetWasTriedToSend(Collection<Long> ids);

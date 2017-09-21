@@ -6,6 +6,8 @@ public interface Configuration {
 
   int getConfigurationReloadInterval();
 
+  int getQueueTimeout();
+
   String getVertical();
 
   String getNamespace();
