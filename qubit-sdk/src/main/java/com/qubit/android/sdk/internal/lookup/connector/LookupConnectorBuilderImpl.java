@@ -23,8 +23,7 @@ public class LookupConnectorBuilderImpl implements LookupConnectorBuilder {
     if (gson == null) {
       gson = createCustomGson();
     }
-    return new LookupConnectorImpl(trackingId, deviceId, createConnector(endpointUrl)) {
-    };
+    return new LookupConnectorImpl(trackingId, deviceId, createConnector(endpointUrl));
   }
 
 
