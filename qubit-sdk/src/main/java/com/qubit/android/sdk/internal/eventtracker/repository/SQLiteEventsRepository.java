@@ -16,9 +16,9 @@ import java.util.concurrent.Future;
 
 import static com.qubit.android.sdk.internal.common.repository.SQLUtil.*;
 
-public class SQLLiteEventsRepository implements EventsRepository {
+public class SQLiteEventsRepository implements EventsRepository {
 
-  private static final QBLogger LOGGER = QBLogger.getFor("SQLLiteEventsRepository");
+  private static final QBLogger LOGGER = QBLogger.getFor("SQLiteEventsRepository");
   private static final String DATABASE_INITIALIZATION_ERROR = "Database initialization error";
 
   private static final String TABLE_NAME = "EVENT";
@@ -36,7 +36,7 @@ public class SQLLiteEventsRepository implements EventsRepository {
   private SQLiteStatement deleteOneStatement;
   private SQLiteStatement updateWasTriedToSendOneStatement;
 
-  public SQLLiteEventsRepository(Future<SQLiteDatabase> databaseFuture) {
+  public SQLiteEventsRepository(Future<SQLiteDatabase> databaseFuture) {
     this.databaseFuture = databaseFuture;
   }
 

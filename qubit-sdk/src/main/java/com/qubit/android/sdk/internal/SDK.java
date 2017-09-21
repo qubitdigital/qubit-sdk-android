@@ -10,7 +10,7 @@ import com.qubit.android.sdk.internal.eventtracker.EventTrackerImpl;
 import com.qubit.android.sdk.internal.eventtracker.connector.EventsRestAPIConnectorBuilder;
 import com.qubit.android.sdk.internal.eventtracker.connector.EventsRestAPIConnectorBuilderImpl;
 import com.qubit.android.sdk.internal.eventtracker.repository.EventsRepository;
-import com.qubit.android.sdk.internal.eventtracker.repository.SQLLiteEventsRepository;
+import com.qubit.android.sdk.internal.eventtracker.repository.SQLiteEventsRepository;
 import com.qubit.android.sdk.internal.initialization.SecureAndroidIdDeviceIdProvider;
 import com.qubit.android.sdk.internal.lookup.LookupServiceImpl;
 import com.qubit.android.sdk.internal.lookup.connector.LookupConnectorBuilder;
@@ -60,8 +60,8 @@ public class SDK {
 
 //    EventsRepository eventsRepository = new EventsRepositoryMock();
     Future<SQLiteDatabase> databaseFuture =
-        new DatabaseInitializer(appContext, SQLLiteEventsRepository.tableInitializer()).initDatabaseAsync();
-    EventsRepository eventsRepository = new SQLLiteEventsRepository(databaseFuture);
+        new DatabaseInitializer(appContext, SQLiteEventsRepository.tableInitializer()).initDatabaseAsync();
+    EventsRepository eventsRepository = new SQLiteEventsRepository(databaseFuture);
     EventsRestAPIConnectorBuilder eventsRestAPIConnectorBuilder = new EventsRestAPIConnectorBuilderImpl(trackingId);
     this.eventTracker = new EventTrackerImpl(trackingId, deviceId,
         configurationService, networkStateService, sessionService, lookupService,
