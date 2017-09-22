@@ -16,8 +16,7 @@ public class LookupConnectorBuilderImpl implements LookupConnectorBuilder {
 
   @Override
   public LookupConnector buildFor(String endpointUrl) {
-    return new LookupConnectorImpl(trackingId, deviceId, createConnector(endpointUrl)) {
-    };
+    return new LookupConnectorImpl(trackingId, deviceId, createConnector(endpointUrl));
   }
 
   private LookupAPI createConnector(String endpointUrl) {

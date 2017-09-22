@@ -11,7 +11,6 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-import static junit.framework.Assert.fail;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.core.Is.is;
@@ -73,57 +72,32 @@ public class QBEventsTest {
     assertThat(QBEvents.fromJsonString(EVENT_TYPE, jsonStringEvent).toJsonObject(), is(equalTo(correctEvent)));
   }
 
-  @Test
+  @Test(expected = NullPointerException.class)
   public void fromJsonString_null() {
-    try {
-      QBEvents.fromJsonString(EVENT_TYPE, null);
-      failNoException();
-    } catch (NullPointerException e) {
-      logException(e);
-    }
+    QBEvents.fromJsonString(EVENT_TYPE, null);
   }
 
-  @Test
+  @Test(expected = QBEvents.JsonParseException.class)
   public void fromJsonString_empty() {
-    try {
-      QBEvents.fromJsonString(EVENT_TYPE, "");
-      failNoException();
-    } catch (QBEvents.JsonParseException e) {
-      logException(e);
-    }
+    QBEvents.fromJsonString(EVENT_TYPE, "");
   }
 
-  @Test
+  @Test(expected = QBEvents.JsonParseException.class)
   public void fromJsonString_malformedJsonString() {
     String malformedJsonString = "{ \"viewId\" \"button\" }";
-    try {
-      QBEvents.fromJsonString(EVENT_TYPE, malformedJsonString);
-      failNoException();
-    } catch (QBEvents.JsonParseException e) {
-      logException(e);
-    }
+    QBEvents.fromJsonString(EVENT_TYPE, malformedJsonString);
   }
 
-  @Test
+  @Test(expected = QBEvents.JsonParseException.class)
   public void fromJsonString_nonJsonString() {
     String nonJsonString = "abc";
-    try {
-      QBEvents.fromJsonString(EVENT_TYPE, nonJsonString);
-      failNoException();
-    } catch (QBEvents.JsonParseException e) {
-      logException(e);
-    }
+    QBEvents.fromJsonString(EVENT_TYPE, nonJsonString);
   }
 
-  @Test
+  @Test(expected = QBEvents.JsonParseException.class)
   public void fromJsonString_nonJsonObject() {
     String nonJsonString = "123";
-    try {
-      QBEvents.fromJsonString(EVENT_TYPE, nonJsonString);
-      failNoException();
-    } catch (QBEvents.JsonParseException e) {
-      logException(e);
-    }
+    QBEvents.fromJsonString(EVENT_TYPE, nonJsonString);
   }
 
   @Test
@@ -131,14 +105,9 @@ public class QBEventsTest {
     assertThat(QBEvents.fromJson(EVENT_TYPE, jsonObjectEvent).toJsonObject(), is(equalTo(correctEvent)));
   }
 
-  @Test
+  @Test(expected = NullPointerException.class)
   public void fromJson_null() {
-    try {
-      QBEvents.fromJson(EVENT_TYPE, null);
-      failNoException();
-    } catch (NullPointerException e) {
-      logException(e);
-    }
+    QBEvents.fromJson(EVENT_TYPE, null);
   }
 
   @Test
@@ -162,14 +131,9 @@ public class QBEventsTest {
         is(equalTo(correctComplexEvent.toString())));
   }
 
-  @Test
+  @Test(expected = NullPointerException.class)
   public void fromObject_null() {
-    try {
-      QBEvents.fromObject(EVENT_TYPE, null);
-      failNoException();
-    } catch (NullPointerException e) {
-      logException(e);
-    }
+    QBEvents.fromObject(EVENT_TYPE, null);
   }
 
   @Test
@@ -182,28 +146,15 @@ public class QBEventsTest {
     assertThat(QBEvents.fromMap(EVENT_TYPE, mapEvent).toJsonObject(), is(equalTo(correctEvent)));
   }
 
-  @Test
+  @Test(expected = NullPointerException.class)
   public void fromMap_null() {
-    try {
-      QBEvents.fromMap(EVENT_TYPE, null);
-      failNoException();
-    } catch (NullPointerException e) {
-      logException(e);
-    }
+    QBEvents.fromMap(EVENT_TYPE, null);
   }
 
   @Test
   public void fromMap_empty() {
     Map<String, Object> emptyMap = Collections.emptyMap();
     assertThat(QBEvents.fromMap(EVENT_TYPE, emptyMap).toJsonObject(), is(equalTo(emptyEvent)));
-  }
-
-  private void failNoException() {
-    fail("Exception should be thrown");
-  }
-
-  private static void logException(Exception e) {
-    System.out.println("Expected exception: " + e.getMessage());
   }
 
 }
