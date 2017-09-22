@@ -7,6 +7,9 @@ import com.google.gson.JsonSyntaxException;
 import com.qubit.android.sdk.internal.common.model.QBEventImpl;
 import java.util.Map;
 
+/**
+ * Collection of methods for building events.
+ */
 public final class QBEvents {
 
   private static final Gson GSON = new Gson();
@@ -20,6 +23,16 @@ public final class QBEvents {
   private QBEvents() {
   }
 
+  /**
+   * Builds an event from string containing JSON object.
+   * @param type Type of an event e.g. "ecView". It cannot be null neither empty string.
+   * @param jsonString String containing JSON object e.g. "{ \"type\" : \"home\" }. It cannot be null.
+   * @return QBEvent object which can be used in
+   * {@link com.qubit.android.sdk.api.tracker.EventTracker#sendEvent(QBEvent)}
+   * @throws JsonParseException string is not well formatted JSON or it doesn't contain JSON object.
+   * @throws NullPointerException At least one of parameters is null.
+   * @throws IllegalArgumentException Type is empty
+   */
   public static QBEvent fromJsonString(final String type, final String jsonString) throws JsonParseException {
     validateType(type);
     validateEventBody("jsonString", jsonString);
@@ -32,12 +45,32 @@ public final class QBEvents {
     }
   }
 
+  /**
+   * Builds an event from GSON's JsonObject.
+   * @param type Type of an event e.g. "ecView". It cannot be null neither empty string.
+   * @param jsonObject GSON's JsonObject.  It cannot be null.
+   * @return QBEvent object which can be used in
+   *     {@link com.qubit.android.sdk.api.tracker.EventTracker#sendEvent(QBEvent)}
+   * @throws NullPointerException At least one of parameters is null.
+   * @throws IllegalArgumentException Type is empty
+   */
   public static QBEvent fromJson(final String type, final JsonObject jsonObject) {
     validateType(type);
     validateEventBody("jsonObject", jsonObject);
     return new QBEventImpl(type, jsonObject);
   }
 
+  /**
+   * Builds an event from Object.
+   * Object is converted using GSON library (https://github.com/google/gson)
+   *
+   * @param type Type of an event e.g. "ecView". It cannot be null neither empty string.
+   * @param object Any object. It cannot be null.
+   * @return QBEvent object which can be used in
+   *     {@link com.qubit.android.sdk.api.tracker.EventTracker#sendEvent(QBEvent)}
+   * @throws NullPointerException At least one of parameters is null.
+   * @throws IllegalArgumentException Type is empty
+   */
   public static QBEvent fromObject(final String type, final Object object) {
     validateType(type);
     if (object == null) {
@@ -47,6 +80,17 @@ public final class QBEvents {
   }
 
 
+  /**
+   * Builds an event from Map.
+   * Map is converted using GSON library (https://github.com/google/gson)
+   *
+   * @param type Type of an event e.g. "ecView". It cannot be null neither empty string.
+   * @param map Map containing properties of an event.  It cannot be null.
+   * @return QBEvent object which can be used in
+   *     {@link com.qubit.android.sdk.api.tracker.EventTracker#sendEvent(QBEvent)}
+   * @throws NullPointerException At least one of parameters is null.
+   * @throws IllegalArgumentException Type is empty
+   */
   public static QBEvent fromMap(final String type, final Map<String, Object> map) {
     validateType(type);
     validateEventBody("map", map);
