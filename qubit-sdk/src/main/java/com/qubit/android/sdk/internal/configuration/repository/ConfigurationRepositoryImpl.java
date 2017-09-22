@@ -1,4 +1,4 @@
-package com.qubit.android.sdk.internal.configuration;
+package com.qubit.android.sdk.internal.configuration.repository;
 
 import android.content.Context;
 import android.content.SharedPreferences;

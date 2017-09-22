@@ -1,5 +1,6 @@
-package com.qubit.android.sdk.internal.configuration;
+package com.qubit.android.sdk.internal.configuration.repository;
 
+import com.qubit.android.sdk.internal.configuration.Configuration;
 import com.qubit.android.sdk.internal.logging.QBLogger;
 
 public class ConfigurationModel implements Configuration {

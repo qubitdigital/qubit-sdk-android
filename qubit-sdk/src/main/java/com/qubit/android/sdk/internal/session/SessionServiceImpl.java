@@ -180,7 +180,7 @@ public class SessionServiceImpl extends QBService implements SessionService {
   private static SessionDataModel createNextSession(SessionData oldSessionData, LookupData lookupData,
                                                     long nowEpochTimeMs) {
     long currentSessionNumber = maxFromNullable(
-        oldSessionData != null ? oldSessionData.getSessionNumber() : 0,
+        oldSessionData != null ? oldSessionData.getSessionNumber() : null,
         lookupData != null ? lookupData.getSessionNumber() : null);
     long nextSessionNumber = currentSessionNumber + 1;
 
