@@ -14,6 +14,8 @@ import com.qubit.android.sdk.internal.util.DateTimeUtils;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import static com.qubit.android.sdk.internal.configuration.connector.ConfigurationResponse.*;
+import static com.qubit.android.sdk.internal.configuration.connector.ConfigurationResponse.Status.OK;
 import static com.qubit.android.sdk.internal.util.Elvis.*;
 
 public class ConfigurationServiceImpl extends QBService implements ConfigurationService {
@@ -153,13 +155,14 @@ public class ConfigurationServiceImpl extends QBService implements Configuration
   @Nullable
   private ConfigurationModel downloadConfiguration() {
     ConfigurationResponse response = getConfigurationConnector().download();
-    if (response.getStatus() == ConfigurationResponse.Status.OK) {
-      return enrichWithDefaultConfiguration(response.getConfiguration());
-    } else if (response.getStatus() == ConfigurationResponse.Status.NOT_FOUND) {
-      LOGGER.d("Configuration file not defined - the default one is used");
-      return ConfigurationModel.getDefault();
-    } else {
-      return null;
+    switch (response.getStatus()) {
+      case OK :
+        return enrichWithDefaultConfiguration(response.getConfiguration());
+      case NOT_FOUND:
+        LOGGER.d("Configuration file not defined - the default one is used");
+        return ConfigurationModel.getDefault();
+      default:
+        return null;
     }
   }
 
