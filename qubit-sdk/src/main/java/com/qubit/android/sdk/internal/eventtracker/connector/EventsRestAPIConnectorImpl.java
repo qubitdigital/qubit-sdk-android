@@ -59,7 +59,7 @@ public class EventsRestAPIConnectorImpl implements EventsRestAPIConnector {
   }
 
   private static void logResponseError(Status status, boolean willRetry) {
-    LOGGER.e("Server responded with status: " + status + " message: " + status.getMessage() + ". "
+    LOGGER.e("Server responded with status: " + status + ", message: " + status.getMessage() + ". "
         + (willRetry ? "Request will be retried." : "Request will not be retried."));
   }
 
