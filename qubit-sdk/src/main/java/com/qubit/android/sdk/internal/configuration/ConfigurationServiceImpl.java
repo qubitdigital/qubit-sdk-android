@@ -14,8 +14,6 @@ import com.qubit.android.sdk.internal.util.DateTimeUtils;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import static com.qubit.android.sdk.internal.configuration.connector.ConfigurationResponse.*;
-import static com.qubit.android.sdk.internal.configuration.connector.ConfigurationResponse.Status.OK;
 import static com.qubit.android.sdk.internal.util.Elvis.*;
 
 public class ConfigurationServiceImpl extends QBService implements ConfigurationService {
