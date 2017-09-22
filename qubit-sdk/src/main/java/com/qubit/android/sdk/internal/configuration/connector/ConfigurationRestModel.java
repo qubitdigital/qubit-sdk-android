@@ -1,8 +1,8 @@
-package com.qubit.android.sdk.internal.configuration;
+package com.qubit.android.sdk.internal.configuration.connector;
 
 import com.google.gson.annotations.SerializedName;
 
-public class ConfigurationResponse {
+public class ConfigurationRestModel {
 
   private String endpoint;
   @SerializedName("data_location")

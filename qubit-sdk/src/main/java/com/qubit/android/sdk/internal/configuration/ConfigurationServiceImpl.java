@@ -2,16 +2,17 @@ package com.qubit.android.sdk.internal.configuration;
 
 import android.support.annotation.Nullable;
 import com.qubit.android.sdk.internal.common.service.QBService;
+import com.qubit.android.sdk.internal.configuration.connector.ConfigurationConnector;
+import com.qubit.android.sdk.internal.configuration.connector.ConfigurationConnectorBuilder;
+import com.qubit.android.sdk.internal.configuration.connector.ConfigurationResponse;
+import com.qubit.android.sdk.internal.configuration.connector.ConfigurationRestModel;
+import com.qubit.android.sdk.internal.configuration.repository.ConfigurationModel;
+import com.qubit.android.sdk.internal.configuration.repository.ConfigurationRepository;
 import com.qubit.android.sdk.internal.logging.QBLogger;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
 import com.qubit.android.sdk.internal.util.DateTimeUtils;
-import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArraySet;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.qubit.android.sdk.internal.util.Elvis.*;
 
@@ -24,11 +25,11 @@ public class ConfigurationServiceImpl extends QBService implements Configuration
 
   private static final QBLogger LOGGER = QBLogger.getFor(SERVICE_NAME);
 
-  private final String trackingId;
   private final NetworkStateService networkStateService;
   private final ConfigurationRepository configurationRepository;
   private final ConfigurationDownloadTask configurationDownloadTask = new ConfigurationDownloadTask();
   private final NetworkStateService.NetworkStateListener networkStateListener;
+  private final ConfigurationConnectorBuilder configurationConnectorBuilder;
 
   private ConfigurationConnector configurationConnector;
 
@@ -38,12 +39,13 @@ public class ConfigurationServiceImpl extends QBService implements Configuration
   private Long lastUpdateAttemptTimestamp;
 
 
-  public ConfigurationServiceImpl(String trackingId, NetworkStateService networkStateService,
-                                  ConfigurationRepository configurationRepository) {
+  public ConfigurationServiceImpl(NetworkStateService networkStateService,
+                                  ConfigurationRepository configurationRepository,
+                                  ConfigurationConnectorBuilder configurationConnectorBuilder) {
     super(SERVICE_NAME);
-    this.trackingId = trackingId;
     this.networkStateService = networkStateService;
     this.configurationRepository = configurationRepository;
+    this.configurationConnectorBuilder = configurationConnectorBuilder;
     networkStateListener = new NetworkStateService.NetworkStateListener() {
       @Override
       public void onNetworkStateChange(boolean isConnected) {
@@ -150,38 +152,26 @@ public class ConfigurationServiceImpl extends QBService implements Configuration
 
   @Nullable
   private ConfigurationModel downloadConfiguration() {
-    try {
-      Response<ConfigurationResponse> response = getConfigurationConnector().download(trackingId).execute();
-      if (response.code() == HttpURLConnection.HTTP_NOT_FOUND) {
+    ConfigurationResponse response = getConfigurationConnector().download();
+    switch (response.getStatus()) {
+      case OK :
+        return enrichWithDefaultConfiguration(response.getConfiguration());
+      case NOT_FOUND:
         LOGGER.d("Configuration file not defined - the default one is used");
         return ConfigurationModel.getDefault();
-      }
-      if (!response.isSuccessful() || response.errorBody() != null || response.body() == null) {
-        LOGGER.e("Failed to download configuration");
+      default:
         return null;
-      }
-
-      ConfigurationResponse newConfiguration = response.body();
-      LOGGER.d("Configuration downloaded");
-      return enrichWithDefaultConfiguration(newConfiguration);
-    } catch (IOException e) {
-      LOGGER.e("Failed to download configuration: ", e);
-      return null;
     }
   }
 
   private ConfigurationConnector getConfigurationConnector() {
     if (configurationConnector == null) {
-      configurationConnector = new Retrofit.Builder()
-          .baseUrl(configurationUrl)
-          .addConverterFactory(GsonConverterFactory.create())
-          .build()
-          .create(ConfigurationConnector.class);
+      configurationConnector = configurationConnectorBuilder.buildFor(configurationUrl);
     }
     return configurationConnector;
   }
 
-  private static ConfigurationModel enrichWithDefaultConfiguration(ConfigurationResponse newConfiguration) {
+  private static ConfigurationModel enrichWithDefaultConfiguration(ConfigurationRestModel newConfiguration) {
     ConfigurationModel defaultConf = ConfigurationModel.getDefault();
     ConfigurationModel result = new ConfigurationModel();
 
