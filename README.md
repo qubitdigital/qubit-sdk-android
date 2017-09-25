@@ -5,13 +5,12 @@ Usage of the Qubit tracker library, to provide event tracking.
 # Getting started
 
 ## Dependency
-TODO: value in compile
 
 In your project `build.gradle` (under 'app') add the following in the dependencies section:
 
 ```
 dependencies   {
-    compile  '????????'
+    compile  ‘com.qubit:qubit-sdk-android:0.2-SNAPSHOT’
 }
 ```
 
