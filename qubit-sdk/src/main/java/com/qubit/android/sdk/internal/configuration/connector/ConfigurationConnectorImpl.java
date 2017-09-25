@@ -1,6 +1,6 @@
 package com.qubit.android.sdk.internal.configuration.connector;
 
-import com.qubit.android.sdk.internal.logging.QBLogger;
+import com.qubit.android.sdk.internal.common.logging.QBLogger;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import retrofit2.Response;

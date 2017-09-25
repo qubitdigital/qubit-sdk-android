@@ -3,14 +3,14 @@ package com.qubit.android.sdk.internal.lookup;
 import com.qubit.android.sdk.internal.common.service.QBService;
 import com.qubit.android.sdk.internal.configuration.Configuration;
 import com.qubit.android.sdk.internal.configuration.ConfigurationService;
-import com.qubit.android.sdk.internal.logging.QBLogger;
+import com.qubit.android.sdk.internal.common.logging.QBLogger;
 import com.qubit.android.sdk.internal.lookup.connector.LookupConnector;
 import com.qubit.android.sdk.internal.lookup.connector.LookupConnectorBuilder;
 import com.qubit.android.sdk.internal.lookup.model.LookupModel;
 import com.qubit.android.sdk.internal.lookup.repository.LookupCache;
 import com.qubit.android.sdk.internal.lookup.repository.LookupRepository;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
-import com.qubit.android.sdk.internal.util.DateTimeUtils;
+import com.qubit.android.sdk.internal.common.util.DateTimeUtils;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArraySet;
 

@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'checkstyle'
 
 android {
   compileSdkVersion 26
@@ -21,7 +20,6 @@ android {
 }
 
 dependencies {
-  compile fileTree(dir: 'libs', include: ['*.jar'])
   androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
     exclude group: 'com.android.support', module: 'support-annotations'
   })
@@ -31,17 +29,4 @@ dependencies {
   testCompile 'junit:junit:4.12'
 }
 
-checkstyle {
-  toolVersion = "8.0"
-}
-
-task checkstyle(type: Checkstyle) {
-  configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
-  configProperties = [samedir: "${rootDir}/config/checkstyle"]
-  source 'src'
-  include '**/*.java'
-  exclude '**/gen/**'
-  ignoreFailures = false
-  classpath = files()
-  outputs.upToDateWhen { false }
-}
+apply from: "$rootProject.projectDir/checkstyle-config.gradle"

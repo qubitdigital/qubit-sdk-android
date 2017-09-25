@@ -8,7 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.text.TextUtils;
 import com.qubit.android.sdk.internal.common.service.QBService;
-import com.qubit.android.sdk.internal.logging.QBLogger;
+import com.qubit.android.sdk.internal.common.logging.QBLogger;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArraySet;
 

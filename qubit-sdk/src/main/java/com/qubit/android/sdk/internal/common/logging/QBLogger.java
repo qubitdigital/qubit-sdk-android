@@ -1,4 +1,4 @@
-package com.qubit.android.sdk.internal.logging;
+package com.qubit.android.sdk.internal.common.logging;
 
 import android.support.annotation.NonNull;
 import android.util.Log;

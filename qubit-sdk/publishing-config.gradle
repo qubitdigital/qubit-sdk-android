@@ -1,0 +1,101 @@
+
+group = 'com.qubit'
+
+ext {
+  artifactId = 'qubit-sdk-android'
+
+  pubName = 'QubitSDK Android'
+  pubDescription = 'QubitSDK Android'
+
+  siteUrl = 'https://www.qubit.com'
+  gitUrl = 'https://github.com/qubitdigital/qubit-sdk-android'
+
+  licenseName = 'The Apache Software License, Version 2.0'
+  licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+  allLicenses = ["Apache-2.0"]
+}
+
+def pomConfig = {
+  licenses {
+    license {
+      name licenseName
+      url licenseUrl
+      distribution "repo"
+    }
+  }
+  developers {
+    developer {
+      id "ljazgar"
+      name "Lukasz Jazgar"
+      email "lukasz.jazgar@miquido.com"
+    }
+    developer {
+      id "aamq"
+      name "Agnieszka Adamczyk"
+      email "agnieszka.adamczyk@miquido.com"
+    }
+  }
+  scm {
+    url gitUrl
+  }
+}
+
+task sourcesJar(type: Jar) {
+  from android.sourceSets.main.java.srcDirs
+  classifier = 'sources'
+}
+
+artifacts {
+  archives javadocJar
+  archives sourcesJar
+}
+
+apply plugin: 'digital.wup.android-maven-publish'
+publishing {
+  useCompileDependencies true
+  publications {
+    mavenAar(MavenPublication) {
+      from components.android
+      groupId project.group
+      artifactId project.artifactId
+      version project.version
+      pom.withXml {
+        def root = asNode()
+        root.appendNode('name', project.pubName)
+        root.appendNode('description', project.pubDescription)
+        root.appendNode('url', gitUrl)
+        root.children().last() + pomConfig
+      }
+    }
+  }
+}
+
+// Bintray
+apply plugin: 'com.jfrog.bintray'
+bintray {
+  user = project.hasProperty('bintray.user') ? project.property('bintray.user') : System.getenv('BINTRAY_USER')
+  key = project.hasProperty('bintray.apiKey') ? project.property('bintray.apiKey') : System.getenv('BINTRAY_API_KEY')
+
+  publications = ['mavenAar']
+  publish = true
+  pkg {
+    repo = 'maven'
+    name = project.artifactId
+    desc = project.description
+    websiteUrl = siteUrl
+    vcsUrl = gitUrl
+    licenses = allLicenses
+    publicDownloadNumbers = true
+    githubRepo = 'qubitdigital/qubit-sdk-android'
+    githubReleaseNotesFile = 'README.md'
+    version {
+      name = project.version
+      released = new Date()
+      vcsTag = 'version-' + project.version
+      gpg {
+        sign = true //Determines whether to GPG sign the files. The default is false
+        passphrase = project.hasProperty('bintray.gpg.password') ? project.property('bintray.gpg.password') : System.getenv('BINTRAY_GPG_PASSWORD')
+      }
+    }
+  }
+}

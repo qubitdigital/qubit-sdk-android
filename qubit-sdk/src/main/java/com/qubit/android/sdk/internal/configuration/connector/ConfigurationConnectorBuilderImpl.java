@@ -1,6 +1,6 @@
 package com.qubit.android.sdk.internal.configuration.connector;
 
-import com.qubit.android.sdk.internal.util.UrlUtils;
+import com.qubit.android.sdk.internal.common.util.UrlUtils;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
