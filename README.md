@@ -1,6 +1,6 @@
 # Qubit Android SDK
 
-Usage of the Qubit tracker library, to provide event tracking.
+Usage of the Qubit SDK library, to provide event tracking.
 
 # Getting started
 
@@ -16,7 +16,7 @@ dependencies   {
 
 ## Initialization
 
-Provide `Context` and `tracking ID` (log level is optional - see more: [Logging](#logging)) and call `start` method to initialize SDK. You might place this code in your `Application` file:
+Provide application context and `tracking ID` (log level is optional - see more: [Logging](#logging)) and call `start` method to initialize SDK. You might place this code in your `Application` file:
 
 ```java
 @Override
@@ -31,20 +31,6 @@ public void onCreate() {
 }
 ```
 
-## Termination
-
-Don't forget to terminate SDK by calling `release` method. It will release all resources used by SDK, including stopping all background threads.
-If you placed your initialization code in `Application`, you could do it the following way:
-
-```java
-@Override
-public void onTerminate() {
-    super.onTerminate();
-
-    QubitSDK.release();
-}
-```
-
 ## Permissions
 Qubit Android SDK needs following permissions to communicate with the server and to detect network connectivity (they are added in library manifest):
 
@@ -53,34 +39,27 @@ Qubit Android SDK needs following permissions to communicate with the server and
   <uses-permission android:name="android.permission.INTERNET" />
 ```
 
-# Sending Events
+Note that you don't have to add these permissions to manifest of your application.
 
-## UV Events
-Universal Variable is Qubit’s industry standard, extensible data layer. To send a Universal Variable event, call the `sendEvent` method taking `QBEvent` object as an argument, as per the following example. The following example emits a standard “User” event, but these data can be modified to send any data you wish to send, based on Qubit's event schema
+# Send events
+
+## Sending events
+Universal Variable is Qubit’s industry standard, extensible data layer. To send a Universal Variable event, call the `sendEvent` method taking `QBEvent` object as an argument, as per the following example. The following example emits a standard `ecView` event, but these data can be modified to send any data you wish to send, based on Qubit's event schema
 
 ```java
-QubitSDK.tracker().sendEvent(QBEvents.fromJsonString("User", userJson));
+QubitSDK.tracker().sendEvent(QBEvents.fromJsonString("ecView", userJson));
 ```
 
 where `userJson` takes the example form (this may vary depending on custom schema configuration):
 
 ```
 {
-  userId: "leonadeoliveira",
-  currency: "USD",
-  email: "leona@gmail.com",
-  firstName: "Leona",
-  firstSession: false,
-  gender: "female",
-  hasTransacted: true,
-  lastName: "Deoliveira",
-  language: "en-gb",
-  title: "Ms",
-  username: "leonadv"
+    "type": "home",
+    "subtypes": ["Womens", "Dresses", "Cocktail Dresses"]
 }
 ```
 
-## Creating Events
+## Creating events
 
 `QBEvents` class provides several methods that allows you to create an event as `QBEvent` object.
 
@@ -89,9 +68,9 @@ where `userJson` takes the example form (this may vary depending on custom schem
 Example:
 
 ```java
-String jsonString = "{ \"userId\" : \"leonadeoliveira\" }";
+String jsonString = "{ \"type\" : \"home\" }";
 
-QubitSDK.tracker().sendEvent(QBEvents.fromJsonString("User", jsonString));
+QubitSDK.tracker().sendEvent(QBEvents.fromJsonString("ecView", jsonString));
 ```
 
 ### From `JsonObject`:
@@ -100,9 +79,9 @@ Example:
 
 ```java
 JsonObject jsonObject = new JsonObject();
-jsonObject.addProperty("userId", "leonadeoliveira");
+jsonObject.addProperty("type", "home");
 
-QubitSDK.tracker().sendEvent(QBEvents.fromJson("User", jsonObject));
+QubitSDK.tracker().sendEvent(QBEvents.fromJson("ecView", jsonObject));
 ```
 
 ### From `Object`:
@@ -110,18 +89,18 @@ QubitSDK.tracker().sendEvent(QBEvents.fromJson("User", jsonObject));
 Example:
 
 ```java
-public class MyObject {
-    private String userId;
+public class EcViewEventData {
+    private String type;
 
     // some code
 }
 ```
 
 ```java
-MyObject object = new MyObject();
-object.setUserId("leonadeoliveira");
+EcViewEventData object = new EcViewEventData();
+object.setType("home");
 
-QubitSDK.tracker().sendEvent(QBEvents.fromObject("User", object));
+QubitSDK.tracker().sendEvent(QBEvents.fromObject("ecView", object));
 ```
 
 ### From `Map`:
@@ -130,12 +109,12 @@ Example:
 
 ```java
 Map<String, String> mapEvent = new HashMap<>();
-mapEvent.put("userId", "leonadeoliveira");
+mapEvent.put("type", "home");
 
-QubitSDK.tracker().sendEvent(QBEvents.fromMap("User", mapEvent));
+QubitSDK.tracker().sendEvent(QBEvents.fromMap("ecView", mapEvent));
 ```
 
-## Enabling/Disabling Tracking
+## Enabling/disabling tracking
 To disable/enable message dispatch on event occurrence use the following method:
 
 ```java
@@ -147,14 +126,13 @@ Note that tracking is enabled by default so you don't need to enable it if you'v
 
 ## Backward compatibility
 
-If you are using in your app many calls that send events, migration from [the previous version of SDK](https://github.com/qubitdigital/android-tracker) might be time-consuming and error-prone.
-In case of that, to make migration easier, the `QBTrackingManager` class corresponding to the one with the same name from the old SDK is provided.
-It allows to obtain `QBTrackingManager` object by `sharedManager` method and send evens using one of `registerEvent` methods.
+Migration from [the previous version of SDK](https://github.com/qubitdigital/android-tracker) might be time-consuming and error-prone.
+In case of that, in the current SDK you can send events in an exactly same way as before.
 
 Example:
 
 ```java
-QBTrackingManager.sharedManager().registerEvent("User", userJson);
+QBTrackingManager.sharedManager().registerEvent("ecView", userJson);
 ```
 
 Note that this class and its methods are deprecated and we recommend to eventually replace them by the new versions (see: [Sending events](#sending-events)).
@@ -162,7 +140,7 @@ Note that this class and its methods are deprecated and we recommend to eventual
 Example how to replace deprecated method of sending events:
 
 ```java
-QubitSDK.tracker().sendEvent(QBEvents.fromJsonString("User", userJson));
+QubitSDK.tracker().sendEvent(QBEvents.fromJsonString("ecView", userJson));
 ```
 
 # Logging
