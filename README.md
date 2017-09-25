@@ -6,7 +6,7 @@ Usage of the Qubit SDK library, to provide event tracking.
 
 ## Dependency
 
-In your project `build.gradle` (under 'app') add the following in the dependencies section:
+In `build.gradle` of your Android application module (usually *$projectRoot/app/build.gradle*) add the following in the dependencies section:
 
 ```
 dependencies   {
@@ -47,15 +47,15 @@ Note that you don't have to add these permissions to manifest of your applicatio
 Universal Variable is Qubit’s industry standard, extensible data layer. To send a Universal Variable event, call the `sendEvent` method taking `QBEvent` object as an argument, as per the following example. The following example emits a standard `ecView` event, but these data can be modified to send any data you wish to send, based on Qubit's event schema
 
 ```java
-QubitSDK.tracker().sendEvent(QBEvents.fromJsonString("ecView", userJson));
+QubitSDK.tracker().sendEvent(QBEvents.fromJsonString("ecView", viewJson));
 ```
 
-where `userJson` takes the example form (this may vary depending on custom schema configuration):
+where `viewJson` takes the example form (this may vary depending on custom schema configuration):
 
 ```
 {
     "type": "home",
-    "subtypes": ["Womens", "Dresses", "Cocktail Dresses"]
+    "subtypes": ["Women", "Dresses", "Cocktail Dresses"]
 }
 ```
 
@@ -132,7 +132,7 @@ In case of that, in the current SDK you can send events in an exactly same way a
 Example:
 
 ```java
-QBTrackingManager.sharedManager().registerEvent("ecView", userJson);
+QBTrackingManager.sharedManager().registerEvent("ecView", viewJson);
 ```
 
 Note that this class and its methods are deprecated and we recommend to eventually replace them by the new versions (see: [Sending events](#sending-events)).
@@ -140,7 +140,7 @@ Note that this class and its methods are deprecated and we recommend to eventual
 Example how to replace deprecated method of sending events:
 
 ```java
-QubitSDK.tracker().sendEvent(QBEvents.fromJsonString("ecView", userJson));
+QubitSDK.tracker().sendEvent(QBEvents.fromJsonString("ecView", viewJson));
 ```
 
 # Logging
