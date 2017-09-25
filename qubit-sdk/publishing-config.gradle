@@ -30,7 +30,7 @@ def pomConfig = {
       email "lukasz.jazgar@miquido.com"
     }
     developer {
-      id "ljazgar"
+      id "aamq"
       name "Agnieszka Adamczyk"
       email "agnieszka.adamczyk@miquido.com"
     }
