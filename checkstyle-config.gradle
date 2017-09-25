@@ -1,0 +1,16 @@
+apply plugin: 'checkstyle'
+
+checkstyle {
+  toolVersion = "8.2"
+}
+
+task checkstyle(type: Checkstyle) {
+  configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
+  configProperties = [samedir: "${rootDir}/config/checkstyle"]
+  source 'src'
+  include '**/*.java'
+  exclude '**/gen/**'
+  ignoreFailures = false
+  classpath = files()
+  outputs.upToDateWhen { false }
+}

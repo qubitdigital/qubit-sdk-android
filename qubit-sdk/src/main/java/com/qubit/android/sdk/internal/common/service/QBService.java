@@ -4,7 +4,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
-import com.qubit.android.sdk.internal.logging.QBLogger;
+import com.qubit.android.sdk.internal.common.logging.QBLogger;
 
 import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR2;
 

@@ -1,6 +1,6 @@
 package com.qubit.android.sdk.internal.lookup.connector;
 
-import com.qubit.android.sdk.internal.logging.QBLogger;
+import com.qubit.android.sdk.internal.common.logging.QBLogger;
 import com.qubit.android.sdk.internal.lookup.model.LookupModel;
 import java.io.IOException;
 import retrofit2.Response;

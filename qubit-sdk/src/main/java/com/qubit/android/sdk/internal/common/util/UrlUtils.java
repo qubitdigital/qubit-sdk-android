@@ -1,4 +1,4 @@
-package com.qubit.android.sdk.internal.util;
+package com.qubit.android.sdk.internal.common.util;
 
 public final class UrlUtils {
 

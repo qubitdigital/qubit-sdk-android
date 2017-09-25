@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.NonNull;
 import com.qubit.android.sdk.internal.common.repository.TableInitializer;
-import com.qubit.android.sdk.internal.logging.QBLogger;
+import com.qubit.android.sdk.internal.common.logging.QBLogger;
 import com.qubit.android.sdk.internal.session.SessionService;
 import java.util.ArrayList;
 import java.util.Collection;
