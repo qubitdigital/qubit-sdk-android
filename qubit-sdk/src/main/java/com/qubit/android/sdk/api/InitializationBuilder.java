@@ -26,7 +26,7 @@ public class InitializationBuilder {
   }
 
   /**
-   * Set context of Android application. I can be {@link Application} itself
+   * Set context of Android application. It can be {@link Application} itself
    * or result of {@link Context#getApplicationContext()}.
    * @param context Android application context
    * @return Next step builder.
