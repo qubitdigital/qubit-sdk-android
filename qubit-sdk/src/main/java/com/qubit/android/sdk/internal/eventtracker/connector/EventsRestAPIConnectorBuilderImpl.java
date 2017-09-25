@@ -2,7 +2,7 @@ package com.qubit.android.sdk.internal.eventtracker.connector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.qubit.android.sdk.internal.util.UrlUtils;
+import com.qubit.android.sdk.internal.common.util.UrlUtils;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 

@@ -9,7 +9,7 @@ import com.qubit.android.sdk.internal.eventtracker.connector.EventMeta;
 import com.qubit.android.sdk.internal.eventtracker.connector.EventRestModel;
 import com.qubit.android.sdk.internal.eventtracker.connector.LifetimeValue;
 import com.qubit.android.sdk.internal.eventtracker.repository.EventModel;
-import com.qubit.android.sdk.internal.logging.QBLogger;
+import com.qubit.android.sdk.internal.common.logging.QBLogger;
 import com.qubit.android.sdk.internal.lookup.LookupData;
 
 class EventRestModelCreator {

@@ -5,7 +5,7 @@ import android.content.Context;
 import android.util.TimingLogger;
 import com.qubit.android.sdk.api.logging.QBLogLevel;
 import com.qubit.android.sdk.internal.SDK;
-import com.qubit.android.sdk.internal.logging.QBLogger;
+import com.qubit.android.sdk.internal.common.logging.QBLogger;
 
 /**
  * Fluent interface for initialization of SDK, allowing to set configuration parameters and start SDK.

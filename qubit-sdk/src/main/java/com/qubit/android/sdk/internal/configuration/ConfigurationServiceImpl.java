@@ -8,13 +8,13 @@ import com.qubit.android.sdk.internal.configuration.connector.ConfigurationRespo
 import com.qubit.android.sdk.internal.configuration.connector.ConfigurationRestModel;
 import com.qubit.android.sdk.internal.configuration.repository.ConfigurationModel;
 import com.qubit.android.sdk.internal.configuration.repository.ConfigurationRepository;
-import com.qubit.android.sdk.internal.logging.QBLogger;
+import com.qubit.android.sdk.internal.common.logging.QBLogger;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
-import com.qubit.android.sdk.internal.util.DateTimeUtils;
+import com.qubit.android.sdk.internal.common.util.DateTimeUtils;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import static com.qubit.android.sdk.internal.util.Elvis.*;
+import static com.qubit.android.sdk.internal.common.util.Elvis.*;
 
 public class ConfigurationServiceImpl extends QBService implements ConfigurationService {
 

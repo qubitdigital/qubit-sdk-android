@@ -1,9 +1,9 @@
 package com.qubit.android.sdk.internal.eventtracker.repository;
 
-import com.qubit.android.sdk.internal.logging.QBLogger;
+import com.qubit.android.sdk.internal.common.logging.QBLogger;
 import com.qubit.android.sdk.internal.session.SessionService;
-import com.qubit.android.sdk.internal.util.DateTimeUtils;
-import com.qubit.android.sdk.internal.util.ListUtil;
+import com.qubit.android.sdk.internal.common.util.DateTimeUtils;
+import com.qubit.android.sdk.internal.common.util.ListUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

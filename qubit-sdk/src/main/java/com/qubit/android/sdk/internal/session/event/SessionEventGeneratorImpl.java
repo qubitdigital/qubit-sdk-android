@@ -5,7 +5,7 @@ import com.qubit.android.sdk.internal.lookup.LookupData;
 import com.qubit.android.sdk.internal.session.SessionData;
 import com.qubit.android.sdk.internal.session.model.SessionEvent;
 
-import static com.qubit.android.sdk.internal.util.Elvis.*;
+import static com.qubit.android.sdk.internal.common.util.Elvis.*;
 
 public class SessionEventGeneratorImpl implements SessionEventGenerator {
 

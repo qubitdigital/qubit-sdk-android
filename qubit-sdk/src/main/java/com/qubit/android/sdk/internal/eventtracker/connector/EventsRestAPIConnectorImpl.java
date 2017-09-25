@@ -1,6 +1,6 @@
 package com.qubit.android.sdk.internal.eventtracker.connector;
 
-import com.qubit.android.sdk.internal.logging.QBLogger;
+import com.qubit.android.sdk.internal.common.logging.QBLogger;
 import java.io.IOException;
 import java.util.List;
 import retrofit2.Response;
