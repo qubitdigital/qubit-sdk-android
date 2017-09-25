@@ -154,7 +154,7 @@ It allows to obtain `QBTrackingManager` object by `sharedManager` method and sen
 
 Example:
 
-```
+```java
 QBTrackingManager.sharedManager().registerEvent("User", userJson);
 ```
 
@@ -162,7 +162,7 @@ Note that this class and its methods are deprecated and we recommend to eventual
 
 Example how to replace deprecated method of sending events:
 
-```
+```java
 QubitSDK.tracker().sendEvent(QBEvents.fromJsonString("User", userJson));
 ```
 
