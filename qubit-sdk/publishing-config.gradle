@@ -92,10 +92,6 @@ bintray {
       name = project.version
       released = new Date()
       vcsTag = 'version-' + project.version
-      gpg {
-        sign = true //Determines whether to GPG sign the files. The default is false
-        passphrase = project.hasProperty('bintray.gpg.password') ? project.property('bintray.gpg.password') : System.getenv('BINTRAY_GPG_PASSWORD')
-      }
     }
   }
 }
