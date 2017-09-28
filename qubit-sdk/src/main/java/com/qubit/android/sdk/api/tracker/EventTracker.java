@@ -2,6 +2,7 @@ package com.qubit.android.sdk.api.tracker;
 
 import com.qubit.android.sdk.api.tracker.event.QBEvent;
 import com.qubit.android.sdk.api.tracker.event.QBEvents;
+import com.qubit.android.sdk.internal.lookup.LookupData;
 
 /**
  * Event tracker interface.
@@ -15,6 +16,8 @@ public interface EventTracker {
    * @param event Event to send.
    */
   void sendEvent(QBEvent event);
+
+  LookupData getLookupData();
 
   /**
    * Enable or disable collecting new events.

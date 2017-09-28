@@ -38,6 +38,8 @@ public class SDK {
   private LookupServiceImpl lookupService;
   private SessionServiceImpl sessionService;
   private EventTrackerImpl eventTracker;
+  public String deviceId;
+  public String trackingId;
 
   public SDK(Context appContext, String trackingId) {
     this.networkStateService = new NetworkStateServiceImpl(appContext);
@@ -47,7 +49,9 @@ public class SDK {
     this.configurationService =
         new ConfigurationServiceImpl(networkStateService, configurationRepository, configurationConnectorBuilder);
 
-    String deviceId = new SecureAndroidIdDeviceIdProvider(appContext).getDeviceId();
+    this.trackingId = trackingId;
+    this.deviceId = new SecureAndroidIdDeviceIdProvider(appContext).getDeviceId();
+
 
     LookupRepository lookupRepository = new LookupRepositoryImpl(appContext);
     LookupConnectorBuilder lookupConnectorBuilder = new LookupConnectorBuilderImpl(trackingId, deviceId);

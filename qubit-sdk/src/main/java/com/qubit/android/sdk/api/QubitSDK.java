@@ -52,4 +52,20 @@ public final class QubitSDK {
     sdkSingleton = null;
   }
 
+  public static String getDeviceId() {
+    if (sdkSingleton == null) {
+      throw new IllegalStateException("QubitSDK is not initialized yet. "
+          + "Call QubitSDK.initialization().{...}.start() before any other call to QubitSDK");
+    }
+    return sdkSingleton.deviceId;
+  }
+
+  public static String getTrackingId() {
+    if (sdkSingleton == null) {
+      throw new IllegalStateException("QubitSDK is not initialized yet. "
+          + "Call QubitSDK.initialization().{...}.start() before any other call to QubitSDK");
+    }
+    return sdkSingleton.trackingId;
+  }
+
 }

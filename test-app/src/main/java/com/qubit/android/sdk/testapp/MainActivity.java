@@ -21,6 +21,8 @@ public class MainActivity extends AppCompatActivity {
     setContentView(R.layout.activity_main);
 
     Log.i(TAG, "Send view event Main activity");
+    Log.i(TAG, QubitSDK.getTrackingId());
+    Log.i(TAG, QubitSDK.getDeviceId());
     QubitSDK.tracker().sendEvent(QBEvents.fromJsonString(EVENT_TYPE_VIEW, "{ \"type\" : \"Main\" }"));
 
     findViewById(R.id.send_view_event_button).setOnClickListener(new View.OnClickListener() {
@@ -29,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, "Send view event button clicked");
         // Example of sending event
         QubitSDK.tracker().sendEvent(QBEvents.fromJsonString(EVENT_TYPE_VIEW, "{ \"type\" : \"button1\" }"));
+        Log.i(TAG, QubitSDK.tracker().getLookupData().getIpAddress());
       }
     });
 

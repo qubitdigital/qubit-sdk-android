@@ -122,6 +122,10 @@ public class EventTrackerImpl extends QBService implements EventTracker {
     }
   }
 
+  public synchronized LookupData getLookupData() {
+    return currentLookupData;
+  }
+
   @Override
   public synchronized void enable(boolean enable) {
     isEnabled = enable;
