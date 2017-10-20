@@ -22,6 +22,6 @@ dependencies   {
 * Publish artifact to Bintray Maven repository
 
 ```
-> ./gradlew clean bintrayUpload -Pbintray.user=... -Pbintray.password=... -Pbintray.gpg.password=...
+> ./gradlew clean bintrayUpload -Pbintray.user=... -Pbintray.apiKey=...
 ```
 
