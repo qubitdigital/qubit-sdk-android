@@ -10,7 +10,7 @@ In `build.gradle` of your Android application module (usually *$projectRoot/app/
 
 ```
 dependencies   {
-    compile  'com.qubit:qubit-sdk-android:1.0.1'
+    compile  'com.qubit:qubit-sdk-android:1.2.0'
 }
 ```
 
@@ -101,17 +101,6 @@ EcViewEventData object = new EcViewEventData();
 object.setType("home");
 
 QubitSDK.tracker().sendEvent(QBEvents.fromObject("ecView", object));
-```
-
-### From `Map`:
-
-Example:
-
-```java
-Map<String, String> mapEvent = new HashMap<>();
-mapEvent.put("type", "home");
-
-QubitSDK.tracker().sendEvent(QBEvents.fromMap("ecView", mapEvent));
 ```
 
 ## Enabling/disabling tracking
