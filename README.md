@@ -113,6 +113,13 @@ QubitSDK.tracker().enable(true); // enable
 
 Note that tracking is enabled by default so you don't need to enable it if you've never disabled it anywhere.
 
+# Tracker Properties
+You can get the `trackingID` and `deviceID` from the QubitSDK via the following methods:
+```
+QubitSDK.getTrackingId();
+QubitSDK.getDeviceId();
+```
+
 ## Backward compatibility
 
 Migration from [the previous version of the SDK](https://github.com/qubitdigital/android-tracker) might be time-consuming and error-prone.
