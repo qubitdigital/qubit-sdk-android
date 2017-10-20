@@ -123,7 +123,11 @@ public class EventTrackerImpl extends QBService implements EventTracker {
   }
 
   public synchronized LookupData getLookupData() {
-    return currentLookupData;
+    if (currentLookupData == null) {
+      throw new IllegalStateException("Lookup data not avaliable yet...");
+    } else {
+      return currentLookupData;
+    }
   }
 
   @Override
