@@ -10,7 +10,7 @@ In `build.gradle` of your Android application module (usually *$projectRoot/app/
 
 ```
 dependencies   {
-    compile  'com.qubit:qubit-sdk-android:1.2.0'
+    compile  'com.qubit:qubit-sdk-android:1.2.1'
 }
 ```
 
