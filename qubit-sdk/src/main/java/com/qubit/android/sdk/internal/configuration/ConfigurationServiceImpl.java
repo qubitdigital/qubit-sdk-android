@@ -236,12 +236,18 @@ public class ConfigurationServiceImpl extends QBService implements Configuration
         && (currentConfiguration == null || currentConfiguration.getLastUpdateTimestamp() == null)) {
       return 0;
     }
-    long reloadIntervalMs = DateTimeUtils.minToMs(currentConfiguration.getConfigurationReloadInterval());
+    long reloadIntervalMs = getConfigurationReloadIntervalMs();
     long baseTime = lastUpdateAttemptTimestamp != null
         ? lastUpdateAttemptTimestamp : currentConfiguration.getLastUpdateTimestamp();
     long nextDownloadTime = baseTime + reloadIntervalMs;
     long now = System.currentTimeMillis();
     return nextDownloadTime > now ? nextDownloadTime - now : 0;
+  }
+
+  private long getConfigurationReloadIntervalMs() {
+    ConfigurationModel effectiveConfiguration =
+        currentConfiguration != null ? currentConfiguration : ConfigurationModel.getDefault();
+    return DateTimeUtils.minToMs(effectiveConfiguration.getConfigurationReloadInterval());
   }
 
   private boolean isConfigurationUpToDate() {
