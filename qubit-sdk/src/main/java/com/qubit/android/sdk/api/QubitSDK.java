@@ -34,10 +34,7 @@ public final class QubitSDK {
    * @return Event tracker
    */
   public static EventTracker tracker() {
-    if (sdkSingleton == null) {
-      throw new IllegalStateException("QubitSDK is not initialized yet. "
-          + "Call QubitSDK.initialization().{...}.start() before any other call to QubitSDK");
-    }
+    checkSdkInitialized();
     return sdkSingleton.getEventTracker();
   }
 
@@ -45,27 +42,26 @@ public final class QubitSDK {
    * Release all resources used by SDK, including stopping all background threads.
    */
   public static void release() {
-    if (sdkSingleton == null) {
-      throw new IllegalStateException("QubitSDK is not initialized..");
-    }
+    checkSdkInitialized();
     sdkSingleton.stop();
     sdkSingleton = null;
   }
 
   public static String getDeviceId() {
-    if (sdkSingleton == null) {
-      throw new IllegalStateException("QubitSDK is not initialized yet. "
-          + "Call QubitSDK.initialization().{...}.start() before any other call to QubitSDK");
-    }
-    return sdkSingleton.deviceId;
+    checkSdkInitialized();
+    return sdkSingleton.getDeviceId();
   }
 
   public static String getTrackingId() {
+    checkSdkInitialized();
+    return sdkSingleton.getTrackingId();
+  }
+
+  private static void checkSdkInitialized() {
     if (sdkSingleton == null) {
       throw new IllegalStateException("QubitSDK is not initialized yet. "
           + "Call QubitSDK.initialization().{...}.start() before any other call to QubitSDK");
     }
-    return sdkSingleton.trackingId;
   }
 
 }

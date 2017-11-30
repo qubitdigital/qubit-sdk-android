@@ -38,8 +38,8 @@ public class SDK {
   private LookupServiceImpl lookupService;
   private SessionServiceImpl sessionService;
   private EventTrackerImpl eventTracker;
-  public String deviceId;
-  public String trackingId;
+  private String deviceId;
+  private String trackingId;
 
   public SDK(Context appContext, String trackingId) {
     this.networkStateService = new NetworkStateServiceImpl(appContext);
@@ -95,4 +95,11 @@ public class SDK {
     return eventTracker;
   }
 
+  public String getDeviceId() {
+    return deviceId;
+  }
+
+  public String getTrackingId() {
+    return trackingId;
+  }
 }
