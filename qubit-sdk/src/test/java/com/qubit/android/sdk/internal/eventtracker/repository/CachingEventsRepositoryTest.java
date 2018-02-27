@@ -1,9 +1,7 @@
 package com.qubit.android.sdk.internal.eventtracker.repository;
 
-import android.app.usage.UsageEvents;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
