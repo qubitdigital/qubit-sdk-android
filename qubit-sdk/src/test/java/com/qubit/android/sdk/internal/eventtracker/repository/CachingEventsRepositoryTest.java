@@ -1,7 +1,6 @@
 package com.qubit.android.sdk.internal.eventtracker.repository;
 
 import java.util.ArrayList;
-import java.util.List;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
