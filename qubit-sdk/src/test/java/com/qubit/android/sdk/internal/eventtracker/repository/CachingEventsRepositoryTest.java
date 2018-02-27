@@ -19,9 +19,9 @@ public class CachingEventsRepositoryTest {
       storedEventModelsIds.add(cachingEventsRepository.insert(createTestEventModel()).getId());
     }
 
-    List<EventModel> first5Events = cachingEventsRepository.selectFirst(5);
+    cachingEventsRepository.selectFirst(5);
 
-    cachingEventsRepository.delete(storedEventModelsIds.subList(0,6));
+    cachingEventsRepository.delete(storedEventModelsIds.subList(0, 6));
 
     cachingEventsRepository.insert(createTestEventModel());
     assertNotNull(cachingEventsRepository.selectFirst());
