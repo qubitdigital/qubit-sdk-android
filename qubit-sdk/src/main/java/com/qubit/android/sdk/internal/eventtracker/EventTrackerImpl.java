@@ -378,6 +378,9 @@ public class EventTrackerImpl extends QBService implements EventTracker {
       return;
     }
     EventModel firstEvent = eventsRepository.selectFirst();
+    if (firstEvent == null) {
+      return;
+    }
     long now = System.currentTimeMillis();
     long queueTimeoutMs = DateTimeUtils.minToMs(currentConfiguration.getQueueTimeout());
     long timeoutTimestampMs = now - queueTimeoutMs;

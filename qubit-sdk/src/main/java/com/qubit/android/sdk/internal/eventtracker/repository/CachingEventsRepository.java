@@ -19,6 +19,14 @@ public class CachingEventsRepository implements EventsRepository {
 
   // cached values
   private Integer queueSize;
+  /**
+   * Cached beginning of queue.
+   * Value meaning:
+   * Null - no knowledge about state of queue.
+   * Empty - queue is empty.
+   * N elements - queue contains these N elements at the beginning.
+   *              It means only that queue contains at least N elements, but it can be longer.
+   */
   private List<EventModel> queueBeginningCache;
   private Long queueSizeUpdateTime;
 
@@ -98,27 +106,27 @@ public class CachingEventsRepository implements EventsRepository {
   @Override
   public boolean delete(long id) {
     boolean removed = eventsRepository.delete(id);
-    deleteFromCache(Collections.singletonList(id));
     if (removed) {
       queueSize--;
     }
+    deleteFromCacheByIds(Collections.singletonList(id));
     return removed;
   }
 
   @Override
   public int delete(Collection<Long> ids) {
     int removed = eventsRepository.delete(ids);
-    deleteFromCache(ids);
     queueSize -= removed;
+    deleteFromCacheByIds(ids);
     return removed;
   }
 
   @Override
   public int deleteOlderThan(long timeMs) {
     int removed = eventsRepository.deleteOlderThan(timeMs);
+    queueSize -= removed;
     int removedFromCache = deleteFromCacheOlderThan(timeMs);
     LOGGER.d("Old events removed from cache: " + removedFromCache);
-    queueSize -= removed;
     return removed;
   }
 
@@ -144,23 +152,29 @@ public class CachingEventsRepository implements EventsRepository {
     return queueSize;
   }
 
-
-  private int deleteFromCache(Collection<Long> ids) {
-    if (queueBeginningCache == null) {
-      return 0;
-    }
-    Iterator<EventModel> eventsIterator = queueBeginningCache.iterator();
-    int eventsSizeBefore = queueBeginningCache.size();
-    while (eventsIterator.hasNext()) {
-      EventModel event = eventsIterator.next();
-      if (ids.contains(event.getId())) {
-        eventsIterator.remove();
-      }
-    }
-    return eventsSizeBefore - queueBeginningCache.size();
+  private interface Predicate<T> {
+    boolean test(T t);
   }
 
-  private int deleteFromCacheOlderThan(long timeMs) {
+  private int deleteFromCacheByIds(final Collection<Long> ids) {
+    return deleteFromCache(new Predicate<EventModel>() {
+      @Override
+      public boolean test(EventModel event) {
+        return ids.contains(event.getId());
+      }
+    });
+  }
+
+  private int deleteFromCacheOlderThan(final long timeMs) {
+    return deleteFromCache(new Predicate<EventModel>() {
+      @Override
+      public boolean test(EventModel event) {
+        return event.getCreationTimestamp() < timeMs && !event.getType().equals(SessionService.SESSION_EVENT_TYPE);
+      }
+    });
+  }
+
+  private int deleteFromCache(Predicate<EventModel> predicate) {
     if (queueBeginningCache == null) {
       return 0;
     }
@@ -168,11 +182,16 @@ public class CachingEventsRepository implements EventsRepository {
     int eventsSizeBefore = queueBeginningCache.size();
     while (eventsIterator.hasNext()) {
       EventModel event = eventsIterator.next();
-      if (event.getCreationTimestamp() < timeMs && !event.getType().equals(SessionService.SESSION_EVENT_TYPE)) {
+      if (predicate.test(event)) {
         eventsIterator.remove();
       }
     }
-    return eventsSizeBefore - queueBeginningCache.size();
+    int removed = eventsSizeBefore - queueBeginningCache.size();
+    if (queueBeginningCache.size() == 0 && queueSize > 0) {
+      // removing all elements in cache doesn't mean that whole queue is empty
+      queueBeginningCache = null;
+    }
+    return removed;
   }
 
   private int updateWasTriedToSendInCache(Collection<Long> ids) {
