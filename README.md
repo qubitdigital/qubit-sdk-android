@@ -1,6 +1,6 @@
 # Qubit Android SDK
 
-Usage of the Qubit SDK library, to provide event tracking.
+Installation of the QubitSDK, to provide event tracking and lookup. To make use of this SDK, please contact your Qubit Customer Success representative.
 
 # Getting started
 
