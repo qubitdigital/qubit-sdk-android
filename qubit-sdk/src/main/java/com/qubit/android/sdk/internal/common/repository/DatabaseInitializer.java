@@ -3,12 +3,13 @@ package com.qubit.android.sdk.internal.common.repository;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.support.annotation.NonNull;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
+
+import org.jetbrains.annotations.NotNull;
 
 public class DatabaseInitializer {
 
@@ -16,7 +17,7 @@ public class DatabaseInitializer {
 
   private final ExecutorService executorService = Executors.newSingleThreadExecutor(new ThreadFactory() {
     @Override
-    public Thread newThread(@NonNull Runnable runnable) {
+    public Thread newThread(@NotNull Runnable runnable) {
       Thread thread = Executors.defaultThreadFactory().newThread(runnable);
       thread.setPriority(Thread.MIN_PRIORITY);
       return thread;

@@ -1,8 +1,9 @@
 package com.qubit.android.sdk.internal.common.logging;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 import com.qubit.android.sdk.api.logging.QBLogLevel;
+
+import org.jetbrains.annotations.NotNull;
 
 import static com.qubit.android.sdk.api.logging.QBLogLevel.*;
 
@@ -86,7 +87,7 @@ public final class QBLogger {
     return logLevel.compareTo(qbLogLevel) >= 0;
   }
 
-  @NonNull
+  @NotNull
   private String createMessageWithComponent(String message) {
     return component + ": " + message;
   }

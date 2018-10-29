@@ -22,5 +22,7 @@ public interface Configuration {
 
   int getLookupCacheExpireTime();
 
+  String getExperienceApiHost();
 
+  int getExperienceApiCacheExpireTime();
 }
