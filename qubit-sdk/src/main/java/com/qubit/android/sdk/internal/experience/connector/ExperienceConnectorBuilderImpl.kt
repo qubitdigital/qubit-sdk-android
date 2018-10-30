@@ -4,22 +4,25 @@ import com.qubit.android.sdk.internal.common.util.UrlUtils
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class ExperienceConnectorBuilderImpl(val trackingId: String, val contextId: String) : ExperienceConnectorBuilder {
+class ExperienceConnectorBuilderImpl(
+    private val trackingId: String,
+    private val contextId: String
+) : ExperienceConnectorBuilder {
 
   override fun buildFor(
       endpointUrl: String,
-      experienceIds: List<String>,
+      experienceIdList: List<String>,
       variation: Int?,
       preview: Boolean?,
       ignoreSegments: Boolean?
   ): ExperienceConnector {
 
-    val experiences = experienceIds.foldRight("") { acc: String, s: String -> "$acc.$s" }
+    val experiencesIds = experienceIdList.reduce { acc: String, s: String -> "$acc,$s" }
 
     return ExperienceConnectorImpl(
         trackingId,
         contextId,
-        experiences,
+        experiencesIds,
         variation,
         preview,
         ignoreSegments,

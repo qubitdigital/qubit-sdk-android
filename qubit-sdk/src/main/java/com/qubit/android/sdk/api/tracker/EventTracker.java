@@ -2,8 +2,14 @@ package com.qubit.android.sdk.api.tracker;
 
 import com.qubit.android.sdk.api.tracker.event.QBEvent;
 import com.qubit.android.sdk.api.tracker.event.QBEvents;
-import com.qubit.android.sdk.internal.experience.ExperienceData;
+import com.qubit.android.sdk.internal.experience.ExperienceListener;
+import com.qubit.android.sdk.internal.experience.ExperienceObject;
 import com.qubit.android.sdk.internal.lookup.LookupData;
+
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.concurrent.Future;
 
 /**
  * Event tracker interface.
@@ -20,7 +26,13 @@ public interface EventTracker {
 
   LookupData getLookupData();
 
-  ExperienceData getExperienceData();
+  void getExperienceData(
+      List<String> experienceIdList,
+      @Nullable Integer variation,
+      @Nullable Boolean preview,
+      @Nullable Boolean ignoreSegments,
+      ExperienceListener experienceListener
+  );
 
   /**
    * Enable or disable collecting new events.

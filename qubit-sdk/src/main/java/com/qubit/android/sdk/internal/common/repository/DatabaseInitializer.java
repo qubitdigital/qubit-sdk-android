@@ -3,13 +3,15 @@ package com.qubit.android.sdk.internal.common.repository;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 
-import org.jetbrains.annotations.NotNull;
 
 public class DatabaseInitializer {
 
@@ -26,7 +28,7 @@ public class DatabaseInitializer {
   private final Context appContext;
   private final TableInitializer[] tableInitializers;
 
-  public DatabaseInitializer(Context appContext, TableInitializer ... tableInitializers) {
+  public DatabaseInitializer(Context appContext, TableInitializer... tableInitializers) {
     this.appContext = appContext;
     this.tableInitializers = tableInitializers;
   }

@@ -6,6 +6,11 @@ import android.util.Log;
 import android.view.View;
 import com.qubit.android.sdk.api.QubitSDK;
 import com.qubit.android.sdk.api.tracker.event.QBEvents;
+import com.qubit.android.sdk.internal.experience.ExperienceListener;
+import com.qubit.android.sdk.internal.experience.ExperienceObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -53,6 +58,28 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < 20; i++) {
           QubitSDK.tracker().sendEvent(QBEvents.fromJsonString(EVENT_TYPE_VIEW, "{ \"type\" : \"buttons\" }"));
         }
+      }
+    });
+
+    findViewById(R.id.get_experience).setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        Log.i(TAG, "Get experience events button clicked");
+
+        List<String> list = new ArrayList<>();
+        list.add("139731");
+
+        QubitSDK.tracker().getExperienceData(list, null, null, null, new ExperienceListener() {
+          @Override
+          public void onExperienceReceive(ExperienceObject experienceObject) {
+            Log.d(TAG, experienceObject.getExpierModel().toString());
+          }
+
+          @Override
+          public void onError() {
+
+          }
+        });
       }
     });
   }

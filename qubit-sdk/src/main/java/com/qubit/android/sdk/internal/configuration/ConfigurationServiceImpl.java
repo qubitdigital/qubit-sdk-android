@@ -202,6 +202,10 @@ public class ConfigurationServiceImpl extends QBService implements Configuration
         getIfNotNull(newConfiguration.getLookupGetRequestTimeout(), defaultConf.getLookupGetRequestTimeout()));
     result.setLookupCacheExpireTime(
         getIfNotNull(newConfiguration.getLookupCacheExpireTime(), defaultConf.getLookupCacheExpireTime()));
+    result.setExperienceApiHost(
+        getIfNotEmpty(newConfiguration.getExperienceApiHost(), defaultConf.getExperienceApiHost()));
+    result.setExperienceApiCacheExpireTime(
+        getIfNotNull(newConfiguration.getExperienceApiCacheExpireTime(), defaultConf.getExperienceApiCacheExpireTime()));
 
     return result;
   }

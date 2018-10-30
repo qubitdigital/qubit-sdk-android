@@ -12,7 +12,13 @@ import com.qubit.android.sdk.internal.eventtracker.repository.CachingEventsRepos
 import com.qubit.android.sdk.internal.eventtracker.repository.EventModel;
 import com.qubit.android.sdk.internal.eventtracker.repository.EventsRepository;
 import com.qubit.android.sdk.internal.common.logging.QBLogger;
-import com.qubit.android.sdk.internal.experience.ExperienceData;
+import com.qubit.android.sdk.internal.experience.ExperienceInteractor;
+import com.qubit.android.sdk.internal.experience.ExperienceInteractorImpl;
+import com.qubit.android.sdk.internal.experience.ExperienceListener;
+import com.qubit.android.sdk.internal.experience.ExperienceObject;
+import com.qubit.android.sdk.internal.experience.connector.ExperienceConnectorBuilder;
+import com.qubit.android.sdk.internal.experience.connector.ExperienceConnectorBuilderImpl;
+import com.qubit.android.sdk.internal.experience.repository.ExperienceRepositoryImpl;
 import com.qubit.android.sdk.internal.lookup.LookupData;
 import com.qubit.android.sdk.internal.lookup.LookupService;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
@@ -23,6 +29,9 @@ import com.qubit.android.sdk.internal.session.SessionService;
 import com.qubit.android.sdk.internal.session.model.SessionForEventImpl;
 import com.qubit.android.sdk.internal.common.util.DateTimeUtils;
 import com.qubit.android.sdk.internal.common.util.Uninterruptibles;
+
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -30,6 +39,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 public class EventTrackerImpl extends QBService implements EventTracker {
 
@@ -56,6 +66,8 @@ public class EventTrackerImpl extends QBService implements EventTracker {
   private final NetworkStateService.NetworkStateListener networkStateListener;
   private final LookupService.LookupListener lookupListener;
 
+  private final ExperienceConnectorBuilder experienceConnectorBuilder;
+
   private boolean isEnabled = true;
 
   private Configuration currentConfiguration = null;
@@ -65,6 +77,7 @@ public class EventTrackerImpl extends QBService implements EventTracker {
   private EventsRestAPIConnector apiConnector = null;
   private int sendingAttempts = 0;
   private long lastAttemptTime = 0;
+  private ExperienceInteractor experienceInteractor = null;
 
   public EventTrackerImpl(String trackingId, String deviceId,
                           ConfigurationService configurationService,
@@ -80,6 +93,7 @@ public class EventTrackerImpl extends QBService implements EventTracker {
     this.lookupService = lookupService;
     this.eventsRepository = new CachingEventsRepository(eventsRepository);
     this.eventsRestAPIConnectorBuilder = eventsRestAPIConnectorBuilder;
+    this.experienceConnectorBuilder = new ExperienceConnectorBuilderImpl(trackingId, "9ad614fcef3c5443");
     eventRestModelCreator = new EventRestModelCreator(trackingId, deviceId);
     configurationListener = new ConfigurationService.ConfigurationListener() {
       @Override
@@ -132,8 +146,15 @@ public class EventTrackerImpl extends QBService implements EventTracker {
   }
 
   @Override
-  public ExperienceData getExperienceData() {
-    return null;
+  public void getExperienceData(
+      List<String> experienceIdList,
+      @Nullable Integer variation,
+      @Nullable Boolean preview,
+      @Nullable Boolean ignoreSegments,
+      ExperienceListener experienceListener
+  ) {
+    experienceInteractor = new ExperienceInteractorImpl(currentConfiguration, new ExperienceRepositoryImpl(), experienceConnectorBuilder);
+    experienceInteractor.fetchExperience(experienceIdList, variation, preview, ignoreSegments, experienceListener);
   }
 
   @Override
