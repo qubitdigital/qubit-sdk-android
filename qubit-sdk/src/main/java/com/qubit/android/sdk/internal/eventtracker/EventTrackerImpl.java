@@ -12,6 +12,7 @@ import com.qubit.android.sdk.internal.eventtracker.repository.CachingEventsRepos
 import com.qubit.android.sdk.internal.eventtracker.repository.EventModel;
 import com.qubit.android.sdk.internal.eventtracker.repository.EventsRepository;
 import com.qubit.android.sdk.internal.common.logging.QBLogger;
+import com.qubit.android.sdk.internal.experience.ExperienceData;
 import com.qubit.android.sdk.internal.lookup.LookupData;
 import com.qubit.android.sdk.internal.lookup.LookupService;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
@@ -128,6 +129,11 @@ public class EventTrackerImpl extends QBService implements EventTracker {
     } else {
       return currentLookupData;
     }
+  }
+
+  @Override
+  public ExperienceData getExperienceData() {
+    return null;
   }
 
   @Override

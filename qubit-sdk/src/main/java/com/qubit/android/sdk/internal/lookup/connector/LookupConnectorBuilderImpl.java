@@ -27,5 +27,4 @@ public class LookupConnectorBuilderImpl implements LookupConnectorBuilder {
 
     return retrofit.create(LookupAPI.class);
   }
-
 }

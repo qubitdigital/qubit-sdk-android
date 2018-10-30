@@ -1,6 +1,5 @@
 package com.qubit.android.sdk.internal.configuration;
 
-import android.support.annotation.Nullable;
 import com.qubit.android.sdk.internal.common.service.QBService;
 import com.qubit.android.sdk.internal.configuration.connector.ConfigurationConnector;
 import com.qubit.android.sdk.internal.configuration.connector.ConfigurationConnectorBuilder;
@@ -11,6 +10,9 @@ import com.qubit.android.sdk.internal.configuration.repository.ConfigurationRepo
 import com.qubit.android.sdk.internal.common.logging.QBLogger;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
 import com.qubit.android.sdk.internal.common.util.DateTimeUtils;
+
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArraySet;
 
