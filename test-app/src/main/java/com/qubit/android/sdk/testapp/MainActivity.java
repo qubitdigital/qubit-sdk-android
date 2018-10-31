@@ -69,10 +69,10 @@ public class MainActivity extends AppCompatActivity {
         List<String> list = new ArrayList<>();
         list.add("139731");
 
-        QubitSDK.tracker().getExperienceData(list, null, null, null, new ExperienceListener() {
+        QubitSDK.tracker().getExperiences(list, null, null, null, new ExperienceListener() {
           @Override
           public void onExperienceReceive(ExperienceObject experienceObject) {
-            Log.d(TAG, experienceObject.getExpierModel().toString());
+            Log.d(TAG, experienceObject.getExperienceModel().toString());
           }
 
           @Override

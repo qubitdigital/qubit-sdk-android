@@ -30,6 +30,7 @@ import com.qubit.android.sdk.internal.session.model.SessionForEventImpl;
 import com.qubit.android.sdk.internal.common.util.DateTimeUtils;
 import com.qubit.android.sdk.internal.common.util.Uninterruptibles;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -40,6 +41,9 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
 
 public class EventTrackerImpl extends QBService implements EventTracker {
 
@@ -146,15 +150,23 @@ public class EventTrackerImpl extends QBService implements EventTracker {
   }
 
   @Override
-  public void getExperienceData(
-      List<String> experienceIdList,
-      @Nullable Integer variation,
-      @Nullable Boolean preview,
-      @Nullable Boolean ignoreSegments,
-      ExperienceListener experienceListener
-  ) {
+  public void getExperiences(@NotNull String experienceId,
+                             @NotNull Function0<Unit> onSuccess,
+                             @NotNull Function0<Unit> onError,
+                             @Nullable Integer variation,
+                             @Nullable Boolean preview,
+                             @Nullable Boolean ignoreSegments) {
+  }
+
+  @Override
+  public void getExperiences(@NotNull List<String> experienceIdList,
+                             @NotNull Function0<Unit> onSuccess,
+                             @NotNull Function0<Unit> onError,
+                             @Nullable Integer variation,
+                             @Nullable Boolean preview,
+                             @Nullable Boolean ignoreSegments) {
     experienceInteractor = new ExperienceInteractorImpl(currentConfiguration, new ExperienceRepositoryImpl(), experienceConnectorBuilder);
-    experienceInteractor.fetchExperience(experienceIdList, variation, preview, ignoreSegments, experienceListener);
+    experienceInteractor.fetchExperience(experienceIdList, variation, preview, ignoreSegments);
   }
 
   @Override

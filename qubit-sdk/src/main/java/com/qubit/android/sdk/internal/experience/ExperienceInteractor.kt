@@ -5,7 +5,6 @@ internal interface ExperienceInteractor {
       experienceIdList: List<String>,
       variation: Int?,
       preview: Boolean?,
-      ignoreSegments: Boolean?,
-      experienceListener: ExperienceListener
+      ignoreSegments: Boolean?
   )
 }
