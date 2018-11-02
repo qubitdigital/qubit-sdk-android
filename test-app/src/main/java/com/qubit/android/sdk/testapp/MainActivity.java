@@ -4,13 +4,16 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+
 import com.qubit.android.sdk.api.QubitSDK;
 import com.qubit.android.sdk.api.tracker.event.QBEvents;
-import com.qubit.android.sdk.internal.experience.ExperienceListener;
 import com.qubit.android.sdk.internal.experience.ExperienceObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -69,17 +72,19 @@ public class MainActivity extends AppCompatActivity {
         List<String> list = new ArrayList<>();
         list.add("139731");
 
-        QubitSDK.tracker().getExperiences(list, null, null, null, new ExperienceListener() {
-          @Override
-          public void onExperienceReceive(ExperienceObject experienceObject) {
-            Log.d(TAG, experienceObject.getExperienceModel().toString());
-          }
-
-          @Override
-          public void onError() {
-
-          }
-        });
+        QubitSDK.tracker().getExperiences(list, new Function1<ExperienceObject, Unit>() {
+            @Override
+            public Unit invoke(ExperienceObject experienceObject) {
+                Log.d("TEST", experienceObject.getExperienceModel().toString());
+                return null;
+            }
+        }, new Function1<Throwable, Unit>() {
+            @Override
+            public Unit invoke(Throwable throwable) {
+                Log.d("TEST2", throwable.toString());
+                return null;
+            }
+        }, null, true, true);
       }
     });
   }

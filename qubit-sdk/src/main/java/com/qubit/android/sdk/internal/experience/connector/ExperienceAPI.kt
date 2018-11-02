@@ -16,9 +16,9 @@ interface ExperienceAPI {
   fun getExperience(
       @Path(TRACKING_ID_PATH) trackingId: String,
       @Query("contextId") contextId: String,
-      @Query("experienceIds") experienceIds: String,
-      @Query("variation") variation: Int?,
-      @Query("preview") preview: Boolean?,
-      @Query("ignoreSegments") ignoreSegments: Boolean?
+      @Query("experienceIds") experienceIds: String? = null,
+      @Query("variation") variation: Int? = null,
+      @Query("preview") preview: Boolean? = null,
+      @Query("ignoreSegments") ignoreSegments: Boolean? = null
   ): Call<ExperienceModel>
 }

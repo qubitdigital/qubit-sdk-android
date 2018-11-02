@@ -9,33 +9,19 @@ class ExperienceConnectorBuilderImpl(
     private val contextId: String
 ) : ExperienceConnectorBuilder {
 
-  override fun buildFor(
-      endpointUrl: String,
-      experienceIdList: List<String>,
-      variation: Int?,
-      preview: Boolean?,
-      ignoreSegments: Boolean?
-  ): ExperienceConnector {
+  override fun buildFor(endpointUrl: String): ExperienceConnector =
+      ExperienceConnectorImpl(
+          trackingId,
+          contextId,
+          createConnector(endpointUrl)
+      )
+}
 
-    val experiencesIds = experienceIdList.reduce { acc: String, s: String -> "$acc,$s" }
+private fun createConnector(endpointUrl: String): ExperienceAPI {
+  val retrofit = Retrofit.Builder()
+      .baseUrl(UrlUtils.addProtocol(endpointUrl, true))
+      .addConverterFactory(GsonConverterFactory.create())
+      .build()
 
-    return ExperienceConnectorImpl(
-        trackingId,
-        contextId,
-        experiencesIds,
-        variation,
-        preview,
-        ignoreSegments,
-        createConnector(endpointUrl)
-    )
-  }
-
-  private fun createConnector(endpointUrl: String): ExperienceAPI {
-    val retrofit = Retrofit.Builder()
-        .baseUrl(UrlUtils.addProtocol(endpointUrl, true))
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-
-    return retrofit.create(ExperienceAPI::class.java)
-  }
+  return retrofit.create(ExperienceAPI::class.java)
 }

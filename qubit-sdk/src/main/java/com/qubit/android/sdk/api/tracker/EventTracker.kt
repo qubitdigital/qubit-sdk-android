@@ -2,13 +2,11 @@ package com.qubit.android.sdk.api.tracker
 
 import com.qubit.android.sdk.api.tracker.event.QBEvent
 import com.qubit.android.sdk.api.tracker.event.QBEvents
-import com.qubit.android.sdk.internal.experience.ExperienceListener
 import com.qubit.android.sdk.internal.experience.ExperienceObject
 import com.qubit.android.sdk.internal.lookup.LookupData
-import java.util.concurrent.Future
 
-typealias OnExperienceSuccess = () -> Unit
-typealias OnExperienceError = () -> Unit
+typealias OnExperienceSuccess = (ExperienceObject) -> Unit
+typealias OnExperienceError = (Throwable) -> Unit
 /**
  * Event tracker interface.
  */

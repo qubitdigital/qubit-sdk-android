@@ -12,13 +12,10 @@ import com.qubit.android.sdk.internal.eventtracker.repository.CachingEventsRepos
 import com.qubit.android.sdk.internal.eventtracker.repository.EventModel;
 import com.qubit.android.sdk.internal.eventtracker.repository.EventsRepository;
 import com.qubit.android.sdk.internal.common.logging.QBLogger;
-import com.qubit.android.sdk.internal.experience.ExperienceInteractor;
-import com.qubit.android.sdk.internal.experience.ExperienceInteractorImpl;
-import com.qubit.android.sdk.internal.experience.ExperienceListener;
 import com.qubit.android.sdk.internal.experience.ExperienceObject;
+import com.qubit.android.sdk.internal.experience.interactor.ExperienceInteractor;
 import com.qubit.android.sdk.internal.experience.connector.ExperienceConnectorBuilder;
 import com.qubit.android.sdk.internal.experience.connector.ExperienceConnectorBuilderImpl;
-import com.qubit.android.sdk.internal.experience.repository.ExperienceRepositoryImpl;
 import com.qubit.android.sdk.internal.lookup.LookupData;
 import com.qubit.android.sdk.internal.lookup.LookupService;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
@@ -40,10 +37,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
+import kotlin.jvm.functions.Function1;
 
 public class EventTrackerImpl extends QBService implements EventTracker {
 
@@ -69,8 +66,7 @@ public class EventTrackerImpl extends QBService implements EventTracker {
   private final ConfigurationService.ConfigurationListener configurationListener;
   private final NetworkStateService.NetworkStateListener networkStateListener;
   private final LookupService.LookupListener lookupListener;
-
-  private final ExperienceConnectorBuilder experienceConnectorBuilder;
+  private final ExperienceInteractor experienceInteractor;
 
   private boolean isEnabled = true;
 
@@ -81,7 +77,6 @@ public class EventTrackerImpl extends QBService implements EventTracker {
   private EventsRestAPIConnector apiConnector = null;
   private int sendingAttempts = 0;
   private long lastAttemptTime = 0;
-  private ExperienceInteractor experienceInteractor = null;
 
   public EventTrackerImpl(String trackingId, String deviceId,
                           ConfigurationService configurationService,
@@ -89,15 +84,16 @@ public class EventTrackerImpl extends QBService implements EventTracker {
                           SessionService sessionService,
                           LookupService lookupService,
                           EventsRepository eventsRepository,
-                          EventsRestAPIConnectorBuilder eventsRestAPIConnectorBuilder) {
+                          EventsRestAPIConnectorBuilder eventsRestAPIConnectorBuilder,
+                          ExperienceInteractor experienceInteractor) {
     super(SERVICE_NAME);
     this.configurationService = configurationService;
     this.networkStateService = networkStateService;
     this.sessionService = sessionService;
     this.lookupService = lookupService;
+    this.experienceInteractor = experienceInteractor;
     this.eventsRepository = new CachingEventsRepository(eventsRepository);
     this.eventsRestAPIConnectorBuilder = eventsRestAPIConnectorBuilder;
-    this.experienceConnectorBuilder = new ExperienceConnectorBuilderImpl(trackingId, "9ad614fcef3c5443");
     eventRestModelCreator = new EventRestModelCreator(trackingId, deviceId);
     configurationListener = new ConfigurationService.ConfigurationListener() {
       @Override
@@ -151,8 +147,8 @@ public class EventTrackerImpl extends QBService implements EventTracker {
 
   @Override
   public void getExperiences(@NotNull String experienceId,
-                             @NotNull Function0<Unit> onSuccess,
-                             @NotNull Function0<Unit> onError,
+                             @NotNull Function1<? super ExperienceObject, Unit> onSuccess,
+                             @NotNull Function1<? super Throwable, Unit> onError,
                              @Nullable Integer variation,
                              @Nullable Boolean preview,
                              @Nullable Boolean ignoreSegments) {
@@ -160,13 +156,12 @@ public class EventTrackerImpl extends QBService implements EventTracker {
 
   @Override
   public void getExperiences(@NotNull List<String> experienceIdList,
-                             @NotNull Function0<Unit> onSuccess,
-                             @NotNull Function0<Unit> onError,
+                             @NotNull Function1<? super ExperienceObject, Unit> onSuccess,
+                             @NotNull Function1<? super Throwable, Unit> onError,
                              @Nullable Integer variation,
                              @Nullable Boolean preview,
                              @Nullable Boolean ignoreSegments) {
-    experienceInteractor = new ExperienceInteractorImpl(currentConfiguration, new ExperienceRepositoryImpl(), experienceConnectorBuilder);
-    experienceInteractor.fetchExperience(experienceIdList, variation, preview, ignoreSegments);
+    experienceInteractor.fetchExperience(onSuccess, onError, experienceIdList, variation, preview, ignoreSegments);
   }
 
   @Override
