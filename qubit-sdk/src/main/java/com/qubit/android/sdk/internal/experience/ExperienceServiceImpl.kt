@@ -58,7 +58,7 @@ class ExperienceServiceImpl(
       configuration -> postTask(ConfigurationChangeTask(configuration))
     }
     networkStateListener = NetworkStateListener {
-//      isConnected -> postTask(NetworkStateChangeTask(isConnected))
+      isConnected -> postTask(NetworkStateChangeTask(isConnected))
     }
   }
 
@@ -87,9 +87,9 @@ class ExperienceServiceImpl(
       LOGGER.d("Configuration Changed")
       currentConfiguration = configuration
       try {
-//        experienceConnector = experienceConnectorBuilder.buildFor(configuration.experienceApiHost)
-//        clearAttempts()
-//        scheduleNextExperienceRequestTask()
+        experienceConnector = experienceConnectorBuilder.buildFor(configuration.experienceApiHost)
+        clearAttempts()
+        scheduleNextExperienceRequestTask()
       } catch (e: IllegalArgumentException) {
         LOGGER.e("Cannot create Rest API connector. Most likely endpoint url is incorrect.", e)
       }
@@ -103,10 +103,10 @@ class ExperienceServiceImpl(
       LOGGER.d("Network state changed. Connected: $isConnected")
       this@ExperienceServiceImpl.isConnected = isConnected
       if (isConnected) {
-//        clearAttempts()
-//        invalidateLookupCache()
+        clearAttempts()
+        invalidateLookupCache()
       }
-//      scheduleNextExperienceRequestTask()
+      scheduleNextExperienceRequestTask()
     }
   }
 
@@ -114,7 +114,7 @@ class ExperienceServiceImpl(
 
     override fun run() {
       LOGGER.d("Requesting experience")
-      if (isLookupUpToDate()) {
+      if (isExperienceUpToDate()) {
         scheduleNextExperienceRequestTask()
         return
       }
@@ -194,8 +194,8 @@ class ExperienceServiceImpl(
     if (currentExperienceCache == null) {
       return 0
     }
-    val lookupExpiryTimeMs = DateTimeUtils.minToMs(currentConfiguration?.lookupCacheExpireTime?.toLong() ?: 0)
-    val nextDownloadTime = currentExperienceCache?.lastUpdateTimestamp ?: 0 + lookupExpiryTimeMs
+    val experienceExpiryTimeMs = DateTimeUtils.secToMs(currentConfiguration?.lookupCacheExpireTime?.toLong() ?: 0)
+    val nextDownloadTime = (currentExperienceCache?.lastUpdateTimestamp ?: 0) + experienceExpiryTimeMs
     val now = System.currentTimeMillis()
     return if (nextDownloadTime > now) nextDownloadTime - now else 0
   }
@@ -205,9 +205,12 @@ class ExperienceServiceImpl(
     lastAttemptTime = 0
   }
 
-  private fun isLookupUpToDate(): Boolean {
+  private fun isExperienceUpToDate(): Boolean {
     return currentExperienceCache?.let {
-      it.lastUpdateTimestamp + DateTimeUtils.minToMs(currentConfiguration?.lookupCacheExpireTime?.toLong() ?: 0) > System.currentTimeMillis()
+      val experienceExpiryTimeMs = DateTimeUtils.secToMs(currentConfiguration?.lookupCacheExpireTime?.toLong() ?: 0)
+      val nextDownloadTime = (currentExperienceCache?.lastUpdateTimestamp ?: 0) + experienceExpiryTimeMs
+      val now = System.currentTimeMillis()
+      nextDownloadTime > now
     } ?: false
   }
 }
