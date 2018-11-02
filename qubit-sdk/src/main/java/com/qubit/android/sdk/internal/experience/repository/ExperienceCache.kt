@@ -1,4 +1,8 @@
 package com.qubit.android.sdk.internal.experience.repository
 
-class ExperienceCache {
-}
+import com.qubit.android.sdk.internal.experience.model.ExperienceModel
+
+data class ExperienceCache(
+    var experienceModel: ExperienceModel,
+    var lastUpdateTimestamp: Long
+)
