@@ -8,11 +8,9 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.http.Url
 
-interface Experience {
+interface Experience : CallbackConnector {
   val experiencePayload: ExperiencePayload
-  fun shown()
 }
-
 
 interface CallbackConnector {
   fun shown()
