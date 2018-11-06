@@ -2,7 +2,10 @@ package com.qubit.android.sdk.internal.eventtracker;
 
 import com.qubit.android.sdk.api.tracker.EventTracker;
 import com.qubit.android.sdk.api.tracker.event.QBEvent;
+import com.qubit.android.sdk.internal.common.logging.QBLogger;
 import com.qubit.android.sdk.internal.common.service.QBService;
+import com.qubit.android.sdk.internal.common.util.DateTimeUtils;
+import com.qubit.android.sdk.internal.common.util.Uninterruptibles;
 import com.qubit.android.sdk.internal.configuration.Configuration;
 import com.qubit.android.sdk.internal.configuration.ConfigurationService;
 import com.qubit.android.sdk.internal.eventtracker.connector.EventRestModel;
@@ -11,11 +14,8 @@ import com.qubit.android.sdk.internal.eventtracker.connector.EventsRestAPIConnec
 import com.qubit.android.sdk.internal.eventtracker.repository.CachingEventsRepository;
 import com.qubit.android.sdk.internal.eventtracker.repository.EventModel;
 import com.qubit.android.sdk.internal.eventtracker.repository.EventsRepository;
-import com.qubit.android.sdk.internal.common.logging.QBLogger;
-import com.qubit.android.sdk.internal.experience.ExperienceObject;
+import com.qubit.android.sdk.internal.experience.Experience;
 import com.qubit.android.sdk.internal.experience.interactor.ExperienceInteractor;
-import com.qubit.android.sdk.internal.experience.connector.ExperienceConnectorBuilder;
-import com.qubit.android.sdk.internal.experience.connector.ExperienceConnectorBuilderImpl;
 import com.qubit.android.sdk.internal.lookup.LookupData;
 import com.qubit.android.sdk.internal.lookup.LookupService;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
@@ -24,8 +24,6 @@ import com.qubit.android.sdk.internal.session.SessionData;
 import com.qubit.android.sdk.internal.session.SessionForEvent;
 import com.qubit.android.sdk.internal.session.SessionService;
 import com.qubit.android.sdk.internal.session.model.SessionForEventImpl;
-import com.qubit.android.sdk.internal.common.util.DateTimeUtils;
-import com.qubit.android.sdk.internal.common.util.Uninterruptibles;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,7 +37,6 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import kotlin.Unit;
-import kotlin.jvm.functions.Function0;
 import kotlin.jvm.functions.Function1;
 
 public class EventTrackerImpl extends QBService implements EventTracker {
@@ -146,21 +143,14 @@ public class EventTrackerImpl extends QBService implements EventTracker {
   }
 
   @Override
-  public void getExperiences(@NotNull String experienceId,
-                             @NotNull Function1<? super ExperienceObject, Unit> onSuccess,
-                             @NotNull Function1<? super Throwable, Unit> onError,
-                             @Nullable Integer variation,
-                             @Nullable Boolean preview,
-                             @Nullable Boolean ignoreSegments) {
-  }
-
-  @Override
-  public void getExperiences(@NotNull List<String> experienceIdList,
-                             @NotNull Function1<? super ExperienceObject, Unit> onSuccess,
-                             @NotNull Function1<? super Throwable, Unit> onError,
-                             @Nullable Integer variation,
-                             @Nullable Boolean preview,
-                             @Nullable Boolean ignoreSegments) {
+  public void getExperiences(
+      @NotNull List<Integer> experienceIdList,
+      @NotNull Function1<? super List<? extends Experience>, Unit> onSuccess,
+      @NotNull Function1<? super Throwable, Unit> onError,
+      @Nullable Integer variation,
+      @Nullable Boolean preview,
+      @Nullable Boolean ignoreSegments
+  ) {
     experienceInteractor.fetchExperience(onSuccess, onError, experienceIdList, variation, preview, ignoreSegments);
   }
 

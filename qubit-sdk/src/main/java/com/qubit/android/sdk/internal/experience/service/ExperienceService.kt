@@ -1,4 +1,4 @@
-package com.qubit.android.sdk.internal.experience
+package com.qubit.android.sdk.internal.experience.service
 
 import com.qubit.android.sdk.internal.configuration.Configuration
 import com.qubit.android.sdk.internal.experience.model.ExperienceModel

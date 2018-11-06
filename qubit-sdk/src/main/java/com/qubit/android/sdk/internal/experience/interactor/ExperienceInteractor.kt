@@ -7,7 +7,7 @@ internal interface ExperienceInteractor {
   fun fetchExperience(
       onSuccess: OnExperienceSuccess,
       onError: OnExperienceError,
-      experienceIdList: List<String>,
+      experienceIdList: List<Int>,
       variation: Int?,
       preview: Boolean?,
       ignoreSegments: Boolean?

@@ -2,10 +2,10 @@ package com.qubit.android.sdk.api.tracker
 
 import com.qubit.android.sdk.api.tracker.event.QBEvent
 import com.qubit.android.sdk.api.tracker.event.QBEvents
-import com.qubit.android.sdk.internal.experience.ExperienceObject
+import com.qubit.android.sdk.internal.experience.Experience
 import com.qubit.android.sdk.internal.lookup.LookupData
 
-typealias OnExperienceSuccess = (ExperienceObject) -> Unit
+typealias OnExperienceSuccess = (List<Experience>) -> Unit
 typealias OnExperienceError = (Throwable) -> Unit
 /**
  * Event tracker interface.
@@ -23,16 +23,7 @@ interface EventTracker {
   fun sendEvent(event: QBEvent)
 
   fun getExperiences(
-      experienceId: String,
-      onSuccess: OnExperienceSuccess,
-      onError: OnExperienceError,
-      variation: Int? = null,
-      preview: Boolean? = null,
-      ignoreSegments: Boolean? = null
-  )
-
-  fun getExperiences(
-      experienceIdList: List<String>,
+      experienceIdList: List<Int>,
       onSuccess: OnExperienceSuccess,
       onError: OnExperienceError,
       variation: Int? = null,

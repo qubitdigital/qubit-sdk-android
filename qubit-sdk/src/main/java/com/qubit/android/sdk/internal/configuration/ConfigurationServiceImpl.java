@@ -20,7 +20,7 @@ import static com.qubit.android.sdk.internal.common.util.Elvis.*;
 
 public class ConfigurationServiceImpl extends QBService implements ConfigurationService {
 
-  public static String configurationUrl = "https://s3-eu-west-1.amazonaws.com/qubit-mobile-config/";
+  public static final String configurationUrl = "https://s3-eu-west-1.amazonaws.com/qubit-mobile-config/";
   public static boolean enforceDownloadOnStart = false;
 
   private static final String SERVICE_NAME = "ConfigurationService";

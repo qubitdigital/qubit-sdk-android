@@ -1,4 +1,4 @@
-package com.qubit.android.sdk.internal.experience
+package com.qubit.android.sdk.internal.experience.service
 
 import com.qubit.android.sdk.internal.common.logging.QBLogger
 import com.qubit.android.sdk.internal.common.service.QBService
@@ -54,16 +54,16 @@ class ExperienceServiceImpl(
     get() = currentConfiguration
 
   init {
-    configurationListener = ConfigurationListener {
-      configuration -> postTask(ConfigurationChangeTask(configuration))
+    configurationListener = ConfigurationListener { configuration ->
+      postTask(ConfigurationChangeTask(configuration))
     }
-    networkStateListener = NetworkStateListener {
-      isConnected -> postTask(NetworkStateChangeTask(isConnected))
+    networkStateListener = NetworkStateListener { isConnected ->
+      postTask(NetworkStateChangeTask(isConnected))
     }
   }
 
   override fun onStart() {
-//    postTask(InitialTask())
+    postTask(InitialTask())
     configurationService.registerConfigurationListener(configurationListener)
     networkStateService.registerNetworkStateListener(networkStateListener)
   }
@@ -76,7 +76,7 @@ class ExperienceServiceImpl(
   private inner class InitialTask : Runnable {
     override fun run() {
       initTime = System.currentTimeMillis()
-//      scheduleFailoverLookupTask()
+//      scheduleFailoverLookupTask() TODO
       scheduleNextExperienceRequestTask()
     }
   }
@@ -130,10 +130,10 @@ class ExperienceServiceImpl(
         registerSuccessfulAttempt()
         currentExperienceCache = ExperienceCache(newExperienceModel, System.currentTimeMillis())
         currentExperienceCache?.let { experienceRepository.save(it) }
-        LOGGER.d("New lookup downloaded: $newExperienceModel")
+        LOGGER.d("New experience downloaded: $newExperienceModel")
       } else {
         registerFailedAttempt()
-        LOGGER.d("New lookup request failed. Current lookup: $currentExperienceCache")
+        LOGGER.d("New experience request failed. Current lookup: $currentExperienceCache")
       }
 
       scheduleNextExperienceRequestTask()
@@ -168,10 +168,10 @@ class ExperienceServiceImpl(
 
     if (timeMsToNextRequest > 0) {
       postTaskDelayed(experienceRequestTask, timeMsToNextRequest)
-      LOGGER.d("Next LookupRequestTask scheduled for $timeMsToNextRequest")
+      LOGGER.d("Next ExperienceRequestTask scheduled for $timeMsToNextRequest")
     } else {
       postTask(experienceRequestTask)
-      LOGGER.d("Next LookupRequestTask scheduled for NOW")
+      LOGGER.d("Next ExperienceRequestTask scheduled for NOW")
     }
   }
 
@@ -190,27 +190,22 @@ class ExperienceServiceImpl(
     }
   }
 
-  private fun evaluateTimeMsToExpiration(): Long {
-    if (currentExperienceCache == null) {
-      return 0
-    }
-    val experienceExpiryTimeMs = DateTimeUtils.secToMs(currentConfiguration?.lookupCacheExpireTime?.toLong() ?: 0)
-    val nextDownloadTime = (currentExperienceCache?.lastUpdateTimestamp ?: 0) + experienceExpiryTimeMs
-    val now = System.currentTimeMillis()
-    return if (nextDownloadTime > now) nextDownloadTime - now else 0
-  }
-
   private fun clearAttempts() {
     requestAttempts = 0
     lastAttemptTime = 0
   }
 
-  private fun isExperienceUpToDate(): Boolean {
-    return currentExperienceCache?.let {
-      val experienceExpiryTimeMs = DateTimeUtils.secToMs(currentConfiguration?.lookupCacheExpireTime?.toLong() ?: 0)
-      val nextDownloadTime = (currentExperienceCache?.lastUpdateTimestamp ?: 0) + experienceExpiryTimeMs
-      val now = System.currentTimeMillis()
-      nextDownloadTime > now
-    } ?: false
-  }
+  private fun evaluateTimeMsToExpiration(): Long =
+      if (isExperienceUpToDate()) nextDownloadTimeMs() - now() else 0
+
+  private fun isExperienceUpToDate(): Boolean =
+    nextDownloadTimeMs() > now()
+
+  private fun now() = System.currentTimeMillis()
+
+  private fun experienceExpiryTimeMs() =
+      DateTimeUtils.secToMs(currentConfiguration?.experienceApiCacheExpireTime?.toLong() ?: 0)
+
+  private fun nextDownloadTimeMs() =
+      (currentExperienceCache?.lastUpdateTimestamp ?: 0) + experienceExpiryTimeMs()
 }

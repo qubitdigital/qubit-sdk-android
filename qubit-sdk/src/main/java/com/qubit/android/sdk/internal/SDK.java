@@ -15,7 +15,7 @@ import com.qubit.android.sdk.internal.eventtracker.connector.EventsRestAPIConnec
 import com.qubit.android.sdk.internal.eventtracker.connector.EventsRestAPIConnectorBuilderImpl;
 import com.qubit.android.sdk.internal.eventtracker.repository.EventsRepository;
 import com.qubit.android.sdk.internal.eventtracker.repository.SQLiteEventsRepository;
-import com.qubit.android.sdk.internal.experience.ExperienceServiceImpl;
+import com.qubit.android.sdk.internal.experience.service.ExperienceServiceImpl;
 import com.qubit.android.sdk.internal.experience.connector.ExperienceConnectorBuilder;
 import com.qubit.android.sdk.internal.experience.connector.ExperienceConnectorBuilderImpl;
 import com.qubit.android.sdk.internal.experience.interactor.ExperienceInteractor;
@@ -70,7 +70,7 @@ public class SDK {
         lookupRepository, lookupConnectorBuilder);
 
     ExperienceRepository experienceRepository = new ExperienceRepositoryImpl(appContext);
-    ExperienceConnectorBuilder experienceConnectorBuilder = new ExperienceConnectorBuilderImpl(trackingId, "9ad614fcef3c5443");
+    ExperienceConnectorBuilder experienceConnectorBuilder = new ExperienceConnectorBuilderImpl(trackingId, deviceId);
     experienceService = new ExperienceServiceImpl(configurationService, networkStateService,
             experienceRepository, experienceConnectorBuilder);
 
@@ -87,9 +87,7 @@ public class SDK {
     EventsRepository eventsRepository = new SQLiteEventsRepository(databaseFuture);
     EventsRestAPIConnectorBuilder eventsRestAPIConnectorBuilder = new EventsRestAPIConnectorBuilderImpl(trackingId);
 
-    ConfigurationConnector configurationConnector = configurationConnectorBuilder.buildFor("https://s3-eu-west-1.amazonaws.com/qubit-mobile-config/");
-
-    ExperienceInteractor experienceInteractor = new ExperienceInteractorImpl(experienceConnectorBuilder, configurationConnector, experienceService);
+    ExperienceInteractor experienceInteractor = new ExperienceInteractorImpl(experienceConnectorBuilder, experienceService);
 
     this.eventTracker = new EventTrackerImpl(trackingId, deviceId,
         configurationService, networkStateService, sessionService, lookupService,
