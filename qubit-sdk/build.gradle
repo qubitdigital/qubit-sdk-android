@@ -4,12 +4,12 @@ apply plugin: 'kotlin-android'
 version = '1.2.2'
 
 android {
-  compileSdkVersion 28
+  compileSdkVersion 26
   buildToolsVersion "28.0.3"
 
   defaultConfig {
     minSdkVersion 15
-    targetSdkVersion 28
+    targetSdkVersion 26
     versionCode 1
     versionName project.version
   }
@@ -28,6 +28,7 @@ dependencies {
   implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
 
   testImplementation 'junit:junit:4.12'
+  testImplementation 'org.mockito:mockito-core:2.22.0'
 }
 
 apply from: "$rootProject.projectDir/checkstyle-config.gradle"

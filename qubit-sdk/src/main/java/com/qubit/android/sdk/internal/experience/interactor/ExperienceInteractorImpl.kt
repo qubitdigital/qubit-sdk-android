@@ -56,7 +56,6 @@ internal class ExperienceInteractorImpl(
     )
   }
 
-  //TODO filter ids
   private fun mapExperienceData(experienceIdList: List<Int>, experienceModel: ExperienceModel): List<Experience> =
       experienceModel.experiencePayloads
           .filter { experienceIdList.isEmpty() || experienceIdList.contains(it.id)  }

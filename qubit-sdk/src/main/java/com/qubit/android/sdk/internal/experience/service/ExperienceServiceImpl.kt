@@ -76,7 +76,7 @@ class ExperienceServiceImpl(
   private inner class InitialTask : Runnable {
     override fun run() {
       initTime = System.currentTimeMillis()
-//      scheduleFailoverLookupTask() TODO
+//      scheduleFailoverLookupTask() TODO ask Andrzej
       scheduleNextExperienceRequestTask()
     }
   }

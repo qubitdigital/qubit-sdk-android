@@ -8,5 +8,4 @@ public interface LookupService {
   interface LookupListener {
     void onLookupDataChange(LookupData lookupData);
   }
-
 }
