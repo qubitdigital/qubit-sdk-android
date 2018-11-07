@@ -35,8 +35,19 @@ class ExperienceServiceImpl(
   private val configurationListener: ConfigurationService.ConfigurationListener
   private val networkStateListener: NetworkStateService.NetworkStateListener
 
-  private var initTime: Long = 0
+  private var initTime = 0L
   private var currentExperienceCache: ExperienceCache? = null
+//    get() {
+//      val experienceCache = experienceRepository.load()
+//      return if(experienceCache?.lastUpdateTimestamp ?: 0 + experienceExpiryTimeMs() > now()) {
+//        experienceCache
+//      } else {
+//        null
+//      }
+//    }
+//    set(value) {
+//      value?.let { experienceRepository.save(value) }
+//    }
 
   private var experienceConnector: ExperienceConnector? = null
   private var currentConfiguration: Configuration? = null
@@ -45,10 +56,17 @@ class ExperienceServiceImpl(
   private val experienceRequestTask = ExperienceRequestTask()
 
   private var requestAttempts = 0
-  private var lastAttemptTime: Long = 0
+  private var lastAttemptTime = 0L
 
   override val experienceData: ExperienceModel?
-    get() = currentExperienceCache?.experienceModel
+    get() {
+      val experienceCache = experienceRepository.load()
+      return if((experienceCache?.lastUpdateTimestamp ?: 0) + experienceExpiryTimeMs() > now()) {
+        experienceCache?.experienceModel
+      } else {
+        null
+      }
+    }
 
   override val configuration: Configuration?
     get() = currentConfiguration
@@ -76,7 +94,6 @@ class ExperienceServiceImpl(
   private inner class InitialTask : Runnable {
     override fun run() {
       initTime = System.currentTimeMillis()
-//      scheduleFailoverLookupTask() TODO ask Andrzej
       scheduleNextExperienceRequestTask()
     }
   }
@@ -128,7 +145,7 @@ class ExperienceServiceImpl(
       val newExperienceModel = experienceConnector?.getExperienceModel()
       if (newExperienceModel != null) {
         registerSuccessfulAttempt()
-        currentExperienceCache = ExperienceCache(newExperienceModel, System.currentTimeMillis())
+        currentExperienceCache = ExperienceCache(newExperienceModel, now())
         currentExperienceCache?.let { experienceRepository.save(it) }
         LOGGER.d("New experience downloaded: $newExperienceModel")
       } else {
@@ -178,8 +195,7 @@ class ExperienceServiceImpl(
   private fun evaluateTimeMsToNextRetry(): Long {
     val nextRetryIntervalMs = DateTimeUtils.secToMs(evaluateIntervalSecsToNextRetry(requestAttempts))
     val nextRetryTimeMs = lastAttemptTime + nextRetryIntervalMs
-    val now = System.currentTimeMillis()
-    return Math.max(nextRetryTimeMs - now, 0)
+    return Math.max(nextRetryTimeMs - now(), 0)
   }
 
   private fun evaluateIntervalSecsToNextRetry(sendingAttemptsDone: Int): Long {

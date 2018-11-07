@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.View
 import com.qubit.android.sdk.api.QubitSDK
 import com.qubit.android.sdk.api.tracker.event.QBEvents
-import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
