@@ -2,9 +2,9 @@ package com.qubit.android.sdk.internal.experience.interactor
 
 import com.qubit.android.sdk.api.tracker.OnExperienceError
 import com.qubit.android.sdk.api.tracker.OnExperienceSuccess
-import com.qubit.android.sdk.internal.configuration.connector.ConfigurationConnector
 import com.qubit.android.sdk.internal.configuration.repository.ConfigurationModel
-import com.qubit.android.sdk.internal.experience.*
+import com.qubit.android.sdk.internal.experience.Experience
+import com.qubit.android.sdk.internal.experience.ExperienceImpl
 import com.qubit.android.sdk.internal.experience.callback.CallbackConnector
 import com.qubit.android.sdk.internal.experience.callback.CallbackConnectorImpl
 import com.qubit.android.sdk.internal.experience.connector.ExperienceConnectorBuilder

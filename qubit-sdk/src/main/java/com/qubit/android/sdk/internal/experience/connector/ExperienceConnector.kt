@@ -1,7 +1,6 @@
 package com.qubit.android.sdk.internal.experience.connector
 
 import com.qubit.android.sdk.internal.experience.model.ExperienceModel
-import retrofit2.Callback
 
 typealias OnResponseSuccess = (experienceModel: ExperienceModel) -> Unit
 typealias OnResponseFailure = (throwable: Throwable) -> Unit
