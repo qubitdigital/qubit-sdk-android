@@ -82,7 +82,6 @@ class ExperienceInteractorImplTest : BaseTest() {
     whenever(mockExperienceService.configuration).thenReturn(mockConfiguration)
     whenever(mockConfiguration.experienceApiHost).thenReturn(mockExperienceApiHost)
 
-
     experienceInteractor.fetchExperience(mockOnSuccessFunction, mockOnErrorFunction, experienceIdsList, null, null, null)
 
     verify(mockExperienceService).experienceData

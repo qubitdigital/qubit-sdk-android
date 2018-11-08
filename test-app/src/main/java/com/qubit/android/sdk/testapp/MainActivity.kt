@@ -42,8 +42,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     findViewById<View>(R.id.get_experience).setOnClickListener {
-      Log.i(TAG, "Get experience events button clicked")
-      val list = arrayListOf(139731)
+      val experienceId = 139731
+      Log.i(TAG, "Get experience with id $experienceId events button clicked")
+      val list = arrayListOf(experienceId)
 
       QubitSDK.tracker().getExperiences(
           list,
@@ -51,7 +52,7 @@ class MainActivity : AppCompatActivity() {
             Log.d(TAG, "Experience receive ${experience.experiencePayload}")
             experience.shown()
           }},
-          { throwable -> Log.d("TEST2", throwable.toString()) },
+          { throwable -> Log.e(TAG,"Error: ", throwable) },
           variation = null,
           preview = true,
           ignoreSegments = true
@@ -59,25 +60,27 @@ class MainActivity : AppCompatActivity() {
     }
 
     findViewById<View>(R.id.get_experience_default).setOnClickListener {
-      Log.i(TAG, "Get experience events button clicked")
+      Log.i(TAG, "Get all experience events button clicked")
       val list = listOf<Int>()
-
-      QubitSDK.tracker().getExperiences(
-          list,
-          { experienceList -> experienceList.forEach { experience ->
-            Log.d(TAG, "Experience receive ${experience.experiencePayload}")
-            experience.shown()
-          }},
-          { throwable -> Log.d("TEST2", throwable.toString()) }
-      )
+      getExperienceWithIds(list)
     }
+  }
+
+  private fun getExperienceWithIds(list: List<Int>) {
+    QubitSDK.tracker().getExperiences(
+        list,
+        { experienceList -> experienceList.forEach { experience ->
+          Log.d(TAG, "Experience receive ${experience.experiencePayload}")
+          experience.shown()
+        }},
+        { throwable -> Log.e(TAG,"Error: ", throwable) }
+    )
   }
 
   companion object {
 
-    val TAG = "qb-testapp"
-    val EVENT_TYPE_VIEW = "ecView"
-    val EVENT_TYPE_INTERACTION = "ecInteraction"
+    private const val TAG = "qb-testapp"
+    private const val EVENT_TYPE_VIEW = "ecView"
+    private const val EVENT_TYPE_INTERACTION = "ecInteraction"
   }
-
 }
