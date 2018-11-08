@@ -71,7 +71,11 @@ public class ConfigurationRestModel {
     return lookupCacheExpireTime;
   }
 
-  public String getExperienceApiHost() { return experienceApiHost; }
+  public String getExperienceApiHost() {
+    return experienceApiHost;
+  }
 
-  public Integer getExperienceApiCacheExpireTime() { return experienceApiCacheExpireTime; }
+  public Integer getExperienceApiCacheExpireTime() {
+    return experienceApiCacheExpireTime;
+  }
 }

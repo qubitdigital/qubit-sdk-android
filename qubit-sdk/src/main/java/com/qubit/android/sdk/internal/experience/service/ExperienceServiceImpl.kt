@@ -37,17 +37,6 @@ class ExperienceServiceImpl(
 
   private var initTime = 0L
   private var currentExperienceCache: ExperienceCache? = null
-//    get() {
-//      val experienceCache = experienceRepository.load()
-//      return if(experienceCache?.lastUpdateTimestamp ?: 0 + experienceExpiryTimeMs() > now()) {
-//        experienceCache
-//      } else {
-//        null
-//      }
-//    }
-//    set(value) {
-//      value?.let { experienceRepository.save(value) }
-//    }
 
   private var experienceConnector: ExperienceConnector? = null
   private var currentConfiguration: Configuration? = null
