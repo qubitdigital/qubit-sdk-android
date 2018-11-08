@@ -113,6 +113,51 @@ QubitSDK.tracker().enable(true); // enable
 
 Note that tracking is enabled by default so you don't need to enable it if you've never disabled it anywhere.
 
+# Experiences
+
+SDK contains methods to fetch Experiences. This can be achieved by:
+
+Kotlin snippet:
+```kotlin    
+QubitSDK.tracker().getExperiences(
+        experienceIdList = listOfExperienceIds,
+        onSuccess = { 
+          experienceList -> experienceList.forEach { it.shown() } // make a Post to call to the returned callback URL
+        },
+        onError = { 
+          throwable -> Log.e(TAG, "Error: ", throwable) 
+        },
+        variation = 222,
+        preview = false,
+        ignoreSegments = false
+    )
+```
+
+Java snippet:
+```java
+QubitSDK.tracker().getExperiences(
+    listOfExperienceIds,
+    new Function1<List<Experience>, Unit>() {
+      @Override
+      public Unit invoke(List<Experience> experienceList) {
+        for(Experience experience: experienceList) {
+          experience.shown();
+        }
+        return Unit.INSTANCE;
+      }
+    },
+    new Function1<Throwable, Unit>() {
+      @Override
+      public Unit invoke(Throwable throwable) {
+        Log.e(TAG,"Error: ", throwable);
+        return Unit.INSTANCE;
+      }
+    }, null, null, null
+);
+```
+
+where `variation`, `preview`, `ignoreSegments` are optional parameters
+
 # Tracker Properties
 You can get the `trackingID` and `deviceID` from the QubitSDK via the following methods:
 ```
