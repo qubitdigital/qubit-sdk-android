@@ -5,7 +5,7 @@ import com.qubit.android.sdk.api.tracker.event.QBEvents
 import com.qubit.android.sdk.internal.experience.Experience
 import com.qubit.android.sdk.internal.lookup.LookupData
 
-typealias OnExperienceSuccess = (MutableList<Experience>) -> Unit
+typealias OnExperienceSuccess = (List<Experience>) -> Unit
 typealias OnExperienceError = (Throwable) -> Unit
 /**
  * Event tracker interface.

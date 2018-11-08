@@ -3,6 +3,8 @@ apply plugin: 'kotlin-android'
 
 version = '1.2.2'
 
+ext.retrofit_version = '2.4.0'
+
 android {
   compileSdkVersion 26
   buildToolsVersion "28.0.3"
@@ -28,8 +30,8 @@ android {
 dependencies {
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-  implementation 'com.squareup.retrofit2:retrofit:2.4.0'
-  implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
+  implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+  implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
 
   testImplementation 'junit:junit:4.12'
   testImplementation 'org.mockito:mockito-core:2.23.0'

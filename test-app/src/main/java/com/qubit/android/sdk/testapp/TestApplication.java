@@ -3,6 +3,7 @@ package com.qubit.android.sdk.testapp;
 import android.app.Application;
 import android.os.StrictMode;
 import android.util.Log;
+
 import com.qubit.android.sdk.api.QubitSDK;
 import com.qubit.android.sdk.api.logging.QBLogLevel;
 

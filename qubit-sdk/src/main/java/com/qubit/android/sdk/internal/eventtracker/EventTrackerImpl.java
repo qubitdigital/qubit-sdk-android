@@ -145,7 +145,7 @@ public class EventTrackerImpl extends QBService implements EventTracker {
   @Override
   public void getExperiences(
       @NotNull List<Integer> experienceIdList,
-      @NotNull Function1<? super List<Experience>, Unit> onSuccess,
+      @NotNull Function1<? super List<? extends Experience>, Unit> onSuccess,
       @NotNull Function1<? super Throwable, Unit> onError,
       @Nullable Integer variation,
       @Nullable Boolean preview,
