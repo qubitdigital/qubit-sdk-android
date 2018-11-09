@@ -4,10 +4,12 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
-import android.support.annotation.NonNull;
 import com.qubit.android.sdk.internal.common.repository.TableInitializer;
 import com.qubit.android.sdk.internal.common.logging.QBLogger;
 import com.qubit.android.sdk.internal.session.SessionService;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -189,7 +191,7 @@ public class SQLiteEventsRepository implements EventsRepository {
 
   }
 
-  @NonNull
+  @NotNull
   private static String getWhereIdInClause(int count) {
     return "_id in " + createInParametersSet(count);
   }

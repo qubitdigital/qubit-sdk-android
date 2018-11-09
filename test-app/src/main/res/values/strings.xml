@@ -1,3 +1,8 @@
 <resources>
   <string name="app_name">QubitSDK TestApp</string>
+  <string name="send_view_event">Send view event</string>
+  <string name="send_interaction_event">Send interaction event</string>
+  <string name="send_20_events">Send 20 events</string>
+  <string name="get_experience_with_id_139731">Get experience with id `139731`</string>
+  <string name="get_all_experiences">Get all experiences</string>
 </resources>

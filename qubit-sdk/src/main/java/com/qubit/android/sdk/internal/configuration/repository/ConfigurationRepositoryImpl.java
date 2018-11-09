@@ -2,10 +2,11 @@ package com.qubit.android.sdk.internal.configuration.repository;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.annotation.Nullable;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.qubit.android.sdk.internal.common.logging.QBLogger;
+
+import org.jetbrains.annotations.Nullable;
 
 public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 

@@ -22,6 +22,10 @@ public class ConfigurationRestModel {
   private Integer lookupGetRequestTimeout;
   @SerializedName("lookup_cache_expire_time")
   private Integer lookupCacheExpireTime;
+  @SerializedName("experience_api_host")
+  private String experienceApiHost;
+  @SerializedName("experience_api_cache_expire_time")
+  private Integer experienceApiCacheExpireTime;
 
   public String getEndpoint() {
     return endpoint;
@@ -65,5 +69,13 @@ public class ConfigurationRestModel {
 
   public Integer getLookupCacheExpireTime() {
     return lookupCacheExpireTime;
+  }
+
+  public String getExperienceApiHost() {
+    return experienceApiHost;
+  }
+
+  public Integer getExperienceApiCacheExpireTime() {
+    return experienceApiCacheExpireTime;
   }
 }

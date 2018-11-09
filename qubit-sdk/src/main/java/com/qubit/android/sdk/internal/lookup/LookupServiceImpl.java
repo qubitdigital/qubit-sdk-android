@@ -94,7 +94,6 @@ public class LookupServiceImpl extends QBService implements LookupService {
         }
       }
     });
-
   }
 
   @Override

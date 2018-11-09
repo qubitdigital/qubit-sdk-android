@@ -1,6 +1,5 @@
 package com.qubit.android.sdk.internal.configuration;
 
-import android.support.annotation.Nullable;
 import com.qubit.android.sdk.internal.common.service.QBService;
 import com.qubit.android.sdk.internal.configuration.connector.ConfigurationConnector;
 import com.qubit.android.sdk.internal.configuration.connector.ConfigurationConnectorBuilder;
@@ -11,6 +10,9 @@ import com.qubit.android.sdk.internal.configuration.repository.ConfigurationRepo
 import com.qubit.android.sdk.internal.common.logging.QBLogger;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
 import com.qubit.android.sdk.internal.common.util.DateTimeUtils;
+
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -18,7 +20,7 @@ import static com.qubit.android.sdk.internal.common.util.Elvis.*;
 
 public class ConfigurationServiceImpl extends QBService implements ConfigurationService {
 
-  public static String configurationUrl = "https://s3-eu-west-1.amazonaws.com/qubit-mobile-config/";
+  public static final String configurationUrl = "https://s3-eu-west-1.amazonaws.com/qubit-mobile-config/";
   public static boolean enforceDownloadOnStart = false;
 
   private static final String SERVICE_NAME = "ConfigurationService";
@@ -200,6 +202,10 @@ public class ConfigurationServiceImpl extends QBService implements Configuration
         getIfNotNull(newConfiguration.getLookupGetRequestTimeout(), defaultConf.getLookupGetRequestTimeout()));
     result.setLookupCacheExpireTime(
         getIfNotNull(newConfiguration.getLookupCacheExpireTime(), defaultConf.getLookupCacheExpireTime()));
+    result.setExperienceApiHost(
+        getIfNotEmpty(newConfiguration.getExperienceApiHost(), defaultConf.getExperienceApiHost()));
+    result.setExperienceApiCacheExpireTime(
+        getIfNotNull(newConfiguration.getExperienceApiCacheExpireTime(), defaultConf.getExperienceApiCacheExpireTime()));
 
     return result;
   }

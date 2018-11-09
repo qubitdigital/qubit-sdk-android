@@ -1,20 +1,19 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
 
 version = '1.2.2'
 
+ext.retrofit_version = '2.4.0'
 
 android {
   compileSdkVersion 26
-  buildToolsVersion "26.0.0"
+  buildToolsVersion "28.0.3"
 
   defaultConfig {
     minSdkVersion 15
     targetSdkVersion 26
     versionCode 1
     versionName project.version
-
-    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
   }
   buildTypes {
     release {
@@ -22,17 +21,20 @@ android {
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
     }
   }
+
+  testOptions {
+    unitTests.returnDefaultValues = true
+  }
 }
 
 dependencies {
-  androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-    exclude group: 'com.android.support', module: 'support-annotations'
-  })
-  provided 'com.android.support:appcompat-v7:26.0.0-alpha1'
-  compile 'com.squareup.retrofit2:retrofit:2.3.0'
-  compile 'com.squareup.retrofit2:converter-gson:2.3.0'
+  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-  testCompile 'junit:junit:4.12'
+  implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+  implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+
+  testImplementation 'junit:junit:4.12'
+  testImplementation 'org.mockito:mockito-core:2.23.0'
 }
 
 apply from: "$rootProject.projectDir/checkstyle-config.gradle"

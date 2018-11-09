@@ -5,42 +5,51 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="16dp"
     tools:context="com.qubit.android.sdk.testapp.MainActivity">
 
   <Button
       android:id="@+id/send_view_event_button"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="Send view event"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintLeft_toLeftOf="parent"
-      app:layout_constraintRight_toRightOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintHorizontal_bias="0.115"
-      app:layout_constraintVertical_bias="0.034" />
+      android:text="@string/send_view_event"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
 
   <Button
       android:id="@+id/send_interaction_event_button"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="Send interaction event"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintLeft_toLeftOf="parent"
-      app:layout_constraintRight_toRightOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintHorizontal_bias="0.153"
-      app:layout_constraintVertical_bias="0.157" />
+      android:layout_marginTop="@dimen/standard_button_margin_top"
+      android:text="@string/send_interaction_event"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/send_view_event_button" />
 
   <Button
       android:id="@+id/send_20_events_button"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="Send 20 events"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintLeft_toLeftOf="parent"
-      app:layout_constraintRight_toRightOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintHorizontal_bias="0.112"
-      app:layout_constraintVertical_bias="0.28" />
+      android:layout_marginTop="@dimen/standard_button_margin_top"
+      android:text="@string/send_20_events"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/send_interaction_event_button" />
+
+  <Button
+      android:id="@+id/get_experience"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/standard_button_margin_top"
+      android:text="@string/get_experience_with_id_139731"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/send_20_events_button" />
+
+  <Button
+      android:id="@+id/get_experience_default"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/standard_button_margin_top"
+      android:text="@string/get_all_experiences"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/get_experience" />
 
 </android.support.constraint.ConstraintLayout>
