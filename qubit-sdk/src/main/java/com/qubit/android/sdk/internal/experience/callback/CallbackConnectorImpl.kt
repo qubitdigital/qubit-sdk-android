@@ -10,7 +10,7 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.http.Url
 
-class CallbackConnectorImpl(private val callback: String, private val id: Int) : CallbackConnector {
+internal class CallbackConnectorImpl(private val callback: String, private val id: Int) : CallbackConnector {
 
   companion object {
     @JvmStatic

@@ -40,7 +40,3 @@ dependencies {
 apply from: "$rootProject.projectDir/checkstyle-config.gradle"
 apply from: "javadoc-config.gradle"
 apply from: "publishing-config.gradle"
-
-repositories {
-  mavenCentral()
-}

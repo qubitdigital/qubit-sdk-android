@@ -66,7 +66,9 @@ public class SDK {
 
     LookupRepository lookupRepository = new LookupRepositoryImpl(appContext);
     LookupConnectorBuilder lookupConnectorBuilder = new LookupConnectorBuilderImpl(trackingId, deviceId);
-    lookupService = new LookupServiceImpl(configurationService, networkStateService,
+    lookupService = new LookupServiceImpl(
+        configurationService,
+        networkStateService,
         lookupRepository, lookupConnectorBuilder);
 
     ExperienceRepository experienceRepository = new ExperienceRepositoryImpl(appContext);
@@ -87,7 +89,9 @@ public class SDK {
     EventsRepository eventsRepository = new SQLiteEventsRepository(databaseFuture);
     EventsRestAPIConnectorBuilder eventsRestAPIConnectorBuilder = new EventsRestAPIConnectorBuilderImpl(trackingId);
 
-    ExperienceInteractor experienceInteractor = new ExperienceInteractorImpl(experienceConnectorBuilder, experienceService);
+    ExperienceInteractor experienceInteractor = new ExperienceInteractorImpl(
+        experienceConnectorBuilder,
+        experienceService);
 
     this.eventTracker = new EventTrackerImpl(trackingId, deviceId,
         configurationService, networkStateService, sessionService, lookupService,

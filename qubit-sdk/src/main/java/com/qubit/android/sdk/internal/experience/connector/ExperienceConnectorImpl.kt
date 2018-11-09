@@ -7,7 +7,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.IOException
 
-class ExperienceConnectorImpl(
+internal class ExperienceConnectorImpl(
     private val trackingId: String,
     private val contextId: String,
     private val experienceAPI: ExperienceAPI

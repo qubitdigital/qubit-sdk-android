@@ -6,7 +6,7 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-interface ExperienceAPI {
+internal interface ExperienceAPI {
 
   companion object {
     private const val TRACKING_ID_PATH = "trackingId"

@@ -14,7 +14,7 @@ import com.qubit.android.sdk.internal.experience.repository.ExperienceRepository
 import com.qubit.android.sdk.internal.network.NetworkStateService
 import com.qubit.android.sdk.internal.network.NetworkStateService.NetworkStateListener
 
-class ExperienceServiceImpl(
+internal class ExperienceServiceImpl(
     private val configurationService: ConfigurationService,
     private val networkStateService: NetworkStateService,
     private val experienceRepository: ExperienceRepository,

@@ -4,7 +4,7 @@ import com.qubit.android.sdk.internal.common.util.UrlUtils
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class ExperienceConnectorBuilderImpl(
+internal class ExperienceConnectorBuilderImpl(
     private val trackingId: String,
     private val contextId: String
 ) : ExperienceConnectorBuilder {

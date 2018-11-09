@@ -5,7 +5,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import com.qubit.android.sdk.internal.common.logging.QBLogger
 
-class ExperienceRepositoryImpl(private val appContext: Context) : ExperienceRepository {
+internal class ExperienceRepositoryImpl(private val appContext: Context) : ExperienceRepository {
 
   companion object {
     @JvmStatic

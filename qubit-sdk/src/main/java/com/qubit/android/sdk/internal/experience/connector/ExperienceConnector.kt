@@ -2,10 +2,10 @@ package com.qubit.android.sdk.internal.experience.connector
 
 import com.qubit.android.sdk.internal.experience.model.ExperienceModel
 
-typealias OnResponseSuccess = (experienceModel: ExperienceModel) -> Unit
-typealias OnResponseFailure = (throwable: Throwable) -> Unit
+internal typealias OnResponseSuccess = (experienceModel: ExperienceModel) -> Unit
+internal typealias OnResponseFailure = (throwable: Throwable) -> Unit
 
-interface ExperienceConnector {
+internal interface ExperienceConnector {
   fun getExperienceModel(
       experienceIds: String,
       variation: Int? = null,

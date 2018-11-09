@@ -1,5 +1,5 @@
 package com.qubit.android.sdk.internal.experience.connector
 
-interface ExperienceConnectorBuilder {
+internal interface ExperienceConnectorBuilder {
   fun buildFor(endpointUrl: String): ExperienceConnector
 }
