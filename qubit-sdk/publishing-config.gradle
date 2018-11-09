@@ -49,7 +49,6 @@ artifacts {
   archives javadocJar
   archives sourcesJar
 }
-
 apply plugin: 'digital.wup.android-maven-publish'
 publishing {
   publications {
