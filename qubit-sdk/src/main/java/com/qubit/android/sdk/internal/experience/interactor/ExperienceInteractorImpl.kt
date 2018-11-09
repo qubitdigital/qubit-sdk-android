@@ -13,7 +13,8 @@ import com.qubit.android.sdk.internal.experience.service.ExperienceService
 
 internal class ExperienceInteractorImpl(
     private val experienceConnectorBuilder: ExperienceConnectorBuilder,
-    private val experienceService: ExperienceService
+    private val experienceService: ExperienceService,
+    private val deviceId: String
 ) : ExperienceInteractor {
 
   override fun fetchExperience(
@@ -55,7 +56,7 @@ internal class ExperienceInteractorImpl(
       experienceModel.experiencePayloads
           .filter { experienceIdList.isEmpty() || experienceIdList.contains(it.id) }
           .map {
-            val callbackConnector: CallbackConnector = CallbackConnectorImpl(it.callback, it.id)
+            val callbackConnector: CallbackConnector = CallbackConnectorImpl(it.callback, deviceId)
             ExperienceImpl(it, callbackConnector)
           }
 

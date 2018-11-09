@@ -91,7 +91,8 @@ public class SDK {
 
     ExperienceInteractor experienceInteractor = new ExperienceInteractorImpl(
         experienceConnectorBuilder,
-        experienceService);
+        experienceService,
+        deviceId);
 
     this.eventTracker = new EventTrackerImpl(trackingId, deviceId,
         configurationService, networkStateService, sessionService, lookupService,
