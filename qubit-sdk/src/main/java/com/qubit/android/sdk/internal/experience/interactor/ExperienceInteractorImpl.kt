@@ -42,18 +42,12 @@ internal class ExperienceInteractorImpl(
       preview: Boolean?,
       ignoreSegments: Boolean?) {
 
-    val experiencesIds = experienceIdList
-        .ifEmpty { listOf("") }
-        .map { it.toString() }
-        .reduce { acc: String, s: String -> "$acc,$s" }
-
     experienceConnectorBuilder.buildFor(getExperienceApi()).getExperienceModel(
-        experiencesIds,
-        variation,
-        preview,
-        ignoreSegments,
         { onSuccess(mapExperienceData(experienceIdList, it)) },
-        { onError(it) }
+        { onError(it) },
+        variation = variation,
+        preview = preview,
+        ignoreSegments = ignoreSegments
     )
   }
 

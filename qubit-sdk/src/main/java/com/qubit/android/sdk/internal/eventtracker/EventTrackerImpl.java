@@ -432,7 +432,7 @@ public class EventTrackerImpl extends QBService implements EventTracker {
   }
 
   private List<EventRestModel> translateEvents(List<EventModel> events) {
-    Long batchTimestamp = !events.isEmpty() ? events.get(0).getCreationTimestamp() : null;
+    Long batchTimestamp = !events.isEmpty() ? events.get(0).getCreationTimestamp() : System.currentTimeMillis();
     Integer timezoneOffsetMins = DateTimeUtils.getTimezoneOffsetMins();
     EventRestModelCreator.BatchEventRestModelCreator restModelCreator =
         eventRestModelCreator.forBatch(batchTimestamp, timezoneOffsetMins, eventTypeTransformer, currentLookupData);

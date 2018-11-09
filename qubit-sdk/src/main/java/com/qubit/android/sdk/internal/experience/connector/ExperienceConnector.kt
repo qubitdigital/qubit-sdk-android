@@ -7,12 +7,12 @@ internal typealias OnResponseFailure = (throwable: Throwable) -> Unit
 
 internal interface ExperienceConnector {
   fun getExperienceModel(
-      experienceIds: String,
+      onResponseSuccess: OnResponseSuccess,
+      onResponseFailure: OnResponseFailure,
+      experienceIds: String? = null,
       variation: Int? = null,
       preview: Boolean? = null,
-      ignoreSegments: Boolean? = null,
-      onResponseSuccess: OnResponseSuccess,
-      onResponseFailure: OnResponseFailure
+      ignoreSegments: Boolean? = null
   )
 
   fun getExperienceModel(): ExperienceModel?

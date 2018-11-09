@@ -19,12 +19,12 @@ internal class ExperienceConnectorImpl(
   }
 
   override fun getExperienceModel(
-      experienceIds: String,
+      onResponseSuccess: OnResponseSuccess,
+      onResponseFailure: OnResponseFailure,
+      experienceIds: String?,
       variation: Int?,
       preview: Boolean?,
-      ignoreSegments: Boolean?,
-      onResponseSuccess: (experienceModel: ExperienceModel) -> Unit,
-      onResponseFailure: (throwable: Throwable) -> Unit
+      ignoreSegments: Boolean?
   ) {
 
     experienceAPI.getExperience(

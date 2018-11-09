@@ -12,6 +12,8 @@ import com.qubit.android.sdk.internal.eventtracker.repository.EventModel;
 import com.qubit.android.sdk.internal.common.logging.QBLogger;
 import com.qubit.android.sdk.internal.lookup.LookupData;
 
+import org.jetbrains.annotations.NotNull;
+
 class EventRestModelCreator {
 
   private static final QBLogger LOGGER = QBLogger.getFor("EventRestModelCreator");
@@ -29,19 +31,19 @@ class EventRestModelCreator {
     this.sample = evaluateSample(deviceId);
   }
 
-  public BatchEventRestModelCreator forBatch(Long batchTimestamp, Integer timezoneOffsetMins,
+  public BatchEventRestModelCreator forBatch(@NotNull Long batchTimestamp, Integer timezoneOffsetMins,
                                              EventTypeTransformer eventTypeTransformer,
                                              LookupData lookupData) {
     return new BatchEventRestModelCreator(batchTimestamp, timezoneOffsetMins, eventTypeTransformer, lookupData);
   }
 
   public final class BatchEventRestModelCreator {
-    private final Long batchTimestamp;
+    @NotNull private final Long batchTimestamp;
     private final Integer timezoneOffsetMins;
     private final EventTypeTransformer eventTypeTransformer;
     private final LookupData lookupData;
 
-    private BatchEventRestModelCreator(long batchTimestamp, Integer timezoneOffsetMins,
+    private BatchEventRestModelCreator(@NotNull Long batchTimestamp, Integer timezoneOffsetMins,
                                        EventTypeTransformer eventTypeTransformer, LookupData lookupData) {
       this.batchTimestamp = batchTimestamp;
       this.timezoneOffsetMins = timezoneOffsetMins;
@@ -88,7 +90,6 @@ class EventRestModelCreator {
     }
 
   }
-
 
   private static int evaluateSample(String deviceId) {
     int mod = deviceId.hashCode() % MAX_SAMPLE;
