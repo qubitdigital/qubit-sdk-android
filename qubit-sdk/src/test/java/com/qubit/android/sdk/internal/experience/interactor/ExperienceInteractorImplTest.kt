@@ -39,7 +39,7 @@ class ExperienceInteractorImplTest : BaseTest() {
 
   override fun setup() {
     super.setup()
-    experienceInteractor = ExperienceInteractorImpl(mockExperienceConnectorBuilder, mockExperienceService)
+    experienceInteractor = ExperienceInteractorImpl(mockExperienceConnectorBuilder, mockExperienceService, "someDeviceID")
   }
 
   override fun tearDown() {

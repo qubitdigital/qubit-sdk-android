@@ -1,6 +1,5 @@
 package com.qubit.android.sdk.internal.experience.callback
 
-import com.qubit.android.sdk.api.QubitSDK
 import com.qubit.android.sdk.internal.common.logging.QBLogger
 import retrofit2.Call
 import retrofit2.Callback
@@ -11,7 +10,7 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.http.Url
 
-internal class CallbackConnectorImpl(private val callback: String, private val id: Int) : CallbackConnector {
+internal class CallbackConnectorImpl(private val callback: String, private val contextId: String) : CallbackConnector {
 
   companion object {
     @JvmStatic
@@ -21,20 +20,19 @@ internal class CallbackConnectorImpl(private val callback: String, private val i
   }
 
   override fun shown() {
-    val cid = QubitSDK.getDeviceId()
     val api = Retrofit.Builder()
         .addConverterFactory(GsonConverterFactory.create())
         .baseUrl(BASE_URL)
         .build()
         .create(CallbackAPI::class.java)
 
-    api.makeCallback(callback, cid).enqueue(object : Callback<Void> {
+    api.makeCallback(callback, contextId).enqueue(object : Callback<Void> {
       override fun onFailure(call: Call<Void>, t: Throwable) {
         LOGGER.e("Fail to send callback", t)
       }
 
       override fun onResponse(call: Call<Void>, response: Response<Void>) {
-        LOGGER.d("Successfully send callback: $callback with id: $cid")
+        LOGGER.d("Successfully send callback: $callback with id: $contextId")
       }
     })
   }
