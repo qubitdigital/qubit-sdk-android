@@ -43,6 +43,7 @@ internal class ExperienceInteractorImpl(
       ignoreSegments: Boolean?) {
 
     val experiencesIds = experienceIdList
+        .ifEmpty { listOf("") }
         .map { it.toString() }
         .reduce { acc: String, s: String -> "$acc,$s" }
 
@@ -65,9 +66,7 @@ internal class ExperienceInteractorImpl(
           }
 
   private fun getExperienceApi(): String =
-      experienceService.configuration?.experienceApiHost?.let {
-        it
-      } ?: getDefaultExperienceApiHost()
+      experienceService.configuration?.experienceApiHost ?: getDefaultExperienceApiHost()
 
   private fun getDefaultExperienceApiHost() = ConfigurationModel.getDefault().experienceApiHost
 }

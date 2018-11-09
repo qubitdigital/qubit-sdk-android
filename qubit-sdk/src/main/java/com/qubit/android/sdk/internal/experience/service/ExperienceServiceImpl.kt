@@ -50,7 +50,7 @@ internal class ExperienceServiceImpl(
   override val experienceData: ExperienceModel?
     get() {
       val experienceCache = experienceRepository.load()
-      return if((experienceCache?.lastUpdateTimestamp ?: 0) + experienceExpiryTimeMs() > now()) {
+      return if ((experienceCache?.lastUpdateTimestamp ?: 0) + experienceExpiryTimeMs() > now()) {
         experienceCache?.experienceModel
       } else {
         null
@@ -203,8 +203,7 @@ internal class ExperienceServiceImpl(
   private fun evaluateTimeMsToExpiration(): Long =
       if (isExperienceUpToDate()) nextDownloadTimeMs() - now() else 0
 
-  private fun isExperienceUpToDate(): Boolean =
-    nextDownloadTimeMs() > now()
+  private fun isExperienceUpToDate(): Boolean = nextDownloadTimeMs() > now()
 
   private fun now() = System.currentTimeMillis()
 
