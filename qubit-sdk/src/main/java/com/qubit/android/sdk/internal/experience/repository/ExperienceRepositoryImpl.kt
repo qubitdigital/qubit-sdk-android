@@ -21,7 +21,7 @@ internal class ExperienceRepositoryImpl(private val appContext: Context) : Exper
     val sharedPreferences = appContext.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
     sharedPreferences.edit()
         .putString(EXPERIENCE_KEY, gson.toJson(experienceCache))
-        .commit()
+        .apply()
   }
 
   override fun load(): ExperienceCache? {
