@@ -6,7 +6,7 @@ import android.util.Log
 import android.view.View
 import com.qubit.android.sdk.api.QubitSDK
 import com.qubit.android.sdk.api.tracker.event.QBEvents
-
+import com.google.gson.JsonObject
 
 class MainActivity : AppCompatActivity() {
 
@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity() {
         list,
         { experienceList -> experienceList.forEach { experience ->
           Log.d(TAG, "Experience receive ${experience.experiencePayload}")
-          Log.d(TAG, "Experience receive ${experience.experiencePayload.payload.toString(2)}")
+          Log.d(TAG, "Experience receive ${experience.experiencePayload.payload.get("free_shipping")}")
           experience.shown()
         }},
         { throwable -> Log.e(TAG,"Error: ", throwable) }

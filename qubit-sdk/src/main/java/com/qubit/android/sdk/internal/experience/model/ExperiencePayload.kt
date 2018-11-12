@@ -1,9 +1,9 @@
 package com.qubit.android.sdk.internal.experience.model
 
-import org.json.JSONObject
+import com.google.gson.JsonObject
 
 data class ExperiencePayload(
-    val payload: JSONObject,
+    val payload: JsonObject,
     val isControl: Boolean,
     val id: Int,
     val callback: String,
