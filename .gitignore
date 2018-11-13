@@ -8,3 +8,8 @@
 /build
 /captures
 .externalNativeBuild
+.project
+.settings
+.classpath
+qubit-sdk/bin
+test-app/bin
