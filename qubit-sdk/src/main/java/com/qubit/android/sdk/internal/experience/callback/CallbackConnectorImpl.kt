@@ -10,6 +10,8 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.http.Url
 
+data class CallbackBody(val id: String)
+
 internal class CallbackConnectorImpl(private val callback: String, private val contextId: String) : CallbackConnector {
 
   companion object {
@@ -25,8 +27,8 @@ internal class CallbackConnectorImpl(private val callback: String, private val c
         .baseUrl(BASE_URL)
         .build()
         .create(CallbackAPI::class.java)
-
-    api.makeCallback(callback, contextId).enqueue(object : Callback<Void> {
+    
+    api.makeCallback(callback,  CallbackBody(contextId)).enqueue(object : Callback<Void> {
       override fun onFailure(call: Call<Void>, t: Throwable) {
         LOGGER.e("Fail to send callback", t)
       }
@@ -39,6 +41,6 @@ internal class CallbackConnectorImpl(private val callback: String, private val c
 
   private interface CallbackAPI {
     @POST
-    fun makeCallback(@Url callbackUrl: String, @Body id: String): Call<Void>
+    fun makeCallback(@Url callbackUrl: String, @Body callbackBody: CallbackBody): Call<Void>
   }
 }

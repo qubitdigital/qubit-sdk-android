@@ -6,7 +6,7 @@ import android.util.Log
 import android.view.View
 import com.qubit.android.sdk.api.QubitSDK
 import com.qubit.android.sdk.api.tracker.event.QBEvents
-
+import com.google.gson.JsonObject
 
 class MainActivity : AppCompatActivity() {
 
@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     findViewById<View>(R.id.get_experience).setOnClickListener {
-      val experienceId = 139731
+      val experienceId = 144119
       Log.i(TAG, "Get experience with id $experienceId events button clicked")
       val list = arrayListOf(experienceId)
 
@@ -71,6 +71,7 @@ class MainActivity : AppCompatActivity() {
         list,
         { experienceList -> experienceList.forEach { experience ->
           Log.d(TAG, "Experience receive ${experience.experiencePayload}")
+          Log.d(TAG, "Experience receive ${experience.experiencePayload.payload.get("free_shipping")}")
           experience.shown()
         }},
         { throwable -> Log.e(TAG,"Error: ", throwable) }
