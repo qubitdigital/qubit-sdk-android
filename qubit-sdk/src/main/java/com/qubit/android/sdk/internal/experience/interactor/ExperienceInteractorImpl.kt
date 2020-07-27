@@ -54,11 +54,12 @@ internal class ExperienceInteractorImpl(
 
   private fun mapExperienceData(experienceIdList: List<Int>, experienceModel: ExperienceModel): List<Experience> =
       experienceModel.experiencePayloads
-          .filter { experienceIdList.isEmpty() || experienceIdList.contains(it.id) }
-          .map {
+          ?.filter { experienceIdList.isEmpty() || experienceIdList.contains(it.id) }
+          ?.map {
             val callbackConnector: CallbackConnector = CallbackConnectorImpl(it.callback, deviceId)
             ExperienceImpl(it, callbackConnector)
           }
+          ?: emptyList()
 
   private fun getExperienceApi(): String =
       experienceService.configuration?.experienceApiHost ?: getDefaultExperienceApiHost()
