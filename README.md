@@ -2,6 +2,14 @@
 
 Installation of the QubitSDK, to provide event tracking and lookup. To make use of this SDK, please contact your Qubit Customer Success representative.
 
+# Releases
+
+| VERSION | UPDATES |
+|---|---|
+| 1.4.1 | Handle potential regression where /experiences endpoint does not return expected payload.
+| 1.4.0 | Production release for A/B testing & data collection.
+
+
 # Getting started
 
 ## Dependency
@@ -10,7 +18,7 @@ In `build.gradle` of your Android application module (usually *$projectRoot/app/
 
 ```
 dependencies   {
-    compile  'com.qubit:qubit-sdk-android:1.4.0'
+    compile  'com.qubit:qubit-sdk-android:1.4.1'
 }
 ```
 
