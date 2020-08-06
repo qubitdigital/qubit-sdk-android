@@ -1,5 +1,6 @@
 package com.qubit.android.sdk.internal.experience.interactor
 
+import com.google.gson.JsonObject
 import com.qubit.android.BaseTest
 import com.qubit.android.sdk.api.tracker.OnExperienceError
 import com.qubit.android.sdk.api.tracker.OnExperienceSuccess
@@ -9,7 +10,6 @@ import com.qubit.android.sdk.internal.experience.connector.ExperienceConnectorBu
 import com.qubit.android.sdk.internal.experience.model.ExperienceModel
 import com.qubit.android.sdk.internal.experience.model.ExperiencePayload
 import com.qubit.android.sdk.internal.experience.service.ExperienceService
-import org.json.JSONObject
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.*
@@ -63,9 +63,9 @@ class ExperienceInteractorImplTest : BaseTest() {
     val mockCallbackUrl = "https://www.somewebside.com"
 
     val experienceMockList = arrayListOf(
-        ExperiencePayload(JSONObject(), false, 139731, mockCallbackUrl, 75834),
-        ExperiencePayload(JSONObject(), false, 143401, mockCallbackUrl, 855620),
-        ExperiencePayload(JSONObject(), true, 143640, mockCallbackUrl, 852185)
+        ExperiencePayload(JsonObject(), false, 139731, mockCallbackUrl, 75834),
+        ExperiencePayload(JsonObject(), false, 143401, mockCallbackUrl, 855620),
+        ExperiencePayload(JsonObject(), true, 143640, mockCallbackUrl, 852185)
     )
 
     return ExperienceModel(experienceMockList)
