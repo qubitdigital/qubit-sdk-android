@@ -156,7 +156,7 @@ public class ConfigurationServiceImpl extends QBService implements Configuration
   private ConfigurationModel downloadConfiguration() {
     ConfigurationResponse response = getConfigurationConnector().download();
     switch (response.getStatus()) {
-      case OK :
+      case OK:
         return enrichWithDefaultConfiguration(response.getConfiguration());
       case NOT_FOUND:
         LOGGER.d("Configuration file not defined - the default one is used");
@@ -206,6 +206,10 @@ public class ConfigurationServiceImpl extends QBService implements Configuration
         getIfNotEmpty(newConfiguration.getExperienceApiHost(), defaultConf.getExperienceApiHost()));
     result.setExperienceApiCacheExpireTime(
         getIfNotNull(newConfiguration.getExperienceApiCacheExpireTime(), defaultConf.getExperienceApiCacheExpireTime()));
+    result.setPlacementApiHost(
+        getIfNotEmpty(newConfiguration.getPlacementApiHost(), defaultConf.getPlacementApiHost()));
+    result.setPlacementRequestTimeout(
+        getIfNotNull(newConfiguration.getPlacementRequestTimeout(), defaultConf.getPlacementRequestTimeout()));
 
     return result;
   }

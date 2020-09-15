@@ -25,6 +25,8 @@ public class ConfigurationModel implements Configuration {
   private static final int DEFAULT_LOOKUP_CACHE_EXPIRE_TIME = 60;
   private static final String DEFAULT_EXPERIENCE_URL = "https://sse.qubit.com";
   private static final int DEFAULT_EXPERIENCE_CACHE_EXPIRE_TIME = 300;
+  private static final String DEFAULT_PLACEMENT_URL = "https://api.qubit.com/placements/query";
+  private static final int DEFAULT_PLACEMENT_REQUEST_TIMEOUT = 5;
 
   private String endpoint;
   private String dataLocation;
@@ -40,6 +42,8 @@ public class ConfigurationModel implements Configuration {
   private Long lastUpdateTimestamp;
   private String experienceApiHost;
   private int experienceApiCacheExpireTime;
+  private String placementApiHost;
+  private int placementRequestTimeout;
 
   public ConfigurationModel() {
     endpoint = ENDPOINT_EU;
@@ -56,6 +60,8 @@ public class ConfigurationModel implements Configuration {
     lastUpdateTimestamp = null;
     experienceApiHost = DEFAULT_EXPERIENCE_URL;
     experienceApiCacheExpireTime = DEFAULT_EXPERIENCE_CACHE_EXPIRE_TIME;
+    placementApiHost = DEFAULT_PLACEMENT_URL;
+    placementRequestTimeout = DEFAULT_PLACEMENT_REQUEST_TIMEOUT;
   }
 
   @Override
@@ -183,6 +189,24 @@ public class ConfigurationModel implements Configuration {
   }
 
   @Override
+  public String getPlacementApiHost() {
+    return placementApiHost;
+  }
+
+  public void setPlacementApiHost(String placementApiHost) {
+    this.placementApiHost = placementApiHost;
+  }
+
+  @Override
+  public int getPlacementRequestTimeout() {
+    return placementRequestTimeout;
+  }
+
+  public void setPlacementRequestTimeout(int placementRequestTimeout) {
+    this.placementRequestTimeout = placementRequestTimeout;
+  }
+
+  @Override
   public String toString() {
     return "ConfigurationModel{"
         + "endpoint='" + endpoint + '\''
@@ -198,7 +222,9 @@ public class ConfigurationModel implements Configuration {
         + ", lookupCacheExpireTime=" + lookupCacheExpireTime
         + ", lastUpdateTimestamp=" + lastUpdateTimestamp
         + ", experienceApiHost='" + experienceApiHost + '\''
-        + ", experienceApiCacheExpireTime=" + experienceApiCacheExpireTime
+        + ", experienceApiCacheExpireTime=" + experienceApiCacheExpireTime + '\''
+        + ", placementApiHost=" + placementApiHost  + '\''
+        + ", placementRequestTimeout=" + placementRequestTimeout
         + '}';
   }
 
@@ -244,10 +270,16 @@ public class ConfigurationModel implements Configuration {
         ? !lookupAttributeUrl.equals(that.lookupAttributeUrl) : that.lookupAttributeUrl != null) {
       return false;
     }
-    if(experienceApiCacheExpireTime != that.experienceApiCacheExpireTime) {
+    if (!experienceApiHost.equals(that.experienceApiHost)) {
       return false;
     }
-    if(!experienceApiHost.equals(that.experienceApiHost)) {
+    if (experienceApiCacheExpireTime != that.experienceApiCacheExpireTime) {
+      return false;
+    }
+    if (!placementApiHost.equals(that.placementApiHost)) {
+      return false;
+    }
+    if (placementRequestTimeout != that.placementRequestTimeout) {
       return false;
     }
 
@@ -290,6 +322,8 @@ public class ConfigurationModel implements Configuration {
     result = 31 * result + (lastUpdateTimestamp != null ? lastUpdateTimestamp.hashCode() : 0);
     result = 31 * result + experienceApiHost.hashCode();
     result = 31 * result + experienceApiCacheExpireTime;
+    result = 31 * result + placementApiHost.hashCode();
+    result = 31 * result + placementRequestTimeout;
     return result;
   }
 

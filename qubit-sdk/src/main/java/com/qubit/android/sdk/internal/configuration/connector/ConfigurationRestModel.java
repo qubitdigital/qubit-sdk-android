@@ -26,6 +26,10 @@ public class ConfigurationRestModel {
   private String experienceApiHost;
   @SerializedName("experience_api_cache_expire_time")
   private Integer experienceApiCacheExpireTime;
+  @SerializedName("placement_api_endpoint")
+  private String placementApiHost;
+  @SerializedName("placement_api_timeout")
+  private Integer placementRequestTimeout;
 
   public String getEndpoint() {
     return endpoint;
@@ -77,5 +81,13 @@ public class ConfigurationRestModel {
 
   public Integer getExperienceApiCacheExpireTime() {
     return experienceApiCacheExpireTime;
+  }
+
+  public String getPlacementApiHost() {
+    return placementApiHost;
+  }
+
+  public Integer getPlacementRequestTimeout() {
+    return placementRequestTimeout;
   }
 }
