@@ -4,9 +4,15 @@ import com.qubit.android.sdk.api.tracker.event.QBEvent
 import com.qubit.android.sdk.api.tracker.event.QBEvents
 import com.qubit.android.sdk.internal.experience.Experience
 import com.qubit.android.sdk.internal.lookup.LookupData
+import com.qubit.android.sdk.internal.placement.Placement
+import com.qubit.android.sdk.internal.placement.model.PlacementMode
+import com.qubit.android.sdk.internal.placement.model.PlacementPreviewOptions
 
 typealias OnExperienceSuccess = (List<Experience>) -> Unit
 typealias OnExperienceError = (Throwable) -> Unit
+typealias OnPlacementSuccess = (Placement?) -> Unit
+typealias OnPlacementError = (Throwable) -> Unit
+
 /**
  * Event tracker interface.
  */
@@ -29,6 +35,23 @@ interface EventTracker {
       variation: Int? = null,
       preview: Boolean? = null,
       ignoreSegments: Boolean? = null
+  )
+
+  /**
+   * Fetch placement defined for given criteria.
+   * Method is asynchronous, result is returned through passed callback functions.
+   * @param placementId The unique ID of the placement.
+   * @param mode The mode to fetch placements content with. Defaults to [PlacementMode.LIVE]
+   * @param previewOptions Additional criteria used to query for the placement.
+   * @param onSuccess Callback invoked when query succeeds. Contains [Placement] object or null if no placement meets given criteria.
+   * @param onError Callback invoked when query fails.
+   */
+  fun getPlacement(
+      placementId: String,
+      mode: PlacementMode?,
+      previewOptions: PlacementPreviewOptions,
+      onSuccess: OnPlacementSuccess,
+      onError: OnPlacementError
   )
 
   /**
