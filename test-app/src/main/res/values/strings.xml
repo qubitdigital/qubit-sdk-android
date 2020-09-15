@@ -5,4 +5,7 @@
   <string name="send_20_events">Send 20 events</string>
   <string name="get_experience_with_id_139731">Get experience with id `144119`</string>
   <string name="get_all_experiences">Get all experiences</string>
+  <string name="get_example_placement">Get example placement</string>
+  <string name="placement_impression">Impression</string>
+  <string name="placement_clickthrough">Clickthrough</string>
 </resources>
