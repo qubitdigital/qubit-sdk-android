@@ -1,6 +1,6 @@
 package com.qubit.android.sdk.internal.placement.connector
 
-import com.qubit.android.sdk.internal.placement.model.PlacementPreviewOptions
+import com.qubit.android.sdk.api.placement.PlacementPreviewOptions
 
 data class PlacementRequestPreviewOptionsRestModel(
     val campaignId: String?,

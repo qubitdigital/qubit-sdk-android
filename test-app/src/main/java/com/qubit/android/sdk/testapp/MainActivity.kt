@@ -6,10 +6,10 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.qubit.android.sdk.api.QubitSDK
+import com.qubit.android.sdk.api.placement.Placement
+import com.qubit.android.sdk.api.placement.PlacementMode
+import com.qubit.android.sdk.api.placement.PlacementPreviewOptions
 import com.qubit.android.sdk.api.tracker.event.QBEvents
-import com.qubit.android.sdk.internal.placement.Placement
-import com.qubit.android.sdk.internal.placement.model.PlacementMode
-import com.qubit.android.sdk.internal.placement.model.PlacementPreviewOptions
 
 class MainActivity : AppCompatActivity() {
 

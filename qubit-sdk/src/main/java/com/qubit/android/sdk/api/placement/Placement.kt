@@ -1,4 +1,4 @@
-package com.qubit.android.sdk.internal.placement
+package com.qubit.android.sdk.api.placement
 
 import com.google.gson.JsonObject
 import com.qubit.android.sdk.internal.placement.callback.PlacementCallbackConnector

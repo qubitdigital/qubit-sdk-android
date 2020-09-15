@@ -1,4 +1,4 @@
-package com.qubit.android.sdk.internal.placement.model
+package com.qubit.android.sdk.api.placement
 
 /**
  * Additional criteria used to query for the placement.

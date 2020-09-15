@@ -1,5 +1,7 @@
 package com.qubit.android.sdk.internal.placement.interactor
 
+import com.qubit.android.sdk.api.placement.PlacementMode
+import com.qubit.android.sdk.api.placement.PlacementPreviewOptions
 import com.qubit.android.sdk.api.tracker.OnPlacementError
 import com.qubit.android.sdk.api.tracker.OnPlacementSuccess
 import com.qubit.android.sdk.internal.configuration.repository.ConfigurationModel
@@ -9,9 +11,7 @@ import com.qubit.android.sdk.internal.placement.callback.PlacementCallbackConnec
 import com.qubit.android.sdk.internal.placement.connector.PlacementAPI
 import com.qubit.android.sdk.internal.placement.connector.PlacementConnector
 import com.qubit.android.sdk.internal.placement.connector.PlacementConnectorImpl
-import com.qubit.android.sdk.internal.placement.model.PlacementMode
 import com.qubit.android.sdk.internal.placement.model.PlacementModel
-import com.qubit.android.sdk.internal.placement.model.PlacementPreviewOptions
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 

@@ -1,5 +1,8 @@
 package com.qubit.android.sdk.internal.eventtracker;
 
+import com.qubit.android.sdk.api.placement.Placement;
+import com.qubit.android.sdk.api.placement.PlacementMode;
+import com.qubit.android.sdk.api.placement.PlacementPreviewOptions;
 import com.qubit.android.sdk.api.tracker.EventTracker;
 import com.qubit.android.sdk.api.tracker.event.QBEvent;
 import com.qubit.android.sdk.internal.common.logging.QBLogger;
@@ -19,10 +22,7 @@ import com.qubit.android.sdk.internal.experience.interactor.ExperienceInteractor
 import com.qubit.android.sdk.internal.lookup.LookupData;
 import com.qubit.android.sdk.internal.lookup.LookupService;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
-import com.qubit.android.sdk.internal.placement.Placement;
 import com.qubit.android.sdk.internal.placement.interactor.PlacementInteractor;
-import com.qubit.android.sdk.internal.placement.model.PlacementMode;
-import com.qubit.android.sdk.internal.placement.model.PlacementPreviewOptions;
 import com.qubit.android.sdk.internal.session.NewSessionRequest;
 import com.qubit.android.sdk.internal.session.SessionData;
 import com.qubit.android.sdk.internal.session.SessionForEvent;

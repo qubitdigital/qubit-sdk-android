@@ -1,12 +1,12 @@
 package com.qubit.android.sdk.api.tracker
 
+import com.qubit.android.sdk.api.placement.Placement
+import com.qubit.android.sdk.api.placement.PlacementMode
+import com.qubit.android.sdk.api.placement.PlacementPreviewOptions
 import com.qubit.android.sdk.api.tracker.event.QBEvent
 import com.qubit.android.sdk.api.tracker.event.QBEvents
 import com.qubit.android.sdk.internal.experience.Experience
 import com.qubit.android.sdk.internal.lookup.LookupData
-import com.qubit.android.sdk.internal.placement.Placement
-import com.qubit.android.sdk.internal.placement.model.PlacementMode
-import com.qubit.android.sdk.internal.placement.model.PlacementPreviewOptions
 
 typealias OnExperienceSuccess = (List<Experience>) -> Unit
 typealias OnExperienceError = (Throwable) -> Unit
