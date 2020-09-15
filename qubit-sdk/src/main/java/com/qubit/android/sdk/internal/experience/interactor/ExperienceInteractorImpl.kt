@@ -5,8 +5,7 @@ import com.qubit.android.sdk.api.tracker.OnExperienceSuccess
 import com.qubit.android.sdk.internal.configuration.repository.ConfigurationModel
 import com.qubit.android.sdk.internal.experience.Experience
 import com.qubit.android.sdk.internal.experience.ExperienceImpl
-import com.qubit.android.sdk.internal.experience.callback.CallbackConnector
-import com.qubit.android.sdk.internal.experience.callback.CallbackConnectorImpl
+import com.qubit.android.sdk.internal.experience.callback.ExperienceCallbackConnectorImpl
 import com.qubit.android.sdk.internal.experience.connector.ExperienceConnectorBuilder
 import com.qubit.android.sdk.internal.experience.model.ExperienceModel
 import com.qubit.android.sdk.internal.experience.service.ExperienceService
@@ -56,7 +55,7 @@ internal class ExperienceInteractorImpl(
       experienceModel.experiencePayloads
           ?.filter { experienceIdList.isEmpty() || experienceIdList.contains(it.id) }
           ?.map {
-            val callbackConnector: CallbackConnector = CallbackConnectorImpl(it.callback, deviceId)
+            val callbackConnector = ExperienceCallbackConnectorImpl(it.callback, deviceId)
             ExperienceImpl(it, callbackConnector)
           }
           ?: emptyList()
