@@ -160,6 +160,25 @@ QubitSDK.tracker().getExperiences(
 
 where `variation`, `preview`, `ignoreSegments` are optional parameters
 
+# Placements
+
+SDK contains method to fetch the Placements.
+
+Kotlin snippet:
+
+```kotlin
+QubitSDK.tracker().getPlacement(
+    placementId = "placement_id",
+    mode = PlacementMode.LIVE,
+    previewOptions = PlacementPreviewOptions("campaign_id", "experience_id"),
+    onSuccess = { placement ->
+        placement.impression()     // make a POST request to call the returned impression callback URL
+        placement.clickthrough()   // make a POST request to call the returned clickthrough callback URL
+    },
+    onError = { throwable -> Log.e(TAG, "Failed to fetch placement", throwable) }
+)
+```
+
 # Tracker Properties
 You can get the `trackingID` and `deviceID` from the QubitSDK via the following methods:
 ```
