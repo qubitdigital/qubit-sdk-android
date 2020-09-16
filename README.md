@@ -6,6 +6,7 @@ Installation of the QubitSDK, to provide event tracking and lookup. To make use 
 
 | VERSION | UPDATES |
 |---|---|
+| 1.5.0 | Introduced placements feature
 | 1.4.1 | Handle potential regression where /experiences endpoint does not return expected payload.
 | 1.4.0 | Production release for A/B testing & data collection.
 
@@ -18,7 +19,7 @@ In `build.gradle` of your Android application module (usually *$projectRoot/app/
 
 ```
 dependencies   {
-    compile  'com.qubit:qubit-sdk-android:1.4.1'
+    compile  'com.qubit:qubit-sdk-android:1.5.0'
 }
 ```
 
@@ -172,8 +173,8 @@ QubitSDK.tracker().getPlacement(
     mode = PlacementMode.LIVE,
     previewOptions = PlacementPreviewOptions("campaign_id", "experience_id"),
     onSuccess = { placement ->
-        placement.impression()     // make a POST request to call the returned impression callback URL
-        placement.clickthrough()   // make a POST request to call the returned clickthrough callback URL
+        placement?.impression()     // make a POST request to call the returned impression callback URL
+        placement?.clickthrough()   // make a POST request to call the returned clickthrough callback URL
     },
     onError = { throwable -> Log.e(TAG, "Failed to fetch placement", throwable) }
 )
