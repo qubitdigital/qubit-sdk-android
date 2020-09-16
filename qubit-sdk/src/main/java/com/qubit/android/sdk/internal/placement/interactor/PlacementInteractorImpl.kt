@@ -8,22 +8,20 @@ import com.qubit.android.sdk.internal.configuration.repository.ConfigurationMode
 import com.qubit.android.sdk.internal.configuration.repository.ConfigurationRepository
 import com.qubit.android.sdk.internal.placement.PlacementImpl
 import com.qubit.android.sdk.internal.placement.callback.PlacementCallbackConnectorImpl
-import com.qubit.android.sdk.internal.placement.connector.PlacementAPI
-import com.qubit.android.sdk.internal.placement.connector.PlacementConnector
-import com.qubit.android.sdk.internal.placement.connector.PlacementConnectorImpl
+import com.qubit.android.sdk.internal.placement.connector.PlacementConnectorBuilder
 import com.qubit.android.sdk.internal.placement.model.PlacementModel
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 internal class PlacementInteractorImpl(
+    placementConnectorBuilder: PlacementConnectorBuilder,
     private val configurationRepository: ConfigurationRepository,
     private val deviceId: String
 ) : PlacementInteractor {
 
   companion object {
     private val DEFAULT_PLACEMENT_MODE = PlacementMode.LIVE
-    private const val BASE_URL_PLACEHOLDER = "http://localhost/"
   }
+
+  private val placementConnector = placementConnectorBuilder.build()
 
   override fun fetchPlacement(
       placementId: String,
@@ -32,7 +30,7 @@ internal class PlacementInteractorImpl(
       onSuccess: OnPlacementSuccess,
       onError: OnPlacementError
   ) {
-    buildConnector().getPlacementModel(
+    placementConnector.getPlacementModel(
         getPlacementApiHost(configurationRepository),
         placementId,
         mode ?: DEFAULT_PLACEMENT_MODE,
@@ -41,16 +39,6 @@ internal class PlacementInteractorImpl(
         { handleSuccessfulResponse(it, onSuccess, onError) },
         { onError(it) }
     )
-  }
-
-  private fun buildConnector(): PlacementConnector {
-    val retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL_PLACEHOLDER)  // https://stackoverflow.com/questions/34842390/how-to-setup-retrofit-with-no-baseurl
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-    val placementAPI = retrofit.create(PlacementAPI::class.java)
-
-    return PlacementConnectorImpl(placementAPI)
   }
 
   private fun getPlacementApiHost(configurationRepository: ConfigurationRepository): String {
