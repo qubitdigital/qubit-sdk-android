@@ -1,4 +1,4 @@
-package com.qubit.android.sdk.internal.placement.callback
+package com.qubit.android.sdk.api.placement
 
 interface PlacementCallbackConnector {
 

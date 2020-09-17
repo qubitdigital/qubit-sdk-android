@@ -1,5 +1,6 @@
 package com.qubit.android.sdk.internal.placement.callback
 
+import com.qubit.android.sdk.api.placement.PlacementCallbackConnector
 import com.qubit.android.sdk.internal.common.logging.QBLogger
 import retrofit2.Call
 import retrofit2.Callback
