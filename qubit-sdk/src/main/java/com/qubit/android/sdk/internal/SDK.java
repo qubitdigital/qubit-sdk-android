@@ -28,7 +28,7 @@ import com.qubit.android.sdk.internal.lookup.connector.LookupConnectorBuilderImp
 import com.qubit.android.sdk.internal.lookup.repository.LookupRepository;
 import com.qubit.android.sdk.internal.lookup.repository.LookupRepositoryImpl;
 import com.qubit.android.sdk.internal.network.NetworkStateServiceImpl;
-import com.qubit.android.sdk.internal.placement.connector.PlacementConnectorBuilderImpl;
+import com.qubit.android.sdk.internal.placement.connector.PlacementConnectorImpl;
 import com.qubit.android.sdk.internal.placement.interactor.PlacementInteractor;
 import com.qubit.android.sdk.internal.placement.interactor.PlacementInteractorImpl;
 import com.qubit.android.sdk.internal.session.SessionServiceImpl;
@@ -98,7 +98,7 @@ public class SDK {
         deviceId);
 
     placementInteractor = new PlacementInteractorImpl(
-        new PlacementConnectorBuilderImpl(),
+        new PlacementConnectorImpl(),
         configurationRepository,
         deviceId
     );

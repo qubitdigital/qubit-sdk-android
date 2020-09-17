@@ -8,11 +8,11 @@ import com.qubit.android.sdk.internal.configuration.repository.ConfigurationMode
 import com.qubit.android.sdk.internal.configuration.repository.ConfigurationRepository
 import com.qubit.android.sdk.internal.placement.PlacementImpl
 import com.qubit.android.sdk.internal.placement.callback.PlacementCallbackConnectorImpl
-import com.qubit.android.sdk.internal.placement.connector.PlacementConnectorBuilder
+import com.qubit.android.sdk.internal.placement.connector.PlacementConnector
 import com.qubit.android.sdk.internal.placement.model.PlacementModel
 
 internal class PlacementInteractorImpl(
-    placementConnectorBuilder: PlacementConnectorBuilder,
+    private val placementConnector: PlacementConnector,
     private val configurationRepository: ConfigurationRepository,
     private val deviceId: String
 ) : PlacementInteractor {
@@ -20,8 +20,6 @@ internal class PlacementInteractorImpl(
   companion object {
     private val DEFAULT_PLACEMENT_MODE = PlacementMode.LIVE
   }
-
-  private val placementConnector = placementConnectorBuilder.build()
 
   override fun fetchPlacement(
       placementId: String,

@@ -8,11 +8,11 @@ import com.qubit.android.sdk.internal.placement.model.PlacementModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 
-internal class PlacementConnectorImpl(
-    private val placementAPI: PlacementAPI
-) : PlacementConnector {
+internal class PlacementConnectorImpl : PlacementConnector {
 
   companion object {
     private const val PLACEMENT_GRAPH_QL_QUERY = "query PlacementContent(\n" +
@@ -37,10 +37,17 @@ internal class PlacementConnectorImpl(
         "  }\n" +
         "}"
     private const val DEFAULT_RESOLVE_VISITOR_STATE_VALUE = true
+    private const val BASE_URL_PLACEHOLDER = "http://localhost/"
 
     @JvmStatic
     private val LOGGER = QBLogger.getFor("PlacementConnector")
   }
+
+  private val placementAPI = Retrofit.Builder()
+      .baseUrl(BASE_URL_PLACEHOLDER)  // https://stackoverflow.com/questions/34842390/how-to-setup-retrofit-with-no-baseurl
+      .addConverterFactory(GsonConverterFactory.create())
+      .build()
+      .create(PlacementAPI::class.java)
 
   override fun getPlacementModel(
       endpointUrl: String,
