@@ -7,9 +7,12 @@ import com.qubit.android.sdk.api.tracker.OnPlacementSuccess
 import com.qubit.android.sdk.internal.configuration.repository.ConfigurationModel
 import com.qubit.android.sdk.internal.configuration.repository.ConfigurationRepository
 import com.qubit.android.sdk.internal.placement.PlacementImpl
+import com.qubit.android.sdk.internal.placement.callback.PlacementCallbackAPI
 import com.qubit.android.sdk.internal.placement.callback.PlacementCallbackConnectorImpl
 import com.qubit.android.sdk.internal.placement.connector.PlacementConnector
 import com.qubit.android.sdk.internal.placement.model.PlacementModel
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 internal class PlacementInteractorImpl(
     private val placementConnector: PlacementConnector,
@@ -19,7 +22,14 @@ internal class PlacementInteractorImpl(
 
   companion object {
     private val DEFAULT_PLACEMENT_MODE = PlacementMode.LIVE
+    private const val BASE_URL_PLACEHOLDER = "http://localhost/"
   }
+
+  private val callbackApi = Retrofit.Builder()
+      .baseUrl(BASE_URL_PLACEHOLDER)  // https://stackoverflow.com/questions/34842390/how-to-setup-retrofit-with-no-baseurl
+      .addConverterFactory(GsonConverterFactory.create())
+      .build()
+      .create(PlacementCallbackAPI::class.java)
 
   override fun fetchPlacement(
       placementId: String,
@@ -52,7 +62,11 @@ internal class PlacementInteractorImpl(
     val placementContent = placementModel.data?.placementContent
     if (placementContent != null) {
       try {
-        val callbackConnector = PlacementCallbackConnectorImpl(placementContent.callbacks.impression, placementContent.callbacks.clickthrough)
+        val callbackConnector = PlacementCallbackConnectorImpl(
+            callbackApi,
+            placementContent.callbacks.impression,
+            placementContent.callbacks.clickthrough
+        )
         val placement = PlacementImpl(placementContent.content, callbackConnector)
         onSuccess(placement)
       } catch (e: Exception) {
