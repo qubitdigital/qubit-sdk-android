@@ -53,6 +53,7 @@ public class SDK {
   private ExperienceServiceImpl experienceService;
   private String deviceId;
   private String trackingId;
+  private PlacementInteractor placementInteractor;
 
   public SDK(Context appContext, String trackingId) {
     this.networkStateService = new NetworkStateServiceImpl(appContext);
@@ -85,7 +86,6 @@ public class SDK {
         new SessionEventGeneratorImpl(screenSizeProvider, appPropertiesProvider);
     sessionService = new SessionServiceImpl(lookupService, sessionRepository, sessionEventGenerator);
 
-//    EventsRepository eventsRepository = new EventsRepositoryMock();
     Future<SQLiteDatabase> databaseFuture =
         new DatabaseInitializer(appContext, SQLiteEventsRepository.tableInitializer()).initDatabaseAsync();
     EventsRepository eventsRepository = new SQLiteEventsRepository(databaseFuture);
@@ -96,7 +96,7 @@ public class SDK {
         experienceService,
         deviceId);
 
-    PlacementInteractor placementInteractor = new PlacementInteractorImpl(
+    placementInteractor = new PlacementInteractorImpl(
         new PlacementConnectorBuilderImpl(),
         configurationRepository,
         deviceId
@@ -104,7 +104,7 @@ public class SDK {
 
     this.eventTracker = new EventTrackerImpl(trackingId, deviceId,
         configurationService, networkStateService, sessionService, lookupService,
-        eventsRepository, eventsRestAPIConnectorBuilder, experienceInteractor, placementInteractor);
+        eventsRepository, eventsRestAPIConnectorBuilder, experienceInteractor);
   }
 
   public void start() {
@@ -135,5 +135,9 @@ public class SDK {
 
   public String getTrackingId() {
     return trackingId;
+  }
+
+  public PlacementInteractor getPlacementInteractor() {
+    return placementInteractor;
   }
 }

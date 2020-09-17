@@ -1,8 +1,5 @@
 package com.qubit.android.sdk.internal.eventtracker;
 
-import com.qubit.android.sdk.api.placement.Placement;
-import com.qubit.android.sdk.api.placement.PlacementMode;
-import com.qubit.android.sdk.api.placement.PlacementPreviewOptions;
 import com.qubit.android.sdk.api.tracker.EventTracker;
 import com.qubit.android.sdk.api.tracker.event.QBEvent;
 import com.qubit.android.sdk.internal.common.logging.QBLogger;
@@ -22,7 +19,6 @@ import com.qubit.android.sdk.internal.experience.interactor.ExperienceInteractor
 import com.qubit.android.sdk.internal.lookup.LookupData;
 import com.qubit.android.sdk.internal.lookup.LookupService;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
-import com.qubit.android.sdk.internal.placement.interactor.PlacementInteractor;
 import com.qubit.android.sdk.internal.session.NewSessionRequest;
 import com.qubit.android.sdk.internal.session.SessionData;
 import com.qubit.android.sdk.internal.session.SessionForEvent;
@@ -68,7 +64,6 @@ public class EventTrackerImpl extends QBService implements EventTracker {
   private final NetworkStateService.NetworkStateListener networkStateListener;
   private final LookupService.LookupListener lookupListener;
   private final ExperienceInteractor experienceInteractor;
-  private final PlacementInteractor placementInteractor;
 
   private boolean isEnabled = true;
 
@@ -88,8 +83,7 @@ public class EventTrackerImpl extends QBService implements EventTracker {
                           LookupService lookupService,
                           EventsRepository eventsRepository,
                           EventsRestAPIConnectorBuilder eventsRestAPIConnectorBuilder,
-                          ExperienceInteractor experienceInteractor,
-                          PlacementInteractor placementInteractor) {
+                          ExperienceInteractor experienceInteractor) {
     super(SERVICE_NAME);
     this.configurationService = configurationService;
     this.networkStateService = networkStateService;
@@ -98,7 +92,6 @@ public class EventTrackerImpl extends QBService implements EventTracker {
     this.eventsRepository = new CachingEventsRepository(eventsRepository);
     this.eventsRestAPIConnectorBuilder = eventsRestAPIConnectorBuilder;
     this.experienceInteractor = experienceInteractor;
-    this.placementInteractor = placementInteractor;
     eventRestModelCreator = new EventRestModelCreator(trackingId, deviceId);
     configurationListener = new ConfigurationService.ConfigurationListener() {
       @Override
@@ -160,17 +153,6 @@ public class EventTrackerImpl extends QBService implements EventTracker {
       @Nullable Boolean ignoreSegments
   ) {
     experienceInteractor.fetchExperience(onSuccess, onError, experienceIdList, variation, preview, ignoreSegments);
-  }
-
-  @Override
-  public void getPlacement(
-      @NotNull String placementId,
-      @Nullable PlacementMode mode,
-      @NotNull PlacementPreviewOptions previewOptions,
-      @NotNull Function1<? super Placement, Unit> onSuccess,
-      @NotNull Function1<? super Throwable, Unit> onError
-  ) {
-    placementInteractor.fetchPlacement(placementId, mode, previewOptions, onSuccess, onError);
   }
 
   @Override

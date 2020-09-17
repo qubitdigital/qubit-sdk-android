@@ -72,17 +72,17 @@ class MainActivity : AppCompatActivity() {
 
     findViewById<View>(R.id.get_example_placement).setOnClickListener {
       Log.i(TAG, "'Get example placement' button clicked")
-      QubitSDK.tracker().getPlacement(
-          placementId = SAMPLE_PLACEMENT_ID,
-          mode = PlacementMode.LIVE,
-          previewOptions = PlacementPreviewOptions(SAMPLE_CAMPAIGN_ID, null),
-          onSuccess = {
+      QubitSDK.getPlacement(
+          SAMPLE_PLACEMENT_ID,
+          PlacementMode.LIVE,
+          PlacementPreviewOptions(SAMPLE_CAMPAIGN_ID, null),
+          {
             placement = it
             Log.d(TAG, "Placement received: ${it?.content}")
             findViewById<View>(R.id.placement_impression).isEnabled = true
             findViewById<View>(R.id.placement_clickthrough).isEnabled = true
           },
-          onError = { throwable -> Log.e(TAG, "Error: ", throwable) }
+          { throwable -> Log.e(TAG, "Error: ", throwable) }
       )
     }
 

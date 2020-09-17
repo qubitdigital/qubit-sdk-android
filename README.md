@@ -168,15 +168,15 @@ SDK contains method to fetch the Placements.
 Kotlin snippet:
 
 ```kotlin
-QubitSDK.tracker().getPlacement(
-    placementId = "placement_id",
-    mode = PlacementMode.LIVE,
-    previewOptions = PlacementPreviewOptions("campaign_id", "experience_id"),
-    onSuccess = { placement ->
+QubitSDK.getPlacement(
+    "placement_id",
+    PlacementMode.LIVE,
+    PlacementPreviewOptions("campaign_id", "experience_id"),
+    { placement ->
         placement?.impression()     // make a POST request to call the returned impression callback URL
         placement?.clickthrough()   // make a POST request to call the returned clickthrough callback URL
     },
-    onError = { throwable -> Log.e(TAG, "Failed to fetch placement", throwable) }
+    { throwable -> Log.e(TAG, "Failed to fetch placement", throwable) }
 )
 ```
 
