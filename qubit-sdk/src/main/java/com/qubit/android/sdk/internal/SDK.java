@@ -53,6 +53,7 @@ public class SDK {
   private ExperienceServiceImpl experienceService;
   private String deviceId;
   private String trackingId;
+  private ExperienceInteractor experienceInteractor;
   private PlacementInteractor placementInteractor;
 
   public SDK(Context appContext, String trackingId) {
@@ -91,7 +92,7 @@ public class SDK {
     EventsRepository eventsRepository = new SQLiteEventsRepository(databaseFuture);
     EventsRestAPIConnectorBuilder eventsRestAPIConnectorBuilder = new EventsRestAPIConnectorBuilderImpl(trackingId);
 
-    ExperienceInteractor experienceInteractor = new ExperienceInteractorImpl(
+    experienceInteractor = new ExperienceInteractorImpl(
         experienceConnectorBuilder,
         experienceService,
         deviceId);
@@ -135,6 +136,10 @@ public class SDK {
 
   public String getTrackingId() {
     return trackingId;
+  }
+
+  public ExperienceInteractor getExperienceInteractor() {
+    return experienceInteractor;
   }
 
   public PlacementInteractor getPlacementInteractor() {

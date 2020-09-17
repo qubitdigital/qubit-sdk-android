@@ -5,9 +5,12 @@ import com.qubit.android.sdk.api.placement.PlacementMode;
 import com.qubit.android.sdk.api.placement.PlacementPreviewOptions;
 import com.qubit.android.sdk.api.tracker.EventTracker;
 import com.qubit.android.sdk.internal.SDK;
+import com.qubit.android.sdk.internal.experience.Experience;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
@@ -73,6 +76,21 @@ public final class QubitSDK {
       throw new IllegalStateException("QubitSDK is not initialized yet. "
           + "Call QubitSDK.initialization().{...}.start() before any other call to QubitSDK");
     }
+  }
+
+  /**
+   * Fetch experiences defined for given criteria.
+   */
+  public static void getExperiences(
+      @NotNull List<Integer> experienceIdList,
+      @NotNull Function1<? super List<? extends Experience>, Unit> onSuccess,
+      @NotNull Function1<? super Throwable, Unit> onError,
+      @Nullable Integer variation,
+      @Nullable Boolean preview,
+      @Nullable Boolean ignoreSegments
+  ) {
+    sdkSingleton.getExperienceInteractor()
+        .fetchExperience(onSuccess, onError, experienceIdList, variation, preview, ignoreSegments);
   }
 
   /**

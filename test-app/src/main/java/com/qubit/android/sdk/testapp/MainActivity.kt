@@ -96,14 +96,17 @@ class MainActivity : AppCompatActivity() {
   }
 
   private fun getExperienceWithIds(list: List<Int>) {
-    QubitSDK.tracker().getExperiences(
+    QubitSDK.getExperiences(
         list,
         { experienceList -> experienceList.forEach { experience ->
           Log.d(TAG, "Experience receive ${experience.experiencePayload}")
           Log.d(TAG, "Experience receive ${experience.experiencePayload.payload.get("free_shipping")}")
           experience.shown()
         }},
-        { throwable -> Log.e(TAG,"Error: ", throwable) }
+        { throwable -> Log.e(TAG,"Error: ", throwable) },
+        null,
+        null,
+        null
     )
   }
 

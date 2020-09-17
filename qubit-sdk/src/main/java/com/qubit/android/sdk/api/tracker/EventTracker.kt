@@ -26,6 +26,7 @@ interface EventTracker {
    */
   fun sendEvent(event: QBEvent)
 
+  @Deprecated(message = "This method has been moved to QubitSDK.getExperiences(). Please use that one instead.")
   fun getExperiences(
       experienceIdList: List<Int>,
       onSuccess: OnExperienceSuccess,

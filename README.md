@@ -128,23 +128,19 @@ SDK contains methods to fetch Experiences. This can be achieved by:
 
 Kotlin snippet:
 ```kotlin    
-QubitSDK.tracker().getExperiences(
-    experienceIdList = listOfExperienceIds,
-    onSuccess = { 
-      experienceList -> experienceList.forEach { it.shown() } // make a Post to call the returned callback URL
-    },
-    onError = { 
-      throwable -> Log.e(TAG, "Error: ", throwable) 
-    },
-    variation = 222,
-    preview = false,
-    ignoreSegments = true
+QubitSDK.getExperiences(
+    listOfExperienceIds,
+    { experienceList -> experienceList.forEach { it.shown() } // make a Post to call the returned callback URL },
+    { throwable -> Log.e(TAG, "Error: ", throwable) },
+    222,
+    false,
+    true
 )
 ```
 
 Java snippet:
 ```java
-QubitSDK.tracker().getExperiences(
+QubitSDK.getExperiences(
     listOfExperienceIds,
     experienceList -> {
       for (Experience experience : experienceList) {
