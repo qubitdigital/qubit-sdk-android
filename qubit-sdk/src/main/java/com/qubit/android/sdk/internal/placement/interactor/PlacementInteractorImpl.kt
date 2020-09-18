@@ -81,7 +81,7 @@ internal class PlacementInteractorImpl(
   }
 
   private fun getPlacementApiHost(configurationRepository: ConfigurationRepository): String {
-    return configurationRepository.load().placementApiHost
+    return configurationRepository.load()?.placementApiHost
         ?: ConfigurationModel.getDefault().placementApiHost
   }
 

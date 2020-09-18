@@ -98,11 +98,10 @@ public class SDK {
         experienceService,
         deviceId);
 
-    PlacementRepositoryImpl placementRepository = new PlacementRepositoryImpl(appContext);
     placementInteractor = new PlacementInteractorImpl(
-        new PlacementConnectorImpl(),
+        new PlacementConnectorImpl(configurationRepository),
         configurationRepository,
-        placementRepository,
+        new PlacementRepositoryImpl(appContext),
         deviceId
     );
 

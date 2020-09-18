@@ -4,15 +4,21 @@ import com.google.gson.JsonObject
 import com.qubit.android.sdk.api.placement.PlacementMode
 import com.qubit.android.sdk.api.placement.PlacementPreviewOptions
 import com.qubit.android.sdk.internal.common.logging.QBLogger
+import com.qubit.android.sdk.internal.configuration.repository.ConfigurationModel
+import com.qubit.android.sdk.internal.configuration.repository.ConfigurationRepository
 import com.qubit.android.sdk.internal.placement.model.PlacementModel
+import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
-internal class PlacementConnectorImpl : PlacementConnector {
+internal class PlacementConnectorImpl(
+    configurationRepository: ConfigurationRepository
+) : PlacementConnector {
 
   companion object {
     private const val PLACEMENT_GRAPH_QL_QUERY = "query PlacementContent(\n" +
@@ -43,11 +49,21 @@ internal class PlacementConnectorImpl : PlacementConnector {
     private val LOGGER = QBLogger.getFor("PlacementConnector")
   }
 
-  private val placementAPI = Retrofit.Builder()
-      .baseUrl(BASE_URL_PLACEHOLDER)  // https://stackoverflow.com/questions/34842390/how-to-setup-retrofit-with-no-baseurl
-      .addConverterFactory(GsonConverterFactory.create())
-      .build()
-      .create(PlacementAPI::class.java)
+  private val placementAPI: PlacementAPI
+
+  init {
+    val timeout = configurationRepository.load()?.placementRequestTimeout?.toLong()
+        ?: ConfigurationModel.getDefault().placementRequestTimeout.toLong()
+    placementAPI = Retrofit.Builder()
+        .baseUrl(BASE_URL_PLACEHOLDER)  // https://stackoverflow.com/questions/34842390/how-to-setup-retrofit-with-no-baseurl
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(OkHttpClient.Builder()
+            .readTimeout(timeout, TimeUnit.SECONDS)
+            .connectTimeout(timeout, TimeUnit.SECONDS)
+            .build())
+        .build()
+        .create(PlacementAPI::class.java)
+  }
 
   override fun getPlacementModel(
       endpointUrl: String,
