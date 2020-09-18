@@ -31,6 +31,7 @@ import com.qubit.android.sdk.internal.network.NetworkStateServiceImpl;
 import com.qubit.android.sdk.internal.placement.connector.PlacementConnectorImpl;
 import com.qubit.android.sdk.internal.placement.interactor.PlacementInteractor;
 import com.qubit.android.sdk.internal.placement.interactor.PlacementInteractorImpl;
+import com.qubit.android.sdk.internal.placement.repository.PlacementRepositoryImpl;
 import com.qubit.android.sdk.internal.session.SessionServiceImpl;
 import com.qubit.android.sdk.internal.session.event.AppPropertiesProvider;
 import com.qubit.android.sdk.internal.session.event.ManifestAppPropertiesProvider;
@@ -97,9 +98,11 @@ public class SDK {
         experienceService,
         deviceId);
 
+    PlacementRepositoryImpl placementRepository = new PlacementRepositoryImpl(appContext);
     placementInteractor = new PlacementInteractorImpl(
         new PlacementConnectorImpl(),
         configurationRepository,
+        placementRepository,
         deviceId
     );
 

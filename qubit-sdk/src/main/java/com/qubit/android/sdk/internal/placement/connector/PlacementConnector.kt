@@ -1,5 +1,6 @@
 package com.qubit.android.sdk.internal.placement.connector
 
+import com.google.gson.JsonObject
 import com.qubit.android.sdk.api.placement.PlacementMode
 import com.qubit.android.sdk.api.placement.PlacementPreviewOptions
 import com.qubit.android.sdk.internal.placement.model.PlacementModel
@@ -13,8 +14,8 @@ interface PlacementConnector {
       endpointUrl: String,
       placementId: String,
       mode: PlacementMode,
-      deviceId: String,
       previewOptions: PlacementPreviewOptions,
+      attributes: JsonObject,
       onResponseSuccess: OnResponseSuccess,
       onResponseFailure: OnResponseFailure
   )

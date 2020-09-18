@@ -53,14 +53,14 @@ internal class PlacementConnectorImpl : PlacementConnector {
       endpointUrl: String,
       placementId: String,
       mode: PlacementMode,
-      deviceId: String,
       previewOptions: PlacementPreviewOptions,
+      attributes: JsonObject,
       onResponseSuccess: OnResponseSuccess,
       onResponseFailure: OnResponseFailure
   ) {
     placementAPI.getPlacement(
         endpointUrl,
-        buildRequestBody(placementId, mode, deviceId, previewOptions)
+        buildRequestBody(placementId, mode, previewOptions, attributes)
     )
         .enqueue(object : Callback<PlacementModel> {
           override fun onResponse(call: Call<PlacementModel>, response: Response<PlacementModel>) {
@@ -82,28 +82,18 @@ internal class PlacementConnectorImpl : PlacementConnector {
   private fun buildRequestBody(
       placementId: String,
       mode: PlacementMode,
-      deviceId: String,
-      previewOptions: PlacementPreviewOptions
+      previewOptions: PlacementPreviewOptions,
+      attributes: JsonObject
   ): PlacementRequestRestModel {
     return PlacementRequestRestModel(
         query = PLACEMENT_GRAPH_QL_QUERY,
         variables = PlacementRequestVariablesRestModel(
             mode = mode.name,
             placementId = placementId,
-            attributes = buildAttributesJson(deviceId),
+            attributes = attributes,
             previewOptions = PlacementRequestPreviewOptionsRestModel(previewOptions),
             resolveVisitorState = DEFAULT_RESOLVE_VISITOR_STATE_VALUE
         )
     )
-  }
-
-  private fun buildAttributesJson(
-      deviceId: String
-  ): JsonObject {
-    return JsonObject().apply {
-      add("visitor", JsonObject().apply {
-        addProperty("id", deviceId)
-      })
-    }
   }
 }
