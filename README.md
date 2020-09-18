@@ -6,6 +6,7 @@ Installation of the QubitSDK, to provide event tracking and lookup. To make use 
 
 | VERSION | UPDATES |
 |---|---|
+| 1.5.0 | Introduced placements feature
 | 1.4.1 | Handle potential regression where /experiences endpoint does not return expected payload.
 | 1.4.0 | Production release for A/B testing & data collection.
 
@@ -18,7 +19,7 @@ In `build.gradle` of your Android application module (usually *$projectRoot/app/
 
 ```
 dependencies   {
-    compile  'com.qubit:qubit-sdk-android:1.4.1'
+    compile  'com.qubit:qubit-sdk-android:1.5.0'
 }
 ```
 
@@ -127,23 +128,19 @@ SDK contains methods to fetch Experiences. This can be achieved by:
 
 Kotlin snippet:
 ```kotlin    
-QubitSDK.tracker().getExperiences(
-    experienceIdList = listOfExperienceIds,
-    onSuccess = { 
-      experienceList -> experienceList.forEach { it.shown() } // make a Post to call the returned callback URL
-    },
-    onError = { 
-      throwable -> Log.e(TAG, "Error: ", throwable) 
-    },
-    variation = 222,
-    preview = false,
-    ignoreSegments = true
+QubitSDK.getExperiences(
+    listOfExperienceIds,
+    { experienceList -> experienceList.forEach { it.shown() } // make a Post to call the returned callback URL },
+    { throwable -> Log.e(TAG, "Error: ", throwable) },
+    222,
+    false,
+    true
 )
 ```
 
 Java snippet:
 ```java
-QubitSDK.tracker().getExperiences(
+QubitSDK.getExperiences(
     listOfExperienceIds,
     experienceList -> {
       for (Experience experience : experienceList) {
@@ -159,6 +156,25 @@ QubitSDK.tracker().getExperiences(
 ```
 
 where `variation`, `preview`, `ignoreSegments` are optional parameters
+
+# Placements
+
+SDK contains method to fetch the Placements.
+
+Kotlin snippet:
+
+```kotlin
+QubitSDK.getPlacement(
+    "placement_id",
+    PlacementMode.LIVE,
+    PlacementPreviewOptions("campaign_id", "experience_id"),
+    { placement ->
+        placement?.impression()     // make a POST request to call the returned impression callback URL
+        placement?.clickthrough()   // make a POST request to call the returned clickthrough callback URL
+    },
+    { throwable -> Log.e(TAG, "Failed to fetch placement", throwable) }
+)
+```
 
 # Tracker Properties
 You can get the `trackingID` and `deviceID` from the QubitSDK via the following methods:

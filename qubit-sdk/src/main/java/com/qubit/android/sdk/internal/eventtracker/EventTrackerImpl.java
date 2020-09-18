@@ -75,7 +75,8 @@ public class EventTrackerImpl extends QBService implements EventTracker {
   private int sendingAttempts = 0;
   private long lastAttemptTime = 0;
 
-  public EventTrackerImpl(String trackingId, String deviceId,
+  public EventTrackerImpl(String trackingId,
+                          String deviceId,
                           ConfigurationService configurationService,
                           NetworkStateService networkStateService,
                           SessionService sessionService,
@@ -88,9 +89,9 @@ public class EventTrackerImpl extends QBService implements EventTracker {
     this.networkStateService = networkStateService;
     this.sessionService = sessionService;
     this.lookupService = lookupService;
-    this.experienceInteractor = experienceInteractor;
     this.eventsRepository = new CachingEventsRepository(eventsRepository);
     this.eventsRestAPIConnectorBuilder = eventsRestAPIConnectorBuilder;
+    this.experienceInteractor = experienceInteractor;
     eventRestModelCreator = new EventRestModelCreator(trackingId, deviceId);
     configurationListener = new ConfigurationService.ConfigurationListener() {
       @Override
@@ -136,7 +137,7 @@ public class EventTrackerImpl extends QBService implements EventTracker {
 
   public synchronized LookupData getLookupData() {
     if (currentLookupData == null) {
-      throw new IllegalStateException("Lookup data not avaliable yet...");
+      throw new IllegalStateException("Lookup data not available yet...");
     } else {
       return currentLookupData;
     }
@@ -187,7 +188,7 @@ public class EventTrackerImpl extends QBService implements EventTracker {
       SessionForEvent sessionForEvent = getSessionDataForNextEvent(qbEvent.getType(), now);
       SessionData sessionDataForEvent = sessionForEvent.getEventSessionData();
       NewSessionRequest newSessionRequest = sessionForEvent.getNewSessionRequest();
-      LOGGER.d("Got session response. New Session? " + ( newSessionRequest != null)
+      LOGGER.d("Got session response. New Session? " + (newSessionRequest != null)
           + " SessionData: " + sessionForEvent.getEventSessionData());
 
       if (newSessionRequest != null) {

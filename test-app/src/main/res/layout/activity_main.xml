@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp"
-    tools:context="com.qubit.android.sdk.testapp.MainActivity">
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:padding="16dp"
+  tools:context="com.qubit.android.sdk.testapp.MainActivity">
 
-  <Button
+    <Button
       android:id="@+id/send_view_event_button"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
@@ -16,7 +15,7 @@
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent" />
 
-  <Button
+    <Button
       android:id="@+id/send_interaction_event_button"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
@@ -25,7 +24,7 @@
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@+id/send_view_event_button" />
 
-  <Button
+    <Button
       android:id="@+id/send_20_events_button"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
@@ -34,7 +33,7 @@
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@+id/send_interaction_event_button" />
 
-  <Button
+    <Button
       android:id="@+id/get_experience"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
@@ -43,7 +42,7 @@
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@+id/send_20_events_button" />
 
-  <Button
+    <Button
       android:id="@+id/get_experience_default"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
@@ -51,5 +50,33 @@
       android:text="@string/get_all_experiences"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@+id/get_experience" />
+
+    <Button
+      android:id="@+id/get_example_placement"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/standard_button_margin_top"
+      android:text="@string/get_example_placement"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/get_experience_default" />
+
+    <Button
+      android:id="@+id/placement_impression"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:enabled="false"
+      android:text="@string/placement_impression"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/get_example_placement" />
+
+    <Button
+      android:id="@+id/placement_clickthrough"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:enabled="false"
+      android:text="@string/placement_clickthrough"
+      app:layout_constraintStart_toEndOf="@+id/placement_impression"
+      app:layout_constraintTop_toBottomOf="@+id/get_example_placement" />
+
 
 </android.support.constraint.ConstraintLayout>

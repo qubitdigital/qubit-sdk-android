@@ -4,11 +4,16 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import com.qubit.android.sdk.api.QubitSDK
+import com.qubit.android.sdk.api.placement.Placement
+import com.qubit.android.sdk.api.placement.PlacementMode
+import com.qubit.android.sdk.api.placement.PlacementPreviewOptions
 import com.qubit.android.sdk.api.tracker.event.QBEvents
-import com.google.gson.JsonObject
 
 class MainActivity : AppCompatActivity() {
+
+  private var placement: Placement? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -64,17 +69,44 @@ class MainActivity : AppCompatActivity() {
       val list = listOf<Int>()
       getExperienceWithIds(list)
     }
+
+    findViewById<View>(R.id.get_example_placement).setOnClickListener {
+      Log.i(TAG, "'Get example placement' button clicked")
+      QubitSDK.getPlacement(
+          SAMPLE_PLACEMENT_ID,
+          PlacementMode.LIVE,
+          PlacementPreviewOptions(SAMPLE_CAMPAIGN_ID, null),
+          {
+            placement = it
+            Log.d(TAG, "Placement received: ${it?.content}")
+            findViewById<View>(R.id.placement_impression).isEnabled = true
+            findViewById<View>(R.id.placement_clickthrough).isEnabled = true
+          },
+          { throwable -> Log.e(TAG, "Error: ", throwable) }
+      )
+    }
+
+    findViewById<View>(R.id.placement_impression).setOnClickListener {
+      placement?.impression() ?: Toast.makeText(this, "No placement loaded", Toast.LENGTH_LONG).show()
+    }
+
+    findViewById<View>(R.id.placement_clickthrough).setOnClickListener {
+      placement?.clickthrough() ?: Toast.makeText(this, "No placement loaded", Toast.LENGTH_LONG).show()
+    }
   }
 
   private fun getExperienceWithIds(list: List<Int>) {
-    QubitSDK.tracker().getExperiences(
+    QubitSDK.getExperiences(
         list,
         { experienceList -> experienceList.forEach { experience ->
           Log.d(TAG, "Experience receive ${experience.experiencePayload}")
           Log.d(TAG, "Experience receive ${experience.experiencePayload.payload.get("free_shipping")}")
           experience.shown()
         }},
-        { throwable -> Log.e(TAG,"Error: ", throwable) }
+        { throwable -> Log.e(TAG,"Error: ", throwable) },
+        null,
+        null,
+        null
     )
   }
 
@@ -83,5 +115,7 @@ class MainActivity : AppCompatActivity() {
     private const val TAG = "qb-testapp"
     private const val EVENT_TYPE_VIEW = "ecView"
     private const val EVENT_TYPE_INTERACTION = "ecInteraction"
+    private const val SAMPLE_PLACEMENT_ID = "tsOujouCSSKJGSCMUsmQRw"
+    private const val SAMPLE_CAMPAIGN_ID = "1ybrhki9RvKWpA-9veLQSg"
   }
 }

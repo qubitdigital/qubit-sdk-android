@@ -5,7 +5,6 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.qubit.android.sdk.internal.common.repository.DatabaseInitializer;
 import com.qubit.android.sdk.internal.configuration.ConfigurationServiceImpl;
-import com.qubit.android.sdk.internal.configuration.connector.ConfigurationConnector;
 import com.qubit.android.sdk.internal.configuration.connector.ConfigurationConnectorBuilder;
 import com.qubit.android.sdk.internal.configuration.connector.ConfigurationConnectorBuilderImpl;
 import com.qubit.android.sdk.internal.configuration.repository.ConfigurationRepository;
@@ -15,13 +14,13 @@ import com.qubit.android.sdk.internal.eventtracker.connector.EventsRestAPIConnec
 import com.qubit.android.sdk.internal.eventtracker.connector.EventsRestAPIConnectorBuilderImpl;
 import com.qubit.android.sdk.internal.eventtracker.repository.EventsRepository;
 import com.qubit.android.sdk.internal.eventtracker.repository.SQLiteEventsRepository;
-import com.qubit.android.sdk.internal.experience.service.ExperienceServiceImpl;
 import com.qubit.android.sdk.internal.experience.connector.ExperienceConnectorBuilder;
 import com.qubit.android.sdk.internal.experience.connector.ExperienceConnectorBuilderImpl;
 import com.qubit.android.sdk.internal.experience.interactor.ExperienceInteractor;
 import com.qubit.android.sdk.internal.experience.interactor.ExperienceInteractorImpl;
 import com.qubit.android.sdk.internal.experience.repository.ExperienceRepository;
 import com.qubit.android.sdk.internal.experience.repository.ExperienceRepositoryImpl;
+import com.qubit.android.sdk.internal.experience.service.ExperienceServiceImpl;
 import com.qubit.android.sdk.internal.initialization.SecureAndroidIdDeviceIdProvider;
 import com.qubit.android.sdk.internal.lookup.LookupServiceImpl;
 import com.qubit.android.sdk.internal.lookup.connector.LookupConnectorBuilder;
@@ -29,6 +28,9 @@ import com.qubit.android.sdk.internal.lookup.connector.LookupConnectorBuilderImp
 import com.qubit.android.sdk.internal.lookup.repository.LookupRepository;
 import com.qubit.android.sdk.internal.lookup.repository.LookupRepositoryImpl;
 import com.qubit.android.sdk.internal.network.NetworkStateServiceImpl;
+import com.qubit.android.sdk.internal.placement.connector.PlacementConnectorImpl;
+import com.qubit.android.sdk.internal.placement.interactor.PlacementInteractor;
+import com.qubit.android.sdk.internal.placement.interactor.PlacementInteractorImpl;
 import com.qubit.android.sdk.internal.session.SessionServiceImpl;
 import com.qubit.android.sdk.internal.session.event.AppPropertiesProvider;
 import com.qubit.android.sdk.internal.session.event.ManifestAppPropertiesProvider;
@@ -51,6 +53,8 @@ public class SDK {
   private ExperienceServiceImpl experienceService;
   private String deviceId;
   private String trackingId;
+  private ExperienceInteractor experienceInteractor;
+  private PlacementInteractor placementInteractor;
 
   public SDK(Context appContext, String trackingId) {
     this.networkStateService = new NetworkStateServiceImpl(appContext);
@@ -74,7 +78,7 @@ public class SDK {
     ExperienceRepository experienceRepository = new ExperienceRepositoryImpl(appContext);
     ExperienceConnectorBuilder experienceConnectorBuilder = new ExperienceConnectorBuilderImpl(trackingId, deviceId);
     experienceService = new ExperienceServiceImpl(configurationService, networkStateService,
-            experienceRepository, experienceConnectorBuilder);
+        experienceRepository, experienceConnectorBuilder);
 
     SessionRepository sessionRepository = new SessionRepositoryImpl(appContext);
     ScreenSizeProvider screenSizeProvider = new ScreenSizeProviderImpl(appContext);
@@ -83,16 +87,21 @@ public class SDK {
         new SessionEventGeneratorImpl(screenSizeProvider, appPropertiesProvider);
     sessionService = new SessionServiceImpl(lookupService, sessionRepository, sessionEventGenerator);
 
-//    EventsRepository eventsRepository = new EventsRepositoryMock();
     Future<SQLiteDatabase> databaseFuture =
         new DatabaseInitializer(appContext, SQLiteEventsRepository.tableInitializer()).initDatabaseAsync();
     EventsRepository eventsRepository = new SQLiteEventsRepository(databaseFuture);
     EventsRestAPIConnectorBuilder eventsRestAPIConnectorBuilder = new EventsRestAPIConnectorBuilderImpl(trackingId);
 
-    ExperienceInteractor experienceInteractor = new ExperienceInteractorImpl(
+    experienceInteractor = new ExperienceInteractorImpl(
         experienceConnectorBuilder,
         experienceService,
         deviceId);
+
+    placementInteractor = new PlacementInteractorImpl(
+        new PlacementConnectorImpl(),
+        configurationRepository,
+        deviceId
+    );
 
     this.eventTracker = new EventTrackerImpl(trackingId, deviceId,
         configurationService, networkStateService, sessionService, lookupService,
@@ -127,5 +136,13 @@ public class SDK {
 
   public String getTrackingId() {
     return trackingId;
+  }
+
+  public ExperienceInteractor getExperienceInteractor() {
+    return experienceInteractor;
+  }
+
+  public PlacementInteractor getPlacementInteractor() {
+    return placementInteractor;
   }
 }
