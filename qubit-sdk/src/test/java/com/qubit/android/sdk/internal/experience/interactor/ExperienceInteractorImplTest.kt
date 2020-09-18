@@ -59,7 +59,7 @@ class ExperienceInteractorImplTest : BaseTest() {
   }
 
   @Test
-  fun `cache non-empty, should return from local cache`() {
+  fun `all parameters not set, cache non-empty, should read from cache`() {
     prepareMocks(EXPERIENCE_MODEL)
 
     experienceInteractor.fetchExperience(mockOnSuccessFunction, mockOnErrorFunction, arrayListOf(), null, null, null)
@@ -69,12 +69,76 @@ class ExperienceInteractorImplTest : BaseTest() {
   }
 
   @Test
-  fun `cache empty, should fetch experiences`() {
+  fun `all parameters not set, cache empty, should fetch experiences`() {
     prepareMocks(null)
 
     experienceInteractor.fetchExperience(mockOnSuccessFunction, mockOnErrorFunction, arrayListOf(139731, 143401), null, null, null)
 
     verifyCacheChecked()
+    verifyRequestSent()
+  }
+
+  @Test
+  fun `variation set, should fetch experiences`() {
+    prepareMocks(EXPERIENCE_MODEL)
+
+    experienceInteractor.fetchExperience(mockOnSuccessFunction, mockOnErrorFunction, arrayListOf(), 1, null, null)
+
+    verifyRequestSent()
+  }
+
+  @Test
+  fun `preview set for true, should fetch experiences`() {
+    prepareMocks(EXPERIENCE_MODEL)
+
+    experienceInteractor.fetchExperience(mockOnSuccessFunction, mockOnErrorFunction, arrayListOf(), null, true, null)
+
+    verifyRequestSent()
+  }
+
+  @Test
+  fun `preview set for false, other parameters not set, should read from cache`() {
+    prepareMocks(EXPERIENCE_MODEL)
+
+    experienceInteractor.fetchExperience(mockOnSuccessFunction, mockOnErrorFunction, arrayListOf(), null, false, null)
+
+    verifyCacheChecked()
+    verify(mockOnSuccessFunction).invoke(anyList())
+  }
+
+  @Test
+  fun `preview set for false, variation set, should fetch experiences`() {
+    prepareMocks(EXPERIENCE_MODEL)
+
+    experienceInteractor.fetchExperience(mockOnSuccessFunction, mockOnErrorFunction, arrayListOf(), 1, false, null)
+
+    verifyRequestSent()
+  }
+
+  @Test
+  fun `preview set for false, ignoreSegments set, should fetch experiences`() {
+    prepareMocks(EXPERIENCE_MODEL)
+
+    experienceInteractor.fetchExperience(mockOnSuccessFunction, mockOnErrorFunction, arrayListOf(), null, false, true)
+
+    verifyRequestSent()
+  }
+
+  @Test
+  fun `ignoreSegments set for true, should fetch experiences`() {
+    prepareMocks(EXPERIENCE_MODEL)
+
+    experienceInteractor.fetchExperience(mockOnSuccessFunction, mockOnErrorFunction, arrayListOf(), null, null, true)
+
+    verifyRequestSent()
+  }
+
+  @Test
+  fun `ignoreSegments set for false, should fetch experiences`() {
+    prepareMocks(EXPERIENCE_MODEL)
+
+    experienceInteractor.fetchExperience(mockOnSuccessFunction, mockOnErrorFunction, arrayListOf(), null, null, false)
+
     verifyRequestSent()
   }
 
