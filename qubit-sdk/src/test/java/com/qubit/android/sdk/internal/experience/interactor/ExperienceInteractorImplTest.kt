@@ -17,6 +17,17 @@ import org.mockito.Mockito.`when` as whenever
 
 class ExperienceInteractorImplTest : BaseTest() {
 
+  companion object {
+    private const val CALLBACK_URL = "https://www.somewebside.com"
+    private const val EXPERIENCE_API_HOST = "someUrl"
+
+    private val EXPERIENCE_MODEL = ExperienceModel(arrayListOf(
+        ExperiencePayload(JsonObject(), false, 139731, CALLBACK_URL, 75834),
+        ExperiencePayload(JsonObject(), false, 143401, CALLBACK_URL, 855620),
+        ExperiencePayload(JsonObject(), true, 143640, CALLBACK_URL, 852185)
+    ))
+  }
+
   @Mock
   private lateinit var mockExperienceConnectorBuilder: ExperienceConnectorBuilder
 
@@ -48,44 +59,40 @@ class ExperienceInteractorImplTest : BaseTest() {
   }
 
   @Test
-  fun `should return ExperienceList in callback from local cache after fetch experience is called `() {
-    val experienceIdsList = arrayListOf<Int>()
+  fun `cache non-empty, should return from local cache`() {
+    prepareMocks(EXPERIENCE_MODEL)
 
-    whenever(mockExperienceService.experienceData).thenReturn(getMockExperienceModel())
+    experienceInteractor.fetchExperience(mockOnSuccessFunction, mockOnErrorFunction, arrayListOf(), null, null, null)
 
-    experienceInteractor.fetchExperience(mockOnSuccessFunction, mockOnErrorFunction, experienceIdsList, null, null, null)
-
-    verify(mockExperienceService).experienceData
+    verifyCacheChecked()
     verify(mockOnSuccessFunction).invoke(anyList())
   }
 
-  private fun getMockExperienceModel(): ExperienceModel {
-    val mockCallbackUrl = "https://www.somewebside.com"
+  @Test
+  fun `cache empty, should fetch experiences`() {
+    prepareMocks(null)
 
-    val experienceMockList = arrayListOf(
-        ExperiencePayload(JsonObject(), false, 139731, mockCallbackUrl, 75834),
-        ExperiencePayload(JsonObject(), false, 143401, mockCallbackUrl, 855620),
-        ExperiencePayload(JsonObject(), true, 143640, mockCallbackUrl, 852185)
-    )
+    experienceInteractor.fetchExperience(mockOnSuccessFunction, mockOnErrorFunction, arrayListOf(139731, 143401), null, null, null)
 
-    return ExperienceModel(experienceMockList)
+    verifyCacheChecked()
+    verifyRequestSent()
   }
 
-  @Test
-  fun `should return ExperienceList in callback from remote after fetch experience is called `() {
-    val experienceIdsList = arrayListOf(139731, 143401)
+  /******** helper methods ********/
 
-    val mockExperienceApiHost = "someUrl"
-
-    whenever(mockExperienceService.experienceData).thenReturn(null)
+  private fun prepareMocks(cachedModel: ExperienceModel?) {
+    whenever(mockExperienceService.experienceData).thenReturn(cachedModel)
     whenever(mockExperienceConnectorBuilder.buildFor(anyString())).thenReturn(mockExperienceConnector)
     whenever(mockExperienceService.configuration).thenReturn(mockConfiguration)
-    whenever(mockConfiguration.experienceApiHost).thenReturn(mockExperienceApiHost)
+    whenever(mockConfiguration.experienceApiHost).thenReturn(EXPERIENCE_API_HOST)
+  }
 
-    experienceInteractor.fetchExperience(mockOnSuccessFunction, mockOnErrorFunction, experienceIdsList, null, null, null)
-
+  private fun verifyCacheChecked() {
     verify(mockExperienceService).experienceData
-    verify(mockExperienceConnectorBuilder).buildFor(mockExperienceApiHost)
+  }
+
+  private fun verifyRequestSent() {
+    verify(mockExperienceConnectorBuilder).buildFor(EXPERIENCE_API_HOST)
     verify(mockExperienceService).configuration
   }
 }
