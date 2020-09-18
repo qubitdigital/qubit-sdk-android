@@ -26,12 +26,12 @@ internal class ExperienceInteractorImpl(
       ignoreSegments: Boolean?
   ) {
 
-    if (variation != null || preview != null || ignoreSegments != null) {
-      getExperience(onSuccess, onError, experienceIdList, variation, preview, ignoreSegments)
-    } else {
+    if (variation == null && preview != true && ignoreSegments == null) {
       experienceService.experienceData?.let {
         onSuccess(mapExperienceData(experienceIdList, it))
       } ?: getExperience(onSuccess, onError, experienceIdList, variation, preview, ignoreSegments)
+    } else {
+      getExperience(onSuccess, onError, experienceIdList, variation, preview, ignoreSegments)
     }
   }
 
