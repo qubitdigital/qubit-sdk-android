@@ -31,6 +31,8 @@ import com.qubit.android.sdk.internal.network.NetworkStateServiceImpl;
 import com.qubit.android.sdk.internal.placement.connector.PlacementConnectorImpl;
 import com.qubit.android.sdk.internal.placement.interactor.PlacementInteractor;
 import com.qubit.android.sdk.internal.placement.interactor.PlacementInteractorImpl;
+import com.qubit.android.sdk.internal.placement.repository.PlacementAttributesRepository;
+import com.qubit.android.sdk.internal.placement.repository.PlacementAttributesRepositoryImpl;
 import com.qubit.android.sdk.internal.placement.repository.PlacementRepositoryImpl;
 import com.qubit.android.sdk.internal.session.SessionServiceImpl;
 import com.qubit.android.sdk.internal.session.event.AppPropertiesProvider;
@@ -98,6 +100,7 @@ public class SDK {
         experienceService,
         deviceId);
 
+    PlacementAttributesRepository placementAttributesRepository = new PlacementAttributesRepositoryImpl(appContext);
     placementInteractor = new PlacementInteractorImpl(
         new PlacementConnectorImpl(configurationRepository),
         configurationRepository,
@@ -105,9 +108,18 @@ public class SDK {
         deviceId
     );
 
-    this.eventTracker = new EventTrackerImpl(trackingId, deviceId,
-        configurationService, networkStateService, sessionService, lookupService,
-        eventsRepository, eventsRestAPIConnectorBuilder, experienceInteractor);
+    this.eventTracker = new EventTrackerImpl(
+        trackingId,
+        deviceId,
+        configurationService,
+        networkStateService,
+        sessionService,
+        lookupService,
+        eventsRepository,
+        eventsRestAPIConnectorBuilder,
+        experienceInteractor,
+        placementAttributesRepository
+    );
   }
 
   public void start() {
