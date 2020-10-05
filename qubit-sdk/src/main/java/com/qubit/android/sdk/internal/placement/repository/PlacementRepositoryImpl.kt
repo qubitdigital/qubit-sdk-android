@@ -11,7 +11,6 @@ internal class PlacementRepositoryImpl(
 ) : PlacementRepository {
 
   companion object {
-    @JvmStatic
     private val LOGGER = QBLogger.getFor("PlacementRepository")
     private const val PREFERENCES_FILE = "qubit_placement"
   }

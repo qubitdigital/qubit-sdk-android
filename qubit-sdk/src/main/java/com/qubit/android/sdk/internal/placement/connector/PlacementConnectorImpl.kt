@@ -17,44 +17,55 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 internal class PlacementConnectorImpl(
-    configurationRepository: ConfigurationRepository
+    private val configurationRepository: ConfigurationRepository
 ) : PlacementConnector {
 
   companion object {
-    private const val PLACEMENT_GRAPH_QL_QUERY = "query PlacementContent(\n" +
-        "  \$mode: Mode!\n" +
-        "  \$placementId: String!\n" +
-        "  \$previewOptions: PreviewOptions\n" +
-        "  \$attributes: Attributes!\n" +
-        "  \$resolveVisitorState: Boolean!\n" +
-        ") {\n" +
-        "  placementContent(\n" +
-        "    mode: \$mode\n" +
-        "    placementId: \$placementId\n" +
-        "    previewOptions: \$previewOptions\n" +
-        "    attributes: \$attributes\n" +
-        "    resolveVisitorState: \$resolveVisitorState\n" +
-        "  ) {\n" +
-        "    content\n" +
-        "    callbacks {\n" +
-        "      impression\n" +
-        "      clickthrough\n" +
-        "    }\n" +
-        "  }\n" +
-        "}"
+    private const val PLACEMENT_GRAPH_QL_QUERY =
+        """
+        query PlacementContent(
+          ${'$'}mode: Mode!
+          ${'$'}placementId: String!
+          ${'$'}previewOptions: PreviewOptions
+          ${'$'}attributes: Attributes!
+          ${'$'}resolveVisitorState: Boolean!
+        ) {
+          placementContent(
+            mode: ${'$'}mode
+            placementId: ${'$'}placementId
+            previewOptions: ${'$'}previewOptions
+            attributes: ${'$'}attributes
+            resolveVisitorState: ${'$'}resolveVisitorState
+          ) {
+            content
+            callbacks {
+              impression
+              clickthrough
+            }
+          }
+        }
+        """
     private const val DEFAULT_RESOLVE_VISITOR_STATE_VALUE = true
     private const val BASE_URL_PLACEHOLDER = "http://localhost/"
 
-    @JvmStatic
     private val LOGGER = QBLogger.getFor("PlacementConnector")
   }
 
-  private val placementAPI: PlacementAPI
+  private var placementAPI: PlacementAPI
+  private var currentTimeoutValue: Long
 
   init {
-    val timeout = configurationRepository.load()?.placementRequestTimeout?.toLong()
-        ?: ConfigurationModel.getDefault().placementRequestTimeout.toLong()
-    placementAPI = Retrofit.Builder()
+    val timeout = getTimeoutValue()
+    placementAPI = buildPlacementApi(timeout)
+    currentTimeoutValue = timeout
+  }
+
+  private fun getTimeoutValue() =
+      configurationRepository.load()?.placementRequestTimeout?.toLong()
+          ?: ConfigurationModel.getDefault().placementRequestTimeout.toLong()
+
+  private fun buildPlacementApi(timeout: Long): PlacementAPI {
+    return Retrofit.Builder()
         .baseUrl(BASE_URL_PLACEHOLDER)  // https://stackoverflow.com/questions/34842390/how-to-setup-retrofit-with-no-baseurl
         .addConverterFactory(GsonConverterFactory.create())
         .client(OkHttpClient.Builder()
@@ -74,6 +85,7 @@ internal class PlacementConnectorImpl(
       onResponseSuccess: OnResponseSuccess,
       onResponseFailure: OnResponseFailure
   ) {
+    rebuildPlacementApiIfNecessary()
     placementAPI.getPlacement(
         endpointUrl,
         buildRequestBody(placementId, mode, previewOptions, attributes)
@@ -93,6 +105,14 @@ internal class PlacementConnectorImpl(
             onResponseFailure(throwable)
           }
         })
+  }
+
+  private fun rebuildPlacementApiIfNecessary() {
+    val timeout = getTimeoutValue()
+    if (timeout != currentTimeoutValue) {
+      placementAPI = buildPlacementApi(timeout)
+      currentTimeoutValue = timeout
+    }
   }
 
   private fun buildRequestBody(
