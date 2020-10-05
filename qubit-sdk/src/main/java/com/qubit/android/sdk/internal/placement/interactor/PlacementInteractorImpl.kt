@@ -11,6 +11,7 @@ import com.qubit.android.sdk.internal.placement.PlacementImpl
 import com.qubit.android.sdk.internal.placement.callback.PlacementCallbackAPI
 import com.qubit.android.sdk.internal.placement.callback.PlacementCallbackConnectorImpl
 import com.qubit.android.sdk.internal.placement.connector.PlacementConnector
+import com.qubit.android.sdk.internal.placement.model.PlacementContentModel
 import com.qubit.android.sdk.internal.placement.model.PlacementModel
 import com.qubit.android.sdk.internal.placement.repository.PlacementRepository
 import retrofit2.Retrofit
@@ -26,6 +27,7 @@ internal class PlacementInteractorImpl(
   companion object {
     private val DEFAULT_PLACEMENT_MODE = PlacementMode.LIVE
     private const val BASE_URL_PLACEHOLDER = "http://localhost/"
+    private const val KEY_SEPARATOR = "|"
   }
 
   private val callbackApi = Retrofit.Builder()
@@ -50,7 +52,7 @@ internal class PlacementInteractorImpl(
         placementMode,
         previewOptions,
         attributes,
-        { handleSuccessfulResponse(it, cacheKey, true, onSuccess, onError) },
+        { handleSuccessfulResponse(it, cacheKey, true, onSuccess) },
         { handleErrorResponse(it, cacheKey, onSuccess, onError) }
     )
   }
@@ -71,13 +73,18 @@ internal class PlacementInteractorImpl(
       previewOptions: PlacementPreviewOptions,
       attributes: JsonObject
   ): String {
-    return StringBuilder().apply {
+    val keyString = StringBuilder().apply {
       append(placementId)
+      append(KEY_SEPARATOR)
       append(placementMode.name)
+      append(KEY_SEPARATOR)
       append(previewOptions.campaignId)
+      append(KEY_SEPARATOR)
       append(previewOptions.experienceId)
+      append(KEY_SEPARATOR)
       append(attributes.toString())
     }.toString()
+    return keyString.hashCode().toString()
   }
 
   private fun getPlacementApiHost(configurationRepository: ConfigurationRepository): String {
@@ -89,27 +96,25 @@ internal class PlacementInteractorImpl(
       placementModel: PlacementModel,
       cacheKey: String,
       shouldUpdateCache: Boolean,
-      onSuccess: OnPlacementSuccess,
-      onError: OnPlacementError
+      onSuccess: OnPlacementSuccess
   ) {
     val placementContent = placementModel.data?.placementContent
-    if (placementContent != null) {
-      try {
-        val callbackConnector = PlacementCallbackConnectorImpl(
-            callbackApi,
-            placementContent.callbacks.impression,
-            placementContent.callbacks.clickthrough
-        )
-        val placement = PlacementImpl(placementContent.content, callbackConnector)
-        if (shouldUpdateCache) {
-          placementRepository.save(cacheKey, placementModel)
-        }
-        onSuccess(placement)
-      } catch (e: Exception) {
-        onError(e)
-      }
+    if (shouldUpdateCache) {
+      placementRepository.save(cacheKey, placementModel)
+    }
+    onSuccess(buildPlacement(placementContent))
+  }
+
+  private fun buildPlacement(placementContent: PlacementContentModel?): PlacementImpl? {
+    return if (placementContent != null) {
+      val callbackConnector = PlacementCallbackConnectorImpl(
+          callbackApi,
+          placementContent.callbacks.impression,
+          placementContent.callbacks.clickthrough
+      )
+      PlacementImpl(placementContent.content, callbackConnector)
     } else {
-      onSuccess(null)
+      null
     }
   }
 
@@ -120,7 +125,7 @@ internal class PlacementInteractorImpl(
       onError: OnPlacementError
   ) {
     placementRepository.load(cacheKey)?.let {
-      handleSuccessfulResponse(it, cacheKey, false, onSuccess, onError)
+      handleSuccessfulResponse(it, cacheKey, false, onSuccess)
     } ?: onError(throwable)
   }
 }
