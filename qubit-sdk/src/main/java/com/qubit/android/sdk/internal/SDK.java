@@ -31,6 +31,7 @@ import com.qubit.android.sdk.internal.network.NetworkStateServiceImpl;
 import com.qubit.android.sdk.internal.placement.connector.PlacementConnectorImpl;
 import com.qubit.android.sdk.internal.placement.interactor.PlacementInteractor;
 import com.qubit.android.sdk.internal.placement.interactor.PlacementInteractorImpl;
+import com.qubit.android.sdk.internal.placement.interactor.PlacementQueryAttributesBuilder;
 import com.qubit.android.sdk.internal.placement.repository.PlacementAttributesRepository;
 import com.qubit.android.sdk.internal.placement.repository.PlacementAttributesRepositoryImpl;
 import com.qubit.android.sdk.internal.placement.repository.PlacementRepositoryImpl;
@@ -101,10 +102,12 @@ public class SDK {
         deviceId);
 
     PlacementAttributesRepository placementAttributesRepository = new PlacementAttributesRepositoryImpl(appContext);
+    PlacementQueryAttributesBuilder placementQueryAttributesBuilder = new PlacementQueryAttributesBuilder(placementAttributesRepository);
     placementInteractor = new PlacementInteractorImpl(
         new PlacementConnectorImpl(configurationRepository),
         configurationRepository,
         new PlacementRepositoryImpl(appContext),
+        placementQueryAttributesBuilder,
         deviceId
     );
 

@@ -75,6 +75,7 @@ class MainActivity : AppCompatActivity() {
       QubitSDK.getPlacement(
           SAMPLE_PLACEMENT_ID,
           PlacementMode.LIVE,
+          null,
           PlacementPreviewOptions(SAMPLE_CAMPAIGN_ID, null),
           {
             placement = it

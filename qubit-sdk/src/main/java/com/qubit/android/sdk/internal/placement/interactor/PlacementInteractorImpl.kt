@@ -21,6 +21,7 @@ internal class PlacementInteractorImpl(
     private val placementConnector: PlacementConnector,
     private val configurationRepository: ConfigurationRepository,
     private val placementRepository: PlacementRepository,
+    private val placementQueryAttributesBuilder: PlacementQueryAttributesBuilder,
     private val deviceId: String
 ) : PlacementInteractor {
 
@@ -39,12 +40,13 @@ internal class PlacementInteractorImpl(
   override fun fetchPlacement(
       placementId: String,
       mode: PlacementMode?,
+      userAttributes: JsonObject?,
       previewOptions: PlacementPreviewOptions,
       onSuccess: OnPlacementSuccess,
       onError: OnPlacementError
   ) {
     val placementMode = mode ?: DEFAULT_PLACEMENT_MODE
-    val attributes = buildAttributesJson(deviceId)
+    val attributes = placementQueryAttributesBuilder.buildJson(deviceId, userAttributes)
     val cacheKey = buildCacheKey(placementId, placementMode, previewOptions, attributes)
     placementConnector.getPlacementModel(
         getPlacementApiHost(configurationRepository),
@@ -55,16 +57,6 @@ internal class PlacementInteractorImpl(
         { handleSuccessfulResponse(it, cacheKey, true, onSuccess) },
         { handleErrorResponse(it, cacheKey, onSuccess, onError) }
     )
-  }
-
-  private fun buildAttributesJson(
-      deviceId: String
-  ): JsonObject {
-    return JsonObject().apply {
-      add("visitor", JsonObject().apply {
-        addProperty("id", deviceId)
-      })
-    }
   }
 
   private fun buildCacheKey(
