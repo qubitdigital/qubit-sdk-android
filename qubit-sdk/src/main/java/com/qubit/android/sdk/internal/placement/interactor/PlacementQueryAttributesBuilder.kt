@@ -25,21 +25,21 @@ internal class PlacementQueryAttributesBuilder(
     // 1 visitor attributes should be set by SDK
     attributesJson.add(VISITOR_ATTRIBUTE_KEY, buildVisitorAttributesJson(deviceId))
 
-    // 2 cached attributes - skipped if set by SDK user
-    val cachedAttributes = placementAttributesRepository.load()
-    for (key in cachedAttributes.keys) {
-      if (key != VISITOR_ATTRIBUTE_KEY && (customAttributes == null || !customAttributes.has(key))) {
-        attributesJson.add(key, cachedAttributes[key])
-      }
-    }
-
-    // 3 custom attributes passed by SDK user
+    // 2 custom attributes passed by SDK user
     if (customAttributes != null) {
       customAttributes.remove(VISITOR_ATTRIBUTE_KEY)
       for (key in customAttributes.keySet()) {
         // user/view attributes should contain all fields from schema and nothing more
         val customAttribute = prepareCustomAttribute(key, customAttributes.get(key))
         attributesJson.add(key, customAttribute)
+      }
+    }
+
+    // 3 cached attributes - skipped if set by SDK user
+    val cachedAttributes = placementAttributesRepository.load()
+    for (key in cachedAttributes.keys) {
+      if (!attributesJson.has(key)) {
+        attributesJson.add(key, cachedAttributes[key])
       }
     }
 

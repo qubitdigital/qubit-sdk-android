@@ -458,12 +458,6 @@ class PlacementQueryAttributesBuilderTest {
           "visitor": {
             "id": "$DEVICE_ID_1"
           },
-          "view": {
-            "currency": "$CURRENCY",
-            "type": "$VIEW_TYPE_1",
-            "subtypes": $SUBTYPES_STRING,
-            "language": "$LANGUAGE"
-          },
           "address": {
             "street": "Main",
             "city": "Brighton",
@@ -472,6 +466,12 @@ class PlacementQueryAttributesBuilderTest {
           "dimensions": {
             "height": 18,
             "width": 12
+          },
+          "view": {
+            "currency": "$CURRENCY",
+            "type": "$VIEW_TYPE_1",
+            "subtypes": $SUBTYPES_STRING,
+            "language": "$LANGUAGE"
           },
           "user": {
             "name": "",
