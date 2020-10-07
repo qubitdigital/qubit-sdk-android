@@ -3,6 +3,8 @@ package com.qubit.android.sdk.internal.placement.interactor
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
+import com.qubit.android.sdk.internal.placement.interactor.PlacementQueryAttributesBuilder.Companion.USER_ATTRIBUTE_KEY
+import com.qubit.android.sdk.internal.placement.interactor.PlacementQueryAttributesBuilder.Companion.VIEW_ATTRIBUTE_KEY
 import com.qubit.android.sdk.internal.placement.interactor.PlacementQueryAttributesBuilder.Companion.VISITOR_ATTRIBUTE_KEY
 import com.qubit.android.sdk.internal.placement.repository.PlacementAttributesRepository
 import org.junit.Assert.assertEquals
@@ -17,8 +19,8 @@ class PlacementQueryAttributesBuilderTest {
   companion object {
     private const val DEVICE_ID_1 = "device_id_1"
     private const val DEVICE_ID_2 = "device_id_2"
-    private const val USER_ID_1 = "user_id_1"
-    private const val USER_ID_2 = "user_id_2"
+    private const val USER_NAME_1 = "user_name_1"
+    private const val USER_NAME_2 = "user_name_2"
     private const val EMAIL = "email@email.com"
     private const val CURRENCY = "currency"
     private const val VIEW_TYPE_1 = "view_type_1"
@@ -26,11 +28,6 @@ class PlacementQueryAttributesBuilderTest {
     private val SUBTYPES = listOf("subtype1", "subtype2")
     private const val SUBTYPES_STRING = """["subtype1", "subtype2"]"""
     private const val LANGUAGE = "language"
-
-
-    private const val USER_ATTRIBUTE_KEY = "user"
-    private const val VIEW_ATTRIBUTE_KEY = "view"
-
   }
 
   @Mock
@@ -58,11 +55,21 @@ class PlacementQueryAttributesBuilderTest {
     // 'DEVICE_ID_2' set by SDK
     val result = execute(cachedAttributes, userAttributes, DEVICE_ID_2)
 
-    // 'DEVICE_ID_2' is expected
+    // 'DEVICE_ID_2' is expected, default (empty) user&view attributes
     verifyJson("""
         {
           "visitor": {
             "id": "$DEVICE_ID_2"
+          },
+          "user": {
+            "name": "",
+            "email": ""
+          },
+          "view": {
+            "currency": "",
+            "type": "",
+            "subtypes": [],
+            "language": ""
           }
         }""", result)
   }
@@ -79,11 +86,21 @@ class PlacementQueryAttributesBuilderTest {
     // 'DEVICE_ID_2' set by SDK
     val result = execute(cachedAttributes, userAttributes, DEVICE_ID_2)
 
-    // 'DEVICE_ID_2' is expected
+    // 'DEVICE_ID_2' is expected, default (empty) user&view attributes
     verifyJson("""
         {
           "visitor": {
             "id": "$DEVICE_ID_2"
+          },
+          "user": {
+            "name": "",
+            "email": ""
+          },
+          "view": {
+            "currency": "",
+            "type": "",
+            "subtypes": [],
+            "language": ""
           }
         }""", result)
   }
@@ -92,50 +109,62 @@ class PlacementQueryAttributesBuilderTest {
 
   @Test
   fun `if user-event attribute is cached and no value is passed by user, then cached value should be used`() {
-    // 'USER_ID_1' value cached
+    // 'USER_NAME_1' value cached
     val cachedAttributes = mapOf(
-        USER_ATTRIBUTE_KEY to buildUserEventAttributes(USER_ID_1)
+        USER_ATTRIBUTE_KEY to buildUserEventAttributes(USER_NAME_1)
     )
     // no value passed by user
     val userAttributes = null
 
     val result = execute(cachedAttributes, userAttributes)
 
-    // 'USER_ID_1' is expected
+    // 'USER_NAME_1' is expected, default (empty) view attribute
     verifyJson("""
         {
           "visitor": {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "id": "$USER_ID_1",
+            "name": "$USER_NAME_1",
             "email": "$EMAIL"
+          },
+          "view": {
+            "currency": "",
+            "type": "",
+            "subtypes": [],
+            "language": ""
           }
         }""", result)
   }
 
   @Test
   fun `if user-event attribute is passed by user, then cached value should be skipped`() {
-    // 'USER_ID_1' value cached
+    // 'USER_NAME_1' value cached
     val cachedAttributes = mapOf(
-        USER_ATTRIBUTE_KEY to buildUserEventAttributes(USER_ID_1)
+        USER_ATTRIBUTE_KEY to buildUserEventAttributes(USER_NAME_1)
     )
-    // 'USER_ID_2' passed by SDK user
+    // 'USER_NAME_2' passed by SDK user
     val userAttributes = JsonObject().apply {
-      add(USER_ATTRIBUTE_KEY, buildUserEventAttributes(USER_ID_2))
+      add(USER_ATTRIBUTE_KEY, buildUserEventAttributes(USER_NAME_2))
     }
 
     val result = execute(cachedAttributes, userAttributes)
 
-    // 'USER_ID_2' is expected
+    // 'USER_NAME_2' is expected, default (empty) view attribute
     verifyJson("""
         {
           "visitor": {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "id": "$USER_ID_2",
+            "name": "$USER_NAME_2",
             "email": "$EMAIL"
+          },
+          "view": {
+            "currency": "",
+            "type": "",
+            "subtypes": [],
+            "language": ""
           }
         }""", result)
   }
@@ -153,7 +182,7 @@ class PlacementQueryAttributesBuilderTest {
 
     val result = execute(cachedAttributes, userAttributes)
 
-    // 'VIEW_TYPE_1' is expected
+    // 'VIEW_TYPE_1' is expected, default (empty) user attribute
     verifyJson("""
         {
           "visitor": {
@@ -164,6 +193,10 @@ class PlacementQueryAttributesBuilderTest {
             "type": "$VIEW_TYPE_1",
             "subtypes": $SUBTYPES_STRING,
             "language": "$LANGUAGE"
+          },
+          "user": {
+            "name": "",
+            "email": ""
           }
         }""", result)
   }
@@ -181,7 +214,7 @@ class PlacementQueryAttributesBuilderTest {
 
     val result = execute(cachedAttributes, userAttributes)
 
-    // 'VIEW_TYPE_2' is expected
+    // 'VIEW_TYPE_2' is expected, default (empty) user attribute
     verifyJson("""
         {
           "visitor": {
@@ -192,6 +225,10 @@ class PlacementQueryAttributesBuilderTest {
             "type": "$VIEW_TYPE_2",
             "subtypes": $SUBTYPES_STRING,
             "language": "$LANGUAGE"
+          },
+          "user": {
+            "name": "",
+            "email": ""
           }
         }""", result)
   }
@@ -239,6 +276,10 @@ class PlacementQueryAttributesBuilderTest {
           "dimensions": {
             "height": 18,
             "width": 12
+          },
+          "user": {
+            "name": "",
+            "email": ""
           }
         }""", result)
   }
@@ -246,10 +287,10 @@ class PlacementQueryAttributesBuilderTest {
   /************* helper methods *************/
 
   private fun buildUserEventAttributes(
-      id: String?,
+      name: String?,
       email: String? = EMAIL
   ) = JsonObject().apply {
-    addProperty("id", id)
+    addProperty("name", name)
     addProperty("email", email)
   }
 
