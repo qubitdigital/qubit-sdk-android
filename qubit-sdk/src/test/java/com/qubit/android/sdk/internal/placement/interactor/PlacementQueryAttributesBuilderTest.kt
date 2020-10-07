@@ -169,6 +169,102 @@ class PlacementQueryAttributesBuilderTest {
         }""", result)
   }
 
+  @Test
+  fun `if user-event attribute is missing 'name' property, then it should be added with empty value`() {
+    val cachedAttributes = emptyMap<String, JsonObject>()
+    // 'name' property is missing
+    val userAttributes = JsonObject().apply {
+      add(USER_ATTRIBUTE_KEY, JsonObject().apply {
+        addProperty("email", EMAIL)
+      })
+    }
+
+    val result = execute(cachedAttributes, userAttributes)
+
+    // empty 'name' property should be added
+    verifyJson("""
+        {
+          "visitor": {
+            "id": "$DEVICE_ID_1"
+          },
+          "user": {
+            "name": "",
+            "email": "$EMAIL"
+          },
+          "view": {
+            "currency": "",
+            "type": "",
+            "subtypes": [],
+            "language": ""
+          }
+        }""", result)
+  }
+
+  @Test
+  fun `if user-event attribute is missing 'email' property, then it should be added with empty value`() {
+    val cachedAttributes = emptyMap<String, JsonObject>()
+    // 'email' property is missing
+    val userAttributes = JsonObject().apply {
+      add(USER_ATTRIBUTE_KEY, JsonObject().apply {
+        addProperty("name", USER_NAME_2)
+      })
+    }
+
+    val result = execute(cachedAttributes, userAttributes)
+
+    // empty 'email' property should be added
+    verifyJson("""
+        {
+          "visitor": {
+            "id": "$DEVICE_ID_1"
+          },
+          "user": {
+            "name": "$USER_NAME_2",
+            "email": ""
+          },
+          "view": {
+            "currency": "",
+            "type": "",
+            "subtypes": [],
+            "language": ""
+          }
+        }""", result)
+  }
+
+  @Test
+  fun `if user-event attribute has some properties outside the schema, then they should be skipped`() {
+    val cachedAttributes = emptyMap<String, JsonObject>()
+    // unexpected 'surname' and 'size' properties
+    val userAttributes = JsonObject().apply {
+      add(USER_ATTRIBUTE_KEY, JsonObject().apply {
+        addProperty("name", USER_NAME_2)
+        addProperty("surname", "Brown")
+        addProperty("email", EMAIL)
+        addProperty("size", "33")
+      })
+    }
+
+    val result = execute(cachedAttributes, userAttributes)
+
+    // only properties from schema should be passed
+    verifyJson("""
+        {
+          "visitor": {
+            "id": "$DEVICE_ID_1"
+          },
+          "user": {
+            "name": "$USER_NAME_2",
+            "email": "$EMAIL"
+          },
+          "view": {
+            "currency": "",
+            "type": "",
+            "subtypes": [],
+            "language": ""
+          }
+        }""", result)
+  }
+
   /********** view-event attributes **********/
 
   @Test
@@ -223,6 +319,106 @@ class PlacementQueryAttributesBuilderTest {
           "view": {
             "currency": "$CURRENCY",
             "type": "$VIEW_TYPE_2",
+            "subtypes": $SUBTYPES_STRING,
+            "language": "$LANGUAGE"
+          },
+          "user": {
+            "name": "",
+            "email": ""
+          }
+        }""", result)
+  }
+
+  @Test
+  fun `if view-event attribute is missing 'subtypes' property, then it should be added with empty value`() {
+    val cachedAttributes = emptyMap<String, JsonObject>()
+    // 'subtypes' property is missing
+    val userAttributes = JsonObject().apply {
+      add(VIEW_ATTRIBUTE_KEY, JsonObject().apply {
+        addProperty("currency", CURRENCY)
+        addProperty("type", VIEW_TYPE_1)
+        addProperty("language", LANGUAGE)
+      })
+    }
+
+    val result = execute(cachedAttributes, userAttributes)
+
+    // empty missing property should be added
+    verifyJson("""
+        {
+          "visitor": {
+            "id": "$DEVICE_ID_1"
+          },
+          "view": {
+            "currency": "$CURRENCY",
+            "type": "$VIEW_TYPE_1",
+            "subtypes": [],
+            "language": "$LANGUAGE"
+          },
+          "user": {
+            "name": "",
+            "email": ""
+          }
+        }""", result)
+  }
+
+  @Test
+  fun `if view-event attribute is missing some string properties, then they should be added with empty value`() {
+    val cachedAttributes = emptyMap<String, JsonObject>()
+    // 'currency', 'type' and 'language' properties are missing
+    val userAttributes = JsonObject().apply {
+      add(VIEW_ATTRIBUTE_KEY, JsonObject().apply {
+        add("subtypes", buildSubtypesArray(SUBTYPES))
+      })
+    }
+
+    val result = execute(cachedAttributes, userAttributes)
+
+    // empty missing properties should be added
+    verifyJson("""
+        {
+          "visitor": {
+            "id": "$DEVICE_ID_1"
+          },
+          "view": {
+            "currency": "",
+            "type": "",
+            "subtypes": $SUBTYPES_STRING,
+            "language": ""
+          },
+          "user": {
+            "name": "",
+            "email": ""
+          }
+        }""", result)
+  }
+
+  @Test
+  fun `if view-event attribute has some properties outside the schema, then they should be skipped`() {
+    val cachedAttributes = emptyMap<String, JsonObject>()
+    // unexpected 'animal' and 'fruit' properties
+    val userAttributes = JsonObject().apply {
+      add(VIEW_ATTRIBUTE_KEY, JsonObject().apply {
+        addProperty("currency", CURRENCY)
+        addProperty("type", VIEW_TYPE_1)
+        addProperty("animal", "dog")
+        add("subtypes", buildSubtypesArray(SUBTYPES))
+        addProperty("language", LANGUAGE)
+        addProperty("fruit", "watermelon")
+      })
+    }
+
+    val result = execute(cachedAttributes, userAttributes)
+
+    // only properties from schema should be passed
+    verifyJson("""
+        {
+          "visitor": {
+            "id": "$DEVICE_ID_1"
+          },
+          "view": {
+            "currency": "$CURRENCY",
+            "type": "$VIEW_TYPE_1",
             "subtypes": $SUBTYPES_STRING,
             "language": "$LANGUAGE"
           },
@@ -300,18 +496,19 @@ class PlacementQueryAttributesBuilderTest {
       currency: String? = CURRENCY,
       language: String? = LANGUAGE
   ): JsonObject {
-    val subtypesJsonArray = JsonArray().apply {
-      if (subtypes != null) {
-        for (subtype in subtypes) {
-          add(JsonPrimitive(subtype))
-        }
-      }
-    }
     return JsonObject().apply {
       addProperty("currency", currency)
       addProperty("type", type)
-      add("subtypes", subtypesJsonArray)
+      add("subtypes", buildSubtypesArray(subtypes))
       addProperty("language", language)
+    }
+  }
+
+  private fun buildSubtypesArray(subtypes: List<String>?) = JsonArray().apply {
+    if (subtypes != null) {
+      for (subtype in subtypes) {
+        add(JsonPrimitive(subtype))
+      }
     }
   }
 

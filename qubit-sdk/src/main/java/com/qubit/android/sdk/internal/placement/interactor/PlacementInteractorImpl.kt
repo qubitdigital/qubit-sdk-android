@@ -40,13 +40,13 @@ internal class PlacementInteractorImpl(
   override fun fetchPlacement(
       placementId: String,
       mode: PlacementMode?,
-      userAttributes: JsonObject?,
+      customAttributes: JsonObject?,
       previewOptions: PlacementPreviewOptions,
       onSuccess: OnPlacementSuccess,
       onError: OnPlacementError
   ) {
     val placementMode = mode ?: DEFAULT_PLACEMENT_MODE
-    val attributes = placementQueryAttributesBuilder.buildJson(deviceId, userAttributes)
+    val attributes = placementQueryAttributesBuilder.buildJson(deviceId, customAttributes)
     val cacheKey = buildCacheKey(placementId, placementMode, previewOptions, attributes)
     placementConnector.getPlacementModel(
         getPlacementApiHost(configurationRepository),

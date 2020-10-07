@@ -40,6 +40,9 @@ import java.util.concurrent.ExecutionException;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 
+import static com.qubit.android.sdk.internal.placement.interactor.PlacementQueryAttributesBuilder.USER_ATTRIBUTE_KEY;
+import static com.qubit.android.sdk.internal.placement.interactor.PlacementQueryAttributesBuilder.VIEW_ATTRIBUTE_KEY;
+
 public class EventTrackerImpl extends QBService implements EventTracker {
 
   private static final String SERVICE_NAME = "EventTracker";
@@ -351,10 +354,10 @@ public class EventTrackerImpl extends QBService implements EventTracker {
     switch (eventType) {
       case "ecView":
       case "trView":
-        return "view";
+        return VIEW_ATTRIBUTE_KEY;
       case "ecUser":
       case "trUser":
-        return "user";
+        return USER_ATTRIBUTE_KEY;
       default:
         return null;
     }

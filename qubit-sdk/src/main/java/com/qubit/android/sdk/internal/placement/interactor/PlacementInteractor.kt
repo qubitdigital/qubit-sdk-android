@@ -11,7 +11,7 @@ interface PlacementInteractor {
   fun fetchPlacement(
       placementId: String,
       mode: PlacementMode?,
-      userAttributes: JsonObject?,
+      customAttributes: JsonObject?,
       previewOptions: PlacementPreviewOptions,
       onSuccess: OnPlacementSuccess,
       onError: OnPlacementError
