@@ -9,9 +9,7 @@ import com.qubit.android.sdk.internal.placement.interactor.PlacementQueryAttribu
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mock
 import org.mockito.MockitoAnnotations
-import org.mockito.Mockito.`when` as whenever
 
 class PlacementQueryAttributesBuilderTest {
 
@@ -29,15 +27,12 @@ class PlacementQueryAttributesBuilderTest {
     private const val LANGUAGE = "language"
   }
 
-  @Mock
-  private lateinit var placementAttributesInteractor: PlacementAttributesInteractor
-
   private lateinit var builder: PlacementQueryAttributesBuilder
 
   @Before
   fun setup() {
     MockitoAnnotations.initMocks(this)
-    builder = PlacementQueryAttributesBuilder(placementAttributesInteractor)
+    builder = PlacementQueryAttributesBuilder()
   }
 
   /********** visitor attributes **********/
@@ -516,8 +511,7 @@ class PlacementQueryAttributesBuilderTest {
       userAttributes: JsonObject?,
       deviceId: String = DEVICE_ID_1
   ): JsonObject {
-    whenever(placementAttributesInteractor.loadAttributesMap()).thenReturn(cachedAttributes)
-    return builder.buildJson(deviceId,  userAttributes)
+    return builder.buildJson(deviceId, userAttributes, cachedAttributes)
   }
 
   private fun verifyJson(expectedString: String, json: JsonObject) {

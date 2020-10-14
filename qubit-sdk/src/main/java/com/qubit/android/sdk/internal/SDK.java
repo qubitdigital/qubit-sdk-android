@@ -103,12 +103,12 @@ public class SDK {
         deviceId);
 
     PlacementAttributesInteractor placementAttributesInteractor = new PlacementAttributesInteractorImpl(new PlacementAttributesRepositoryImpl(appContext));
-    PlacementQueryAttributesBuilder placementQueryAttributesBuilder = new PlacementQueryAttributesBuilder(placementAttributesInteractor);
     placementInteractor = new PlacementInteractorImpl(
         new PlacementConnectorImpl(configurationRepository),
         configurationRepository,
         new PlacementRepositoryImpl(appContext),
-        placementQueryAttributesBuilder,
+        new PlacementQueryAttributesBuilder(),
+        placementAttributesInteractor,
         deviceId
     );
 

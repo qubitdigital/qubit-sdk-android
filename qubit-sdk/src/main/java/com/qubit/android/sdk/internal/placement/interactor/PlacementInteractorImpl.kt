@@ -22,6 +22,7 @@ internal class PlacementInteractorImpl(
     private val configurationRepository: ConfigurationRepository,
     private val placementRepository: PlacementRepository,
     private val placementQueryAttributesBuilder: PlacementQueryAttributesBuilder,
+    private val placementAttributesInteractor: PlacementAttributesInteractor,
     private val deviceId: String
 ) : PlacementInteractor {
 
@@ -46,7 +47,8 @@ internal class PlacementInteractorImpl(
       onError: OnPlacementError
   ) {
     val placementMode = mode ?: DEFAULT_PLACEMENT_MODE
-    val attributes = placementQueryAttributesBuilder.buildJson(deviceId, customAttributes)
+    val cachedAttributes = placementAttributesInteractor.loadAttributesMap()
+    val attributes = placementQueryAttributesBuilder.buildJson(deviceId, customAttributes, cachedAttributes)
     val cacheKey = buildCacheKey(placementId, placementMode, previewOptions, attributes)
     placementConnector.getPlacementModel(
         getPlacementApiHost(configurationRepository),

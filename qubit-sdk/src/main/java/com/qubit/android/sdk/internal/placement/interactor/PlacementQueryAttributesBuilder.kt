@@ -5,9 +5,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 
-internal class PlacementQueryAttributesBuilder(
-    private val placementAttributesInteractor: PlacementAttributesInteractor
-) {
+internal class PlacementQueryAttributesBuilder {
 
   companion object {
     internal const val VISITOR_ATTRIBUTE_KEY = "visitor"
@@ -17,7 +15,8 @@ internal class PlacementQueryAttributesBuilder(
 
   internal fun buildJson(
       deviceId: String,
-      customAttributes: JsonObject?
+      customAttributes: JsonObject?,
+      cachedAttributes: Map<String, JsonObject>
   ): JsonObject {
     val attributesJson = JsonObject()
 
@@ -35,7 +34,6 @@ internal class PlacementQueryAttributesBuilder(
     }
 
     // 3 cached attributes - skipped if set by SDK user
-    val cachedAttributes = placementAttributesInteractor.loadAttributesMap()
     for (key in cachedAttributes.keys) {
       if (!attributesJson.has(key)) {
         attributesJson.add(key, cachedAttributes[key])
@@ -55,7 +53,7 @@ internal class PlacementQueryAttributesBuilder(
   private fun prepareCustomAttribute(key: String, customValue: JsonElement): JsonElement {
     return if (customValue is JsonObject) {
       when (key) {
-        USER_ATTRIBUTE_KEY -> convertTodUserAttribute(customValue)
+        USER_ATTRIBUTE_KEY -> convertToUserAttribute(customValue)
         VIEW_ATTRIBUTE_KEY -> convertToViewAttribute(customValue)
         else -> customValue
       }
@@ -70,7 +68,7 @@ internal class PlacementQueryAttributesBuilder(
 //    addProperty("userAgentString", "")  // TODO set value
   }
 
-  private fun convertTodUserAttribute(customValue: JsonObject) = JsonObject().apply {
+  private fun convertToUserAttribute(customValue: JsonObject) = JsonObject().apply {
     add("name", customValue.get("name") ?: JsonPrimitive(""))
     add("email", customValue.get("email") ?: JsonPrimitive(""))
   }
