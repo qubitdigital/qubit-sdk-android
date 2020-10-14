@@ -89,8 +89,7 @@ class CallbackRequestTrackerImpl(
         return
       }
 
-      val url = callbackRequestRepository.fetchFirst()
-      url?.let {
+      callbackRequestRepository.fetchFirst()?.let { url ->
         LOGGER.d("Sending request to $url")
         postRequest(url)
         sendNextPendingRequest()

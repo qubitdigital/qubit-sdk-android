@@ -30,20 +30,11 @@ internal class CallbackRequestRepositoryImpl(
   }
 
   @Synchronized
-  override fun fetchFirst(): String? {
-    val key = getFirstKey()?.toString()
-    return if (key != null) {
-      val url = sharedPreferences.getString(key, null)
-      if (url != null) {
-        remove(key)
-        url
-      } else {
-        null
+  override fun fetchFirst(): String? =
+      getFirstKey()?.toString()?.let { key ->
+        sharedPreferences.getString(key, null)
+            ?.also { remove(key) }
       }
-    } else {
-      null
-    }
-  }
 
   private fun remove(key: String) {
     sharedPreferences.edit()
