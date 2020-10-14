@@ -6,7 +6,6 @@ import com.google.gson.JsonPrimitive
 import com.qubit.android.sdk.internal.placement.interactor.PlacementQueryAttributesBuilder.Companion.USER_ATTRIBUTE_KEY
 import com.qubit.android.sdk.internal.placement.interactor.PlacementQueryAttributesBuilder.Companion.VIEW_ATTRIBUTE_KEY
 import com.qubit.android.sdk.internal.placement.interactor.PlacementQueryAttributesBuilder.Companion.VISITOR_ATTRIBUTE_KEY
-import com.qubit.android.sdk.internal.placement.repository.PlacementAttributesRepository
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -31,14 +30,14 @@ class PlacementQueryAttributesBuilderTest {
   }
 
   @Mock
-  private lateinit var placementAttributesRepository: PlacementAttributesRepository
+  private lateinit var placementAttributesInteractor: PlacementAttributesInteractor
 
   private lateinit var builder: PlacementQueryAttributesBuilder
 
   @Before
   fun setup() {
     MockitoAnnotations.initMocks(this)
-    builder = PlacementQueryAttributesBuilder(placementAttributesRepository)
+    builder = PlacementQueryAttributesBuilder(placementAttributesInteractor)
   }
 
   /********** visitor attributes **********/
@@ -517,7 +516,7 @@ class PlacementQueryAttributesBuilderTest {
       userAttributes: JsonObject?,
       deviceId: String = DEVICE_ID_1
   ): JsonObject {
-    whenever(placementAttributesRepository.load()).thenReturn(cachedAttributes)
+    whenever(placementAttributesInteractor.loadAttributesMap()).thenReturn(cachedAttributes)
     return builder.buildJson(deviceId,  userAttributes)
   }
 

@@ -19,7 +19,7 @@ import com.qubit.android.sdk.internal.experience.interactor.ExperienceInteractor
 import com.qubit.android.sdk.internal.lookup.LookupData;
 import com.qubit.android.sdk.internal.lookup.LookupService;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
-import com.qubit.android.sdk.internal.placement.repository.PlacementAttributesRepository;
+import com.qubit.android.sdk.internal.placement.interactor.PlacementAttributesInteractor;
 import com.qubit.android.sdk.internal.session.NewSessionRequest;
 import com.qubit.android.sdk.internal.session.SessionData;
 import com.qubit.android.sdk.internal.session.SessionForEvent;
@@ -39,9 +39,6 @@ import java.util.concurrent.ExecutionException;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
-
-import static com.qubit.android.sdk.internal.placement.interactor.PlacementQueryAttributesBuilder.USER_ATTRIBUTE_KEY;
-import static com.qubit.android.sdk.internal.placement.interactor.PlacementQueryAttributesBuilder.VIEW_ATTRIBUTE_KEY;
 
 public class EventTrackerImpl extends QBService implements EventTracker {
 
@@ -68,7 +65,7 @@ public class EventTrackerImpl extends QBService implements EventTracker {
   private final NetworkStateService.NetworkStateListener networkStateListener;
   private final LookupService.LookupListener lookupListener;
   private final ExperienceInteractor experienceInteractor;
-  private final PlacementAttributesRepository placementAttributesRepository;
+  private final PlacementAttributesInteractor placementAttributesInteractor;
 
   private boolean isEnabled = true;
 
@@ -89,7 +86,7 @@ public class EventTrackerImpl extends QBService implements EventTracker {
                           EventsRepository eventsRepository,
                           EventsRestAPIConnectorBuilder eventsRestAPIConnectorBuilder,
                           ExperienceInteractor experienceInteractor,
-                          PlacementAttributesRepository placementAttributesRepository) {
+                          PlacementAttributesInteractor placementAttributesInteractor) {
     super(SERVICE_NAME);
     this.configurationService = configurationService;
     this.networkStateService = networkStateService;
@@ -98,7 +95,7 @@ public class EventTrackerImpl extends QBService implements EventTracker {
     this.eventsRepository = new CachingEventsRepository(eventsRepository);
     this.eventsRestAPIConnectorBuilder = eventsRestAPIConnectorBuilder;
     this.experienceInteractor = experienceInteractor;
-    this.placementAttributesRepository = placementAttributesRepository;
+    this.placementAttributesInteractor = placementAttributesInteractor;
     eventRestModelCreator = new EventRestModelCreator(trackingId, deviceId);
     configurationListener = new ConfigurationService.ConfigurationListener() {
       @Override
@@ -204,7 +201,9 @@ public class EventTrackerImpl extends QBService implements EventTracker {
         eventsRepository.insert(sessionEventModel);
       }
 
-      eventsRepository.insert(createNewEventModel(now, qbEvent, sessionDataForEvent));
+      EventModel eventModel = createNewEventModel(now, qbEvent, sessionDataForEvent);
+      eventsRepository.insert(eventModel);
+      placementAttributesInteractor.storeEventAttribute(eventModel);
 
       if (!isConnected) {
         deleteTheOldestEvents();
@@ -325,7 +324,6 @@ public class EventTrackerImpl extends QBService implements EventTracker {
       LOGGER.d("SendEventTask: Sending events: " + eventRestModels.size() + ", dedupe=" + dedupe);
       EventsRestAPIConnector.ResponseStatus status = apiConnector.sendEvents(eventRestModels, dedupe);
       LOGGER.d("SendEventTask: Events sent. Status: " + status);
-      storeEventsToSend(eventsToSend);
       if (status == EventsRestAPIConnector.ResponseStatus.OK) {
         eventsRepository.delete(eventsToSendIds);
         clearAttempts();
@@ -338,28 +336,6 @@ public class EventTrackerImpl extends QBService implements EventTracker {
         clearAttempts();
       }
       scheduleNextSendEventsTask();
-    }
-
-    private void storeEventsToSend(List<EventModel> eventsToSend) {
-      for (EventModel event : eventsToSend) {
-        String key = mapTypeToKey(event.getType());
-        if (key != null) {
-          placementAttributesRepository.save(key, event.getEventBody());
-        }
-      }
-    }
-  }
-
-  private String mapTypeToKey(String eventType) {
-    switch (eventType) {
-      case "ecView":
-      case "trView":
-        return VIEW_ATTRIBUTE_KEY;
-      case "ecUser":
-      case "trUser":
-        return USER_ATTRIBUTE_KEY;
-      default:
-        return null;
     }
   }
 

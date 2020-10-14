@@ -4,10 +4,9 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
-import com.qubit.android.sdk.internal.placement.repository.PlacementAttributesRepository
 
 internal class PlacementQueryAttributesBuilder(
-    private val placementAttributesRepository: PlacementAttributesRepository
+    private val placementAttributesInteractor: PlacementAttributesInteractor
 ) {
 
   companion object {
@@ -36,7 +35,7 @@ internal class PlacementQueryAttributesBuilder(
     }
 
     // 3 cached attributes - skipped if set by SDK user
-    val cachedAttributes = placementAttributesRepository.load()
+    val cachedAttributes = placementAttributesInteractor.loadAttributesMap()
     for (key in cachedAttributes.keys) {
       if (!attributesJson.has(key)) {
         attributesJson.add(key, cachedAttributes[key])

@@ -29,10 +29,11 @@ import com.qubit.android.sdk.internal.lookup.repository.LookupRepository;
 import com.qubit.android.sdk.internal.lookup.repository.LookupRepositoryImpl;
 import com.qubit.android.sdk.internal.network.NetworkStateServiceImpl;
 import com.qubit.android.sdk.internal.placement.connector.PlacementConnectorImpl;
+import com.qubit.android.sdk.internal.placement.interactor.PlacementAttributesInteractor;
+import com.qubit.android.sdk.internal.placement.interactor.PlacementAttributesInteractorImpl;
 import com.qubit.android.sdk.internal.placement.interactor.PlacementInteractor;
 import com.qubit.android.sdk.internal.placement.interactor.PlacementInteractorImpl;
 import com.qubit.android.sdk.internal.placement.interactor.PlacementQueryAttributesBuilder;
-import com.qubit.android.sdk.internal.placement.repository.PlacementAttributesRepository;
 import com.qubit.android.sdk.internal.placement.repository.PlacementAttributesRepositoryImpl;
 import com.qubit.android.sdk.internal.placement.repository.PlacementRepositoryImpl;
 import com.qubit.android.sdk.internal.session.SessionServiceImpl;
@@ -49,16 +50,16 @@ import java.util.concurrent.Future;
 
 public class SDK {
 
-  private NetworkStateServiceImpl networkStateService;
-  private ConfigurationServiceImpl configurationService;
-  private LookupServiceImpl lookupService;
-  private SessionServiceImpl sessionService;
-  private EventTrackerImpl eventTracker;
-  private ExperienceServiceImpl experienceService;
-  private String deviceId;
-  private String trackingId;
-  private ExperienceInteractor experienceInteractor;
-  private PlacementInteractor placementInteractor;
+  private final NetworkStateServiceImpl networkStateService;
+  private final ConfigurationServiceImpl configurationService;
+  private final LookupServiceImpl lookupService;
+  private final SessionServiceImpl sessionService;
+  private final EventTrackerImpl eventTracker;
+  private final ExperienceServiceImpl experienceService;
+  private final String deviceId;
+  private final String trackingId;
+  private final ExperienceInteractor experienceInteractor;
+  private final PlacementInteractor placementInteractor;
 
   public SDK(Context appContext, String trackingId) {
     this.networkStateService = new NetworkStateServiceImpl(appContext);
@@ -101,8 +102,8 @@ public class SDK {
         experienceService,
         deviceId);
 
-    PlacementAttributesRepository placementAttributesRepository = new PlacementAttributesRepositoryImpl(appContext);
-    PlacementQueryAttributesBuilder placementQueryAttributesBuilder = new PlacementQueryAttributesBuilder(placementAttributesRepository);
+    PlacementAttributesInteractor placementAttributesInteractor = new PlacementAttributesInteractorImpl(new PlacementAttributesRepositoryImpl(appContext));
+    PlacementQueryAttributesBuilder placementQueryAttributesBuilder = new PlacementQueryAttributesBuilder(placementAttributesInteractor);
     placementInteractor = new PlacementInteractorImpl(
         new PlacementConnectorImpl(configurationRepository),
         configurationRepository,
@@ -121,7 +122,7 @@ public class SDK {
         eventsRepository,
         eventsRestAPIConnectorBuilder,
         experienceInteractor,
-        placementAttributesRepository
+        placementAttributesInteractor
     );
   }
 
