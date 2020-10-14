@@ -51,14 +51,10 @@ internal class PlacementQueryAttributesBuilder {
   }
 
   private fun prepareCustomAttribute(key: String, customValue: JsonElement): JsonElement {
-    return if (customValue is JsonObject) {
-      when (key) {
-        USER_ATTRIBUTE_KEY -> convertToUserAttribute(customValue)
-        VIEW_ATTRIBUTE_KEY -> convertToViewAttribute(customValue)
-        else -> customValue
-      }
-    } else {
-      customValue
+    return when (key) {
+      USER_ATTRIBUTE_KEY -> convertToUserAttribute(customValue)
+      VIEW_ATTRIBUTE_KEY -> convertToViewAttribute(customValue)
+      else -> customValue
     }
   }
 
@@ -68,9 +64,9 @@ internal class PlacementQueryAttributesBuilder {
 //    addProperty("userAgentString", "")  // TODO set value
   }
 
-  private fun convertToUserAttribute(customValue: JsonObject) = JsonObject().apply {
-    add("name", customValue.get("name") ?: JsonPrimitive(""))
-    add("email", customValue.get("email") ?: JsonPrimitive(""))
+  private fun convertToUserAttribute(customValue: JsonElement) = JsonObject().apply {
+    add("name", getValueOrDefault(customValue, "name"))
+    add("email", getValueOrDefault(customValue, "email"))
   }
 
   private fun buildEmptyUserAttribute() = JsonObject().apply {
@@ -78,11 +74,11 @@ internal class PlacementQueryAttributesBuilder {
     addProperty("email", "")
   }
 
-  private fun convertToViewAttribute(customValue: JsonObject) = JsonObject().apply {
-    add("currency", customValue.get("currency") ?: JsonPrimitive(""))
-    add("type", customValue.get("type") ?: JsonPrimitive(""))
-    add("subtypes", customValue.get("subtypes") ?: JsonArray())
-    add("language", customValue.get("language") ?: JsonPrimitive(""))
+  private fun convertToViewAttribute(customValue: JsonElement) = JsonObject().apply {
+    add("currency", getValueOrDefault(customValue, "currency"))
+    add("type", getValueOrDefault(customValue, "type"))
+    add("subtypes", (customValue as? JsonObject)?.get("subtypes") ?: JsonArray())
+    add("language", getValueOrDefault(customValue, "language"))
   }
 
   private fun buildEmptyViewAttribute() = JsonObject().apply {
@@ -91,4 +87,7 @@ internal class PlacementQueryAttributesBuilder {
     add("subtypes", JsonArray())
     addProperty("language", "")
   }
+
+  private fun getValueOrDefault(jsonElement: JsonElement, propertyName: String): JsonElement =
+      (jsonElement as? JsonObject)?.get(propertyName) ?: JsonPrimitive("")
 }

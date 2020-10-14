@@ -100,7 +100,7 @@ public final class QubitSDK {
    *
    * @param placementId    The unique ID of the placement.
    * @param mode           The mode to fetch placements content with. Defaults to [PlacementMode.LIVE]
-   * @param attributes     JSON containing custom attributes to be used to query for the placement
+   * @param attributes     JSON containing custom attributes to be used to query for the placement. "visitor" attribute will be ignored as it is set by SDK.
    * @param previewOptions Additional criteria used to query for the placement.
    * @param onSuccess      Callback invoked when query succeeds. Contains [Placement] object or null if no placement meets given criteria.
    * @param onError        Callback invoked when query fails.
