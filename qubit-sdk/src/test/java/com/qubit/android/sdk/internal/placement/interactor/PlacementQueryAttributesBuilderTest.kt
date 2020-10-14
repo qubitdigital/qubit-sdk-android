@@ -288,6 +288,38 @@ class PlacementQueryAttributesBuilderTest {
         }""", result)
   }
 
+  @Test
+  fun `if user-event attribute has some properties of unexpected type, then they should be skipped and default values used`() {
+    val cachedAttributes = emptyMap<String, JsonObject>()
+    // user attribute properties are not string primitives as expected
+    val customAttributes = JsonObject().apply {
+      add(USER_ATTRIBUTE_KEY, JsonObject().apply {
+        add("name", JsonArray())
+        addProperty("email", 3)
+      })
+    }
+
+    val result = execute(cachedAttributes, customAttributes)
+
+    // default (empty) properties values should be used
+    verifyJson("""
+        {
+          "visitor": {
+            "id": "$DEVICE_ID_1"
+          },
+          "user": {
+            "name": "",
+            "email": ""
+          },
+          "view": {
+            "currency": "",
+            "type": "",
+            "subtypes": [],
+            "language": ""
+          }
+        }""", result)
+  }
+
   /********** view-event attributes **********/
 
   @Test
@@ -463,6 +495,42 @@ class PlacementQueryAttributesBuilderTest {
     val result = execute(cachedAttributes, customAttributes)
 
     // expected default (empty) view attribute
+    verifyJson("""
+        {
+          "visitor": {
+            "id": "$DEVICE_ID_1"
+          },
+          "view": {
+            "currency": "",
+            "type": "",
+            "subtypes": [],
+            "language": ""
+          },
+          "user": {
+            "name": "",
+            "email": ""
+          }
+        }""", result)
+  }
+
+  @Test
+  fun `if view-event attribute has some properties of unexpected type, then they should be skipped and default values used`() {
+    val cachedAttributes = emptyMap<String, JsonObject>()
+    // view attribute properties are not string primitives/JSON array as expected
+    val customAttributes = JsonObject().apply {
+      add(VIEW_ATTRIBUTE_KEY, JsonObject().apply {
+        add("currency", JsonObject().apply {
+          addProperty("color", "yellow")
+        })
+        add("type", null)
+        addProperty("subtypes", "should be JSON array")
+        addProperty("language", false)
+      })
+    }
+
+    val result = execute(cachedAttributes, customAttributes)
+
+    // default (empty) properties values should be used if type is incorrect
     verifyJson("""
         {
           "visitor": {

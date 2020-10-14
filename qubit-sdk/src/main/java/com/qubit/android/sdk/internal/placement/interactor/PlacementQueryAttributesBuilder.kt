@@ -64,21 +64,32 @@ internal class PlacementQueryAttributesBuilder {
 //    addProperty("userAgentString", "")  // TODO set value
   }
 
-  private fun convertToUserAttribute(customValue: JsonElement) = JsonObject().apply {
-    add("name", getValueOrDefault(customValue, "name"))
-    add("email", getValueOrDefault(customValue, "email"))
-  }
+  private fun convertToUserAttribute(customValue: JsonElement): JsonObject =
+      if (customValue is JsonObject) {
+        JsonObject().apply {
+          add("name", getStringValueOrDefault(customValue, "name"))
+          add("email", getStringValueOrDefault(customValue, "email"))
+        }
+      } else {
+        buildEmptyUserAttribute()
+      }
 
   private fun buildEmptyUserAttribute() = JsonObject().apply {
     addProperty("name", "")
     addProperty("email", "")
   }
 
-  private fun convertToViewAttribute(customValue: JsonElement) = JsonObject().apply {
-    add("currency", getValueOrDefault(customValue, "currency"))
-    add("type", getValueOrDefault(customValue, "type"))
-    add("subtypes", (customValue as? JsonObject)?.get("subtypes") ?: JsonArray())
-    add("language", getValueOrDefault(customValue, "language"))
+  private fun convertToViewAttribute(customValue: JsonElement): JsonObject {
+    return if (customValue is JsonObject) {
+      JsonObject().apply {
+        add("currency", getStringValueOrDefault(customValue, "currency"))
+        add("type", getStringValueOrDefault(customValue, "type"))
+        add("subtypes", getArrayValueOrDefault(customValue, "subtypes"))
+        add("language", getStringValueOrDefault(customValue, "language"))
+      }
+    } else {
+      buildEmptyViewAttribute()
+    }
   }
 
   private fun buildEmptyViewAttribute() = JsonObject().apply {
@@ -88,6 +99,17 @@ internal class PlacementQueryAttributesBuilder {
     addProperty("language", "")
   }
 
-  private fun getValueOrDefault(jsonElement: JsonElement, propertyName: String): JsonElement =
-      (jsonElement as? JsonObject)?.get(propertyName) ?: JsonPrimitive("")
+  private fun getStringValueOrDefault(jsonElement: JsonObject, propertyName: String): JsonElement {
+    return (jsonElement.get(propertyName) as? JsonPrimitive)?.let { jsonPrimitive ->
+      if (jsonPrimitive.isString) {
+        jsonPrimitive
+      } else {
+        JsonPrimitive("")
+      }
+    } ?: JsonPrimitive("")
+  }
+
+  private fun getArrayValueOrDefault(jsonElement: JsonObject, propertyName: String): JsonElement {
+    return (jsonElement.get(propertyName) as? JsonArray) ?: JsonArray()
+  }
 }
