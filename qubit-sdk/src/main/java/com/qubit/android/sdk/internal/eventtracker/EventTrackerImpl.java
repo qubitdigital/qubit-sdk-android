@@ -203,7 +203,7 @@ public class EventTrackerImpl extends QBService implements EventTracker {
 
       EventModel eventModel = createNewEventModel(now, qbEvent, sessionDataForEvent);
       eventsRepository.insert(eventModel);
-      placementAttributesInteractor.storeEventAttribute(eventModel);
+      placementAttributesInteractor.storeEventAttribute(qbEvent);
 
       if (!isConnected) {
         deleteTheOldestEvents();
