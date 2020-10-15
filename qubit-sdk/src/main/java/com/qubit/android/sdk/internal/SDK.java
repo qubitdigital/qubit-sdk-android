@@ -3,6 +3,9 @@ package com.qubit.android.sdk.internal;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.qubit.android.sdk.internal.callbacktracker.CallbackRequestTrackerImpl;
+import com.qubit.android.sdk.internal.callbacktracker.repository.CallbackRequestRepository;
+import com.qubit.android.sdk.internal.callbacktracker.repository.CallbackRequestRepositoryImpl;
 import com.qubit.android.sdk.internal.common.repository.DatabaseInitializer;
 import com.qubit.android.sdk.internal.configuration.ConfigurationServiceImpl;
 import com.qubit.android.sdk.internal.configuration.connector.ConfigurationConnectorBuilder;
@@ -52,6 +55,7 @@ public class SDK {
   private SessionServiceImpl sessionService;
   private EventTrackerImpl eventTracker;
   private ExperienceServiceImpl experienceService;
+  private CallbackRequestTrackerImpl callbackRequestTracker;
   private String deviceId;
   private String trackingId;
   private ExperienceInteractor experienceInteractor;
@@ -98,8 +102,11 @@ public class SDK {
         experienceService,
         deviceId);
 
+    CallbackRequestRepository callbackRequestRepository = new CallbackRequestRepositoryImpl(appContext);
+    callbackRequestTracker = new CallbackRequestTrackerImpl(networkStateService, callbackRequestRepository);
     placementInteractor = new PlacementInteractorImpl(
         new PlacementConnectorImpl(configurationRepository),
+        callbackRequestTracker,
         configurationRepository,
         new PlacementRepositoryImpl(appContext),
         deviceId
@@ -117,9 +124,11 @@ public class SDK {
     experienceService.start();
     sessionService.start();
     eventTracker.start();
+    callbackRequestTracker.start();
   }
 
   public void stop() {
+    callbackRequestTracker.stop();
     eventTracker.stop();
     sessionService.stop();
     lookupService.stop();
