@@ -1,5 +1,6 @@
 package com.qubit.android.sdk.api;
 
+import com.google.gson.JsonObject;
 import com.qubit.android.sdk.api.placement.Placement;
 import com.qubit.android.sdk.api.placement.PlacementMode;
 import com.qubit.android.sdk.api.placement.PlacementPreviewOptions;
@@ -99,6 +100,7 @@ public final class QubitSDK {
    *
    * @param placementId    The unique ID of the placement.
    * @param mode           The mode to fetch placements content with. Defaults to [PlacementMode.LIVE]
+   * @param attributes     JSON containing custom attributes to be used to query for the placement. "visitor" attribute will be ignored as it is set by SDK.
    * @param previewOptions Additional criteria used to query for the placement.
    * @param onSuccess      Callback invoked when query succeeds. Contains [Placement] object or null if no placement meets given criteria.
    * @param onError        Callback invoked when query fails.
@@ -106,12 +108,13 @@ public final class QubitSDK {
   public static void getPlacement(
       @NotNull String placementId,
       @Nullable PlacementMode mode,
+      @Nullable JsonObject attributes,
       @NotNull PlacementPreviewOptions previewOptions,
       @NotNull Function1<? super Placement, Unit> onSuccess,
       @NotNull Function1<? super Throwable, Unit> onError
   ) {
     sdkSingleton.getPlacementInteractor()
-        .fetchPlacement(placementId, mode, previewOptions, onSuccess, onError);
+        .fetchPlacement(placementId, mode, attributes, previewOptions, onSuccess, onError);
   }
 
 }
