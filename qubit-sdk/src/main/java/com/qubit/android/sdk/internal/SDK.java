@@ -3,6 +3,9 @@ package com.qubit.android.sdk.internal;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.qubit.android.sdk.internal.callbacktracker.CallbackRequestTrackerImpl;
+import com.qubit.android.sdk.internal.callbacktracker.repository.CallbackRequestRepository;
+import com.qubit.android.sdk.internal.callbacktracker.repository.CallbackRequestRepositoryImpl;
 import com.qubit.android.sdk.internal.common.repository.DatabaseInitializer;
 import com.qubit.android.sdk.internal.configuration.ConfigurationServiceImpl;
 import com.qubit.android.sdk.internal.configuration.connector.ConfigurationConnectorBuilder;
@@ -56,6 +59,7 @@ public class SDK {
   private final SessionServiceImpl sessionService;
   private final EventTrackerImpl eventTracker;
   private final ExperienceServiceImpl experienceService;
+  private final CallbackRequestTrackerImpl callbackRequestTracker;
   private final String deviceId;
   private final String trackingId;
   private final ExperienceInteractor experienceInteractor;
@@ -102,9 +106,12 @@ public class SDK {
         experienceService,
         deviceId);
 
+    CallbackRequestRepository callbackRequestRepository = new CallbackRequestRepositoryImpl(appContext);
+    callbackRequestTracker = new CallbackRequestTrackerImpl(networkStateService, callbackRequestRepository);
     PlacementAttributesInteractor placementAttributesInteractor = new PlacementAttributesInteractorImpl(new PlacementAttributesRepositoryImpl(appContext));
     placementInteractor = new PlacementInteractorImpl(
         new PlacementConnectorImpl(configurationRepository),
+        callbackRequestTracker,
         configurationRepository,
         new PlacementRepositoryImpl(appContext),
         new PlacementQueryAttributesBuilder(),
@@ -133,9 +140,11 @@ public class SDK {
     experienceService.start();
     sessionService.start();
     eventTracker.start();
+    callbackRequestTracker.start();
   }
 
   public void stop() {
+    callbackRequestTracker.stop();
     eventTracker.stop();
     sessionService.stop();
     lookupService.stop();
