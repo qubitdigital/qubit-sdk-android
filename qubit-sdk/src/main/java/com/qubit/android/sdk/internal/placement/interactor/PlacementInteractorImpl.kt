@@ -98,7 +98,12 @@ internal class PlacementInteractorImpl(
           placementContent.callbacks.impression,
           placementContent.callbacks.clickthrough
       )
-      PlacementImpl(placementContent.content, callbackConnector)
+      PlacementImpl(
+          placementContent.content,
+          placementContent.callbacks.impression,
+          placementContent.callbacks.clickthrough,
+          callbackConnector
+      )
     } else {
       null
     }
