@@ -6,7 +6,6 @@ import com.qubit.android.sdk.api.placement.PlacementMode;
 import com.qubit.android.sdk.api.placement.PlacementPreviewOptions;
 import com.qubit.android.sdk.api.tracker.EventTracker;
 import com.qubit.android.sdk.internal.SDK;
-import com.qubit.android.sdk.internal.callbacktracker.CallbackRequestTracker;
 import com.qubit.android.sdk.internal.experience.Experience;
 
 import org.jetbrains.annotations.NotNull;
@@ -74,13 +73,14 @@ public final class QubitSDK {
   }
 
   /**
-   * Interface for sending callback requests
+   * Send callback request to given URL.
+   * In case of offline state request will be enqueued and delivered once device turns online.
    *
-   * @return Callback request tracker
+   * @param callbackUrl callback URL
    */
-  public static CallbackRequestTracker getCallbackRequestTracker() {
+  public static void sendCallbackRequest(String callbackUrl) {
     checkSdkInitialized();
-    return sdkSingleton.getCallbackRequestTracker();
+    sdkSingleton.getCallbackRequestTracker().scheduleRequest(callbackUrl);
   }
 
   private static void checkSdkInitialized() {

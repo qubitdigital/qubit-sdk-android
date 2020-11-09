@@ -175,6 +175,18 @@ QubitSDK.getPlacement(
     { throwable -> Log.e(TAG, "Failed to fetch placement", throwable) }
 )
 ```
+Placement has two callback urls defined: impression and clickthrough. They can be invoked explicitly from `Placement` object:
+
+```
+placement.impression()
+```
+or through separate method from `QubitSDK` which expects URL to be requested:
+
+```
+QubitSDK.sendCallbackRequest(placement.impressionUrl)
+```
+
+
 
 # Tracker Properties
 You can get the `trackingID` and `deviceID` from the QubitSDK via the following methods:
