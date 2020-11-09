@@ -6,6 +6,7 @@ import com.qubit.android.sdk.api.placement.PlacementMode;
 import com.qubit.android.sdk.api.placement.PlacementPreviewOptions;
 import com.qubit.android.sdk.api.tracker.EventTracker;
 import com.qubit.android.sdk.internal.SDK;
+import com.qubit.android.sdk.internal.callbacktracker.CallbackRequestTracker;
 import com.qubit.android.sdk.internal.experience.Experience;
 
 import org.jetbrains.annotations.NotNull;
@@ -70,6 +71,16 @@ public final class QubitSDK {
   public static String getTrackingId() {
     checkSdkInitialized();
     return sdkSingleton.getTrackingId();
+  }
+
+  /**
+   * Interface for sending callback requests
+   *
+   * @return Callback request tracker
+   */
+  public static CallbackRequestTracker getCallbackRequestTracker() {
+    checkSdkInitialized();
+    return sdkSingleton.getCallbackRequestTracker();
   }
 
   private static void checkSdkInitialized() {

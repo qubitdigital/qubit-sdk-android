@@ -3,6 +3,7 @@ package com.qubit.android.sdk.internal;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.qubit.android.sdk.internal.callbacktracker.CallbackRequestTracker;
 import com.qubit.android.sdk.internal.callbacktracker.CallbackRequestTrackerImpl;
 import com.qubit.android.sdk.internal.callbacktracker.repository.CallbackRequestRepository;
 import com.qubit.android.sdk.internal.callbacktracker.repository.CallbackRequestRepositoryImpl;
@@ -171,5 +172,9 @@ public class SDK {
 
   public PlacementInteractor getPlacementInteractor() {
     return placementInteractor;
+  }
+
+  public CallbackRequestTracker getCallbackRequestTracker() {
+    return callbackRequestTracker;
   }
 }
