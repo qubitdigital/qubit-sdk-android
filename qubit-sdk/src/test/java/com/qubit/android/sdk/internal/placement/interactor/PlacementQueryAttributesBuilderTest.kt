@@ -16,8 +16,8 @@ class PlacementQueryAttributesBuilderTest {
   companion object {
     private const val DEVICE_ID_1 = "device_id_1"
     private const val DEVICE_ID_2 = "device_id_2"
-    private const val USER_NAME_1 = "user_name_1"
-    private const val USER_NAME_2 = "user_name_2"
+    private const val USER_ID_1 = "user_id_1"
+    private const val USER_ID_2 = "user_id_2"
     private const val EMAIL = "email@email.com"
     private const val CURRENCY = "currency"
     private const val VIEW_TYPE_1 = "view_type_1"
@@ -56,7 +56,7 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_2"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": ""
           },
           "view": {
@@ -87,7 +87,7 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_2"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": ""
           },
           "view": {
@@ -103,23 +103,23 @@ class PlacementQueryAttributesBuilderTest {
 
   @Test
   fun `if user-event attribute is cached and no value is passed by user, then cached value should be used`() {
-    // 'USER_NAME_1' value cached
+    // 'USER_ID_1' value cached
     val cachedAttributes = mapOf(
-        USER_ATTRIBUTE_KEY to buildUserEventAttributes(USER_NAME_1)
+        USER_ATTRIBUTE_KEY to buildUserEventAttributes(USER_ID_1)
     )
     // no value passed by user
     val customAttributes = null
 
     val result = execute(cachedAttributes, customAttributes)
 
-    // 'USER_NAME_1' is expected, default (empty) view attribute
+    // 'USER_ID_1' is expected, default (empty) view attribute
     verifyJson("""
         {
           "visitor": {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "$USER_NAME_1",
+            "id": "$USER_ID_1",
             "email": "$EMAIL"
           },
           "view": {
@@ -133,25 +133,25 @@ class PlacementQueryAttributesBuilderTest {
 
   @Test
   fun `if user-event attribute is passed by user, then cached value should be skipped`() {
-    // 'USER_NAME_1' value cached
+    // 'USER_ID_1' value cached
     val cachedAttributes = mapOf(
-        USER_ATTRIBUTE_KEY to buildUserEventAttributes(USER_NAME_1)
+        USER_ATTRIBUTE_KEY to buildUserEventAttributes(USER_ID_1)
     )
-    // 'USER_NAME_2' passed by SDK user
+    // 'USER_ID_2' passed by SDK user
     val customAttributes = JsonObject().apply {
-      add(USER_ATTRIBUTE_KEY, buildUserEventAttributes(USER_NAME_2))
+      add(USER_ATTRIBUTE_KEY, buildUserEventAttributes(USER_ID_2))
     }
 
     val result = execute(cachedAttributes, customAttributes)
 
-    // 'USER_NAME_2' is expected, default (empty) view attribute
+    // 'USER_ID_2' is expected, default (empty) view attribute
     verifyJson("""
         {
           "visitor": {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "$USER_NAME_2",
+            "id": "$USER_ID_2",
             "email": "$EMAIL"
           },
           "view": {
@@ -164,9 +164,9 @@ class PlacementQueryAttributesBuilderTest {
   }
 
   @Test
-  fun `if user-event attribute is missing 'name' property, then it should be added with empty value`() {
+  fun `if user-event attribute is missing 'id' property, then it should be added with empty value`() {
     val cachedAttributes = emptyMap<String, JsonObject>()
-    // 'name' property is missing
+    // 'id' property is missing
     val customAttributes = JsonObject().apply {
       add(USER_ATTRIBUTE_KEY, JsonObject().apply {
         addProperty("email", EMAIL)
@@ -175,14 +175,14 @@ class PlacementQueryAttributesBuilderTest {
 
     val result = execute(cachedAttributes, customAttributes)
 
-    // empty 'name' property should be added
+    // empty 'id' property should be added
     verifyJson("""
         {
           "visitor": {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": "$EMAIL"
           },
           "view": {
@@ -200,7 +200,7 @@ class PlacementQueryAttributesBuilderTest {
     // 'email' property is missing
     val customAttributes = JsonObject().apply {
       add(USER_ATTRIBUTE_KEY, JsonObject().apply {
-        addProperty("name", USER_NAME_2)
+        addProperty("id", USER_ID_2)
       })
     }
 
@@ -213,7 +213,7 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "$USER_NAME_2",
+            "id": "$USER_ID_2",
             "email": ""
           },
           "view": {
@@ -231,7 +231,7 @@ class PlacementQueryAttributesBuilderTest {
     // unexpected 'surname' and 'size' properties
     val customAttributes = JsonObject().apply {
       add(USER_ATTRIBUTE_KEY, JsonObject().apply {
-        addProperty("name", USER_NAME_2)
+        addProperty("id", USER_ID_2)
         addProperty("surname", "Brown")
         addProperty("email", EMAIL)
         addProperty("size", "33")
@@ -247,7 +247,7 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "$USER_NAME_2",
+            "id": "$USER_ID_2",
             "email": "$EMAIL"
           },
           "view": {
@@ -276,7 +276,7 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": ""
           },
           "view": {
@@ -294,7 +294,7 @@ class PlacementQueryAttributesBuilderTest {
     // user attribute properties are not string primitives as expected
     val customAttributes = JsonObject().apply {
       add(USER_ATTRIBUTE_KEY, JsonObject().apply {
-        add("name", JsonArray())
+        add("id", JsonArray())
         addProperty("email", 3)
       })
     }
@@ -308,7 +308,7 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": ""
           },
           "view": {
@@ -340,7 +340,7 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": ""
           },
           "view": {
@@ -372,7 +372,7 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": ""
           },
           "view": {
@@ -405,7 +405,7 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": ""
           },
           "view": {
@@ -436,7 +436,7 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": ""
           },
           "view": {
@@ -472,7 +472,7 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": ""
           },
           "view": {
@@ -501,7 +501,7 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": ""
           },
           "view": {
@@ -537,7 +537,7 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": ""
           },
           "view": {
@@ -579,7 +579,7 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": ""
           },
           "view": {
@@ -603,10 +603,10 @@ class PlacementQueryAttributesBuilderTest {
   /************* helper methods *************/
 
   private fun buildUserEventAttributes(
-      name: String?,
+      id: String?,
       email: String? = EMAIL
   ) = JsonObject().apply {
-    addProperty("name", name)
+    addProperty("id", id)
     addProperty("email", email)
   }
 

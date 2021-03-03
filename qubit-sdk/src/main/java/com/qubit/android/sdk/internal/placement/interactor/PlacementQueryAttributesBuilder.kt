@@ -51,12 +51,12 @@ internal class PlacementQueryAttributesBuilder {
   }
 
   private fun convertToUserAttribute(sourceJsonObject: JsonObject) = JsonObject().apply {
-    addStringValueOrDefault(sourceJsonObject, "name")
+    addStringValueOrDefault(sourceJsonObject, "id")
     addStringValueOrDefault(sourceJsonObject, "email")
   }
 
   private fun buildEmptyUserAttribute() = JsonObject().apply {
-    addProperty("name", "")
+    addProperty("id", "")
     addProperty("email", "")
   }
 
