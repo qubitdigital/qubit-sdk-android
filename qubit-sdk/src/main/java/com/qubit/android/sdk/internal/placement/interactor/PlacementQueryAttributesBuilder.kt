@@ -43,7 +43,7 @@ internal class PlacementQueryAttributesBuilder {
       cachedAttributes: Map<String, JsonObject>
   ) {
     val value = (customAttributes?.get(key) as? JsonObject)
-        // custom attributes passed by SDK user - should contain all the fields from schema and nothing more
+        // custom attributes passed by SDK user - should contain all the passed fields
         ?.let { convertToAttribute(schema, it) }
     // cached attributes - skipped if set by SDK user
         ?: cachedAttributes[key]
@@ -61,12 +61,27 @@ internal class PlacementQueryAttributesBuilder {
       schema: List<AttributeProperty>,
       sourceJsonObject: JsonObject
   ) = JsonObject().apply {
+    addPropertiesFromSchema(schema, sourceJsonObject)
+    addPropertiesOutsideSchema(schema, sourceJsonObject)
+  }
+
+  private fun JsonObject.addPropertiesFromSchema(schema: List<AttributeProperty>, sourceJsonObject: JsonObject) {
     schema.forEach {
       when (it) {
         is AttributeProperty.StringType -> addStringValueOrDefault(sourceJsonObject, it.name)
         is AttributeProperty.ArrayType -> addArrayValueOrDefault(sourceJsonObject, it.name)
       }
     }
+  }
+
+  private fun JsonObject.addPropertiesOutsideSchema(schema: List<AttributeProperty>, sourceJsonObject: JsonObject) {
+    val schemaProperties = schema.map { it.name }
+    sourceJsonObject.keySet()
+        .filter { !schemaProperties
+            .contains(it) }
+        .forEach { customProperty ->
+          add(customProperty, sourceJsonObject.get(customProperty))
+        }
   }
 
   private fun buildEmptyAttribute(

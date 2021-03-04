@@ -226,14 +226,14 @@ class PlacementQueryAttributesBuilderTest {
   }
 
   @Test
-  fun `if user-event attribute has some properties outside the schema, then they should be skipped`() {
+  fun `if user-event attribute has some properties outside the schema, then they should be included`() {
     val cachedAttributes = emptyMap<String, JsonObject>()
     // unexpected 'surname' and 'size' properties
     val customAttributes = JsonObject().apply {
       add(USER_ATTRIBUTE_KEY, JsonObject().apply {
         addProperty("id", USER_ID_2)
-        addProperty("surname", "Brown")
         addProperty("email", EMAIL)
+        addProperty("surname", "Brown")
         addProperty("size", "33")
       })
     }
@@ -248,7 +248,9 @@ class PlacementQueryAttributesBuilderTest {
           },
           "user": {
             "id": "$USER_ID_2",
-            "email": "$EMAIL"
+            "email": "$EMAIL",
+            "surname": "Brown",
+            "size": "33"
           },
           "view": {
             "currency": "",
@@ -449,7 +451,7 @@ class PlacementQueryAttributesBuilderTest {
   }
 
   @Test
-  fun `if view-event attribute has some properties outside the schema, then they should be skipped`() {
+  fun `if view-event attribute has some properties outside the schema, then they should be included`() {
     val cachedAttributes = emptyMap<String, JsonObject>()
     // unexpected 'animal' and 'fruit' properties
     val customAttributes = JsonObject().apply {
@@ -479,7 +481,9 @@ class PlacementQueryAttributesBuilderTest {
             "currency": "$CURRENCY",
             "type": "$VIEW_TYPE_1",
             "subtypes": $SUBTYPES_STRING,
-            "language": "$LANGUAGE"
+            "language": "$LANGUAGE",
+            "animal": "dog",
+            "fruit": "watermelon"
           }
         }""", result)
   }
