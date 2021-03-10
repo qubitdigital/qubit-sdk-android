@@ -6,7 +6,7 @@ Installation of the QubitSDK, to provide event tracking and lookup. To make use 
 
 | VERSION | UPDATES |
 |---|---|
-| 1.5.0 | Introduced placements feature
+| 2.0.0 | Introduced placements feature
 | 1.4.1 | Handle potential regression where /experiences endpoint does not return expected payload.
 | 1.4.0 | Production release for A/B testing & data collection.
 
@@ -19,7 +19,7 @@ In `build.gradle` of your Android application module (usually *$projectRoot/app/
 
 ```
 dependencies   {
-    compile  'com.qubit:qubit-sdk-android:1.5.0'
+    compile  'com.qubit:qubit-sdk-android:2.0.0'
 }
 ```
 
@@ -179,6 +179,7 @@ Placement has two callback urls defined: impression and clickthrough. They can b
 
 ```
 placement.impression()
+placement.clickthrough()
 ```
 or through separate method from `QubitSDK` which expects URL to be requested:
 
