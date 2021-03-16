@@ -46,14 +46,14 @@ internal class PlacementQueryAttributesBuilder {
       cachedAttributes: Map<String, JsonObject>
   ) {
     val valueJson = JsonObject().apply {
-      addCustomProperties(schema, customAttributes?.get(key) as? JsonObject)
-      addCachedProperties(schema, cachedAttributes[key])
+      addNewCustomProperties(schema, customAttributes?.get(key) as? JsonObject)
+      addNewCachedProperties(schema, cachedAttributes[key])
       addMissingEmptySchemaProperties(schema)
     }
     add(key, valueJson)
   }
 
-  private fun JsonObject.addCustomProperties(
+  private fun JsonObject.addNewCustomProperties(
       schema: List<AttributeProperty>,
       properties: JsonObject?
   ) {
@@ -61,7 +61,7 @@ internal class PlacementQueryAttributesBuilder {
         ?.forEach { addWithTypeCheck(schema, it, properties.get(it)) }
   }
 
-  private fun JsonObject.addCachedProperties(
+  private fun JsonObject.addNewCachedProperties(
       schema: List<AttributeProperty>,
       properties: JsonObject?
   ) {
