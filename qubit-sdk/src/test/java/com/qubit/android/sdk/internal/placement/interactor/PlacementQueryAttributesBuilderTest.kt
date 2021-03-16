@@ -16,12 +16,11 @@ class PlacementQueryAttributesBuilderTest {
   companion object {
     private const val DEVICE_ID_1 = "device_id_1"
     private const val DEVICE_ID_2 = "device_id_2"
-    private const val USER_NAME_1 = "user_name_1"
-    private const val USER_NAME_2 = "user_name_2"
+    private const val USER_ID_1 = "user_id_1"
+    private const val USER_ID_2 = "user_id_2"
     private const val EMAIL = "email@email.com"
     private const val CURRENCY = "currency"
     private const val VIEW_TYPE_1 = "view_type_1"
-    private const val VIEW_TYPE_2 = "view_type_2"
     private val SUBTYPES = listOf("subtype1", "subtype2")
     private const val SUBTYPES_STRING = """["subtype1", "subtype2"]"""
     private const val LANGUAGE = "language"
@@ -56,7 +55,7 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_2"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": ""
           },
           "view": {
@@ -87,7 +86,7 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_2"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": ""
           },
           "view": {
@@ -99,27 +98,27 @@ class PlacementQueryAttributesBuilderTest {
         }""", result)
   }
 
-  /********** user-event attributes **********/
+  /********** schema-based attributes (event & view) **********/
 
   @Test
-  fun `if user-event attribute is cached and no value is passed by user, then cached value should be used`() {
-    // 'USER_NAME_1' value cached
+  fun `if schema-based attribute is cached and no value is passed by user, then cached value should be used`() {
     val cachedAttributes = mapOf(
-        USER_ATTRIBUTE_KEY to buildUserEventAttributes(USER_NAME_1)
+        USER_ATTRIBUTE_KEY to JsonObject().apply {
+          addProperty("id", USER_ID_1)
+          addProperty("email", EMAIL)
+        }
     )
-    // no value passed by user
     val customAttributes = null
 
     val result = execute(cachedAttributes, customAttributes)
 
-    // 'USER_NAME_1' is expected, default (empty) view attribute
     verifyJson("""
         {
           "visitor": {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "$USER_NAME_1",
+            "id": "$USER_ID_1",
             "email": "$EMAIL"
           },
           "view": {
@@ -132,57 +131,59 @@ class PlacementQueryAttributesBuilderTest {
   }
 
   @Test
-  fun `if user-event attribute is passed by user, then cached value should be skipped`() {
-    // 'USER_NAME_1' value cached
+  fun `if schema-based attribute is passed by user and no value is cached, then custom value should be used`() {
+    val cachedAttributes = emptyMap<String, JsonObject>()
+    val customAttributes = JsonObject().apply {
+      add(USER_ATTRIBUTE_KEY, JsonObject().apply {
+        addProperty("id", USER_ID_2)
+        addProperty("email", EMAIL)
+      })
+    }
+
+    val result = execute(cachedAttributes, customAttributes)
+
+    verifyJson("""
+        {
+          "visitor": {
+            "id": "$DEVICE_ID_1"
+          },
+          "user": {
+            "id": "$USER_ID_2",
+            "email": "$EMAIL"
+          },
+          "view": {
+            "currency": "",
+            "type": "",
+            "subtypes": [],
+            "language": ""
+          }
+        }""", result)
+  }
+
+  @Test
+  fun `if schema-based attribute is passed by user and it is also cached, then custom values should override cached ones`() {
     val cachedAttributes = mapOf(
-        USER_ATTRIBUTE_KEY to buildUserEventAttributes(USER_NAME_1)
+        USER_ATTRIBUTE_KEY to JsonObject().apply {
+          addProperty("id", USER_ID_1)
+          addProperty("email", EMAIL)
+        }
     )
-    // 'USER_NAME_2' passed by SDK user
-    val customAttributes = JsonObject().apply {
-      add(USER_ATTRIBUTE_KEY, buildUserEventAttributes(USER_NAME_2))
-    }
-
-    val result = execute(cachedAttributes, customAttributes)
-
-    // 'USER_NAME_2' is expected, default (empty) view attribute
-    verifyJson("""
-        {
-          "visitor": {
-            "id": "$DEVICE_ID_1"
-          },
-          "user": {
-            "name": "$USER_NAME_2",
-            "email": "$EMAIL"
-          },
-          "view": {
-            "currency": "",
-            "type": "",
-            "subtypes": [],
-            "language": ""
-          }
-        }""", result)
-  }
-
-  @Test
-  fun `if user-event attribute is missing 'name' property, then it should be added with empty value`() {
-    val cachedAttributes = emptyMap<String, JsonObject>()
-    // 'name' property is missing
     val customAttributes = JsonObject().apply {
       add(USER_ATTRIBUTE_KEY, JsonObject().apply {
+        addProperty("id", USER_ID_2)
         addProperty("email", EMAIL)
       })
     }
 
     val result = execute(cachedAttributes, customAttributes)
 
-    // empty 'name' property should be added
     verifyJson("""
         {
           "visitor": {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "",
+            "id": "$USER_ID_2",
             "email": "$EMAIL"
           },
           "view": {
@@ -195,59 +196,60 @@ class PlacementQueryAttributesBuilderTest {
   }
 
   @Test
-  fun `if user-event attribute is missing 'email' property, then it should be added with empty value`() {
+  fun `if schema-based attribute has some custom properties outside the schema, then they should be included`() {
     val cachedAttributes = emptyMap<String, JsonObject>()
-    // 'email' property is missing
     val customAttributes = JsonObject().apply {
       add(USER_ATTRIBUTE_KEY, JsonObject().apply {
-        addProperty("name", USER_NAME_2)
-      })
-    }
-
-    val result = execute(cachedAttributes, customAttributes)
-
-    // empty 'email' property should be added
-    verifyJson("""
-        {
-          "visitor": {
-            "id": "$DEVICE_ID_1"
-          },
-          "user": {
-            "name": "$USER_NAME_2",
-            "email": ""
-          },
-          "view": {
-            "currency": "",
-            "type": "",
-            "subtypes": [],
-            "language": ""
-          }
-        }""", result)
-  }
-
-  @Test
-  fun `if user-event attribute has some properties outside the schema, then they should be skipped`() {
-    val cachedAttributes = emptyMap<String, JsonObject>()
-    // unexpected 'surname' and 'size' properties
-    val customAttributes = JsonObject().apply {
-      add(USER_ATTRIBUTE_KEY, JsonObject().apply {
-        addProperty("name", USER_NAME_2)
+        addProperty("id", USER_ID_2)
+        addProperty("email", EMAIL)
         addProperty("surname", "Brown")
-        addProperty("email", EMAIL)
         addProperty("size", "33")
       })
     }
 
     val result = execute(cachedAttributes, customAttributes)
 
-    // only properties from schema should be passed
     verifyJson("""
         {
           "visitor": {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "$USER_NAME_2",
+            "id": "$USER_ID_2",
+            "email": "$EMAIL",
+            "surname": "Brown",
+            "size": "33"
+          },
+          "view": {
+            "currency": "",
+            "type": "",
+            "subtypes": [],
+            "language": ""
+          }
+        }""", result)
+  }
+
+  @Test
+  fun `if schema-based attribute has some cached properties outside the schema, then they should be skipped`() {
+    val cachedAttributes = mapOf(
+        USER_ATTRIBUTE_KEY to JsonObject().apply {
+          addProperty("id", USER_ID_1)
+          addProperty("email", EMAIL)
+          addProperty("surname", "Brown")
+          addProperty("size", "33")
+        }
+    )
+    val customAttributes = null
+
+    val result = execute(cachedAttributes, customAttributes)
+
+    verifyJson("""
+        {
+          "visitor": {
+            "id": "$DEVICE_ID_1"
+          },
+          "user": {
+            "id": "$USER_ID_1",
             "email": "$EMAIL"
           },
           "view": {
@@ -260,7 +262,41 @@ class PlacementQueryAttributesBuilderTest {
   }
 
   @Test
-  fun `if user-event attribute isn't JSON, then it doesn't follow the schema and should be skipped`() {
+  fun `if schema-based attribute is missing schema properties, then they should be added with empty value`() {
+    val cachedAttributes = emptyMap<String, JsonObject>()
+    val customAttributes = JsonObject().apply {
+      add(USER_ATTRIBUTE_KEY, JsonObject().apply {
+        addProperty("custom1", "customValue1")
+      })
+      add(VIEW_ATTRIBUTE_KEY, JsonObject().apply {
+        addProperty("custom2", "customValue2")
+      })
+    }
+
+    val result = execute(cachedAttributes, customAttributes)
+
+    verifyJson("""
+        {
+          "visitor": {
+            "id": "$DEVICE_ID_1"
+          },
+          "user": {
+            "custom1": "customValue1",
+            "id": "",
+            "email": ""
+          },
+          "view": {
+            "custom2": "customValue2",
+            "currency": "",
+            "type": "",
+            "subtypes": [],
+            "language": ""
+          }
+        }""", result)
+  }
+
+  @Test
+  fun `if schema-based attribute isn't JSON, then it doesn't follow the schema and should be skipped`() {
     val cachedAttributes = emptyMap<String, JsonObject>()
     // unexpected non-JSON 'user' attribute
     val customAttributes = JsonObject().apply {
@@ -276,7 +312,7 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": ""
           },
           "view": {
@@ -289,12 +325,12 @@ class PlacementQueryAttributesBuilderTest {
   }
 
   @Test
-  fun `if user-event attribute has some properties of unexpected type, then they should be skipped and default values used`() {
+  fun `if schema-based attribute has some properties of unexpected type, then they should be skipped and default values used`() {
     val cachedAttributes = emptyMap<String, JsonObject>()
     // user attribute properties are not string primitives as expected
     val customAttributes = JsonObject().apply {
       add(USER_ATTRIBUTE_KEY, JsonObject().apply {
-        add("name", JsonArray())
+        add("id", JsonArray())
         addProperty("email", 3)
       })
     }
@@ -308,7 +344,7 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": ""
           },
           "view": {
@@ -321,68 +357,6 @@ class PlacementQueryAttributesBuilderTest {
   }
 
   /********** view-event attributes **********/
-
-  @Test
-  fun `if view-event attribute is cached and no value is passed by user, then cached value should be used`() {
-    // 'VIEW_TYPE_1' value cached
-    val cachedAttributes = mapOf(
-        VIEW_ATTRIBUTE_KEY to buildViewEventAttributes(VIEW_TYPE_1)
-    )
-    // no value passed by user
-    val customAttributes = null
-
-    val result = execute(cachedAttributes, customAttributes)
-
-    // 'VIEW_TYPE_1' is expected, default (empty) user attribute
-    verifyJson("""
-        {
-          "visitor": {
-            "id": "$DEVICE_ID_1"
-          },
-          "user": {
-            "name": "",
-            "email": ""
-          },
-          "view": {
-            "currency": "$CURRENCY",
-            "type": "$VIEW_TYPE_1",
-            "subtypes": $SUBTYPES_STRING,
-            "language": "$LANGUAGE"
-          }
-        }""", result)
-  }
-
-  @Test
-  fun `if view-event attribute is passed by user, then cached value should be skipped`() {
-    // 'VIEW_TYPE_1' value cached
-    val cachedAttributes = mapOf(
-        VIEW_ATTRIBUTE_KEY to buildViewEventAttributes(VIEW_TYPE_1)
-    )
-    // 'VIEW_TYPE_2' passed by SDK user
-    val customAttributes = JsonObject().apply {
-      add(VIEW_ATTRIBUTE_KEY, buildViewEventAttributes(VIEW_TYPE_2))
-    }
-
-    val result = execute(cachedAttributes, customAttributes)
-
-    // 'VIEW_TYPE_2' is expected, default (empty) user attribute
-    verifyJson("""
-        {
-          "visitor": {
-            "id": "$DEVICE_ID_1"
-          },
-          "user": {
-            "name": "",
-            "email": ""
-          },
-          "view": {
-            "currency": "$CURRENCY",
-            "type": "$VIEW_TYPE_2",
-            "subtypes": $SUBTYPES_STRING,
-            "language": "$LANGUAGE"
-          }
-        }""", result)
-  }
 
   @Test
   fun `if view-event attribute is missing 'subtypes' property, then it should be added with empty value`() {
@@ -405,14 +379,14 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": ""
           },
           "view": {
             "currency": "$CURRENCY",
             "type": "$VIEW_TYPE_1",
-            "subtypes": [],
-            "language": "$LANGUAGE"
+            "language": "$LANGUAGE",
+            "subtypes": []
           }
         }""", result)
   }
@@ -436,20 +410,20 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": ""
           },
           "view": {
+            "subtypes": $SUBTYPES_STRING,
             "currency": "",
             "type": "",
-            "subtypes": $SUBTYPES_STRING,
             "language": ""
           }
         }""", result)
   }
 
   @Test
-  fun `if view-event attribute has some properties outside the schema, then they should be skipped`() {
+  fun `if view-event attribute has some properties outside the schema, then they should be included`() {
     val cachedAttributes = emptyMap<String, JsonObject>()
     // unexpected 'animal' and 'fruit' properties
     val customAttributes = JsonObject().apply {
@@ -472,14 +446,16 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": ""
           },
           "view": {
             "currency": "$CURRENCY",
             "type": "$VIEW_TYPE_1",
+            "animal": "dog",
             "subtypes": $SUBTYPES_STRING,
-            "language": "$LANGUAGE"
+            "language": "$LANGUAGE",
+            "fruit": "watermelon"
           }
         }""", result)
   }
@@ -501,7 +477,7 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": ""
           },
           "view": {
@@ -537,7 +513,7 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": ""
           },
           "view": {
@@ -579,7 +555,7 @@ class PlacementQueryAttributesBuilderTest {
             "id": "$DEVICE_ID_1"
           },
           "user": {
-            "name": "",
+            "id": "",
             "email": ""
           },
           "view": {
@@ -598,16 +574,6 @@ class PlacementQueryAttributesBuilderTest {
             "width": 12
           }
         }""", result)
-  }
-
-  /************* helper methods *************/
-
-  private fun buildUserEventAttributes(
-      name: String?,
-      email: String? = EMAIL
-  ) = JsonObject().apply {
-    addProperty("name", name)
-    addProperty("email", email)
   }
 
   private fun buildViewEventAttributes(
