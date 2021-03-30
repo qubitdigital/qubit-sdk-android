@@ -86,7 +86,11 @@ internal class PlacementInteractorImpl(
   ) {
     val placementContent = placementModel.data?.placementContent
     if (shouldUpdateCache) {
-      placementRepository.save(cacheKey, placementModel)
+      if (placementContent != null) {
+        placementRepository.save(cacheKey, placementModel)
+      } else {
+        placementRepository.remove(cacheKey)
+      }
     }
     onSuccess(buildPlacement(placementContent))
   }
