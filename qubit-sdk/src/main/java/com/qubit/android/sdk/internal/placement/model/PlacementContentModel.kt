@@ -1,8 +1,8 @@
 package com.qubit.android.sdk.internal.placement.model
 
-import com.google.gson.JsonObject
+import com.google.gson.JsonElement
 
 data class PlacementContentModel(
-    val content: JsonObject,
+    val content: JsonElement,
     val callbacks: PlacementCallbacksModel
 )

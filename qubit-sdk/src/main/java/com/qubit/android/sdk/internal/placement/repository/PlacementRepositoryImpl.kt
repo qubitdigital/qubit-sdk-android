@@ -33,4 +33,10 @@ internal class PlacementRepositoryImpl(
       null
     }
   }
+
+  override fun remove(key: String) {
+    sharedPreferences.edit()
+        .remove(key)
+        .apply()
+  }
 }

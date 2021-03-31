@@ -116,7 +116,13 @@ class MainActivity : AppCompatActivity() {
     private const val TAG = "qb-testapp"
     private const val EVENT_TYPE_VIEW = "ecView"
     private const val EVENT_TYPE_INTERACTION = "ecInteraction"
-    private const val SAMPLE_PLACEMENT_ID = "tsOujouCSSKJGSCMUsmQRw"
     private const val SAMPLE_CAMPAIGN_ID = "1ybrhki9RvKWpA-9veLQSg"
+
+    // Placement doesn't exist
+//    private const val SAMPLE_PLACEMENT_ID = "thisdoesnotexist"
+    // Placement exists, but with no content for this user
+//    private const val SAMPLE_PLACEMENT_ID = "MzgvNw0nQ5yYMCgMp67Z4A"
+    // Placement ID exists & API is providing content
+    private const val SAMPLE_PLACEMENT_ID = "tsOujouCSSKJGSCMUsmQRw"
   }
 }
