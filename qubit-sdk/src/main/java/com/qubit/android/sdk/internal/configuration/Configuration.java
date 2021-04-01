@@ -25,4 +25,8 @@ public interface Configuration {
   String getExperienceApiHost();
 
   int getExperienceApiCacheExpireTime();
+
+  String getPlacementApiHost();
+
+  int getPlacementRequestTimeout();
 }

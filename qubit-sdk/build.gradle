@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
-version = '1.4.1'
+version = '2.0.0'
 
 ext.retrofit_version = '2.4.0'
 

@@ -19,6 +19,7 @@ import com.qubit.android.sdk.internal.experience.interactor.ExperienceInteractor
 import com.qubit.android.sdk.internal.lookup.LookupData;
 import com.qubit.android.sdk.internal.lookup.LookupService;
 import com.qubit.android.sdk.internal.network.NetworkStateService;
+import com.qubit.android.sdk.internal.placement.interactor.PlacementAttributesInteractor;
 import com.qubit.android.sdk.internal.session.NewSessionRequest;
 import com.qubit.android.sdk.internal.session.SessionData;
 import com.qubit.android.sdk.internal.session.SessionForEvent;
@@ -64,6 +65,7 @@ public class EventTrackerImpl extends QBService implements EventTracker {
   private final NetworkStateService.NetworkStateListener networkStateListener;
   private final LookupService.LookupListener lookupListener;
   private final ExperienceInteractor experienceInteractor;
+  private final PlacementAttributesInteractor placementAttributesInteractor;
 
   private boolean isEnabled = true;
 
@@ -75,22 +77,25 @@ public class EventTrackerImpl extends QBService implements EventTracker {
   private int sendingAttempts = 0;
   private long lastAttemptTime = 0;
 
-  public EventTrackerImpl(String trackingId, String deviceId,
+  public EventTrackerImpl(String trackingId,
+                          String deviceId,
                           ConfigurationService configurationService,
                           NetworkStateService networkStateService,
                           SessionService sessionService,
                           LookupService lookupService,
                           EventsRepository eventsRepository,
                           EventsRestAPIConnectorBuilder eventsRestAPIConnectorBuilder,
-                          ExperienceInteractor experienceInteractor) {
+                          ExperienceInteractor experienceInteractor,
+                          PlacementAttributesInteractor placementAttributesInteractor) {
     super(SERVICE_NAME);
     this.configurationService = configurationService;
     this.networkStateService = networkStateService;
     this.sessionService = sessionService;
     this.lookupService = lookupService;
-    this.experienceInteractor = experienceInteractor;
     this.eventsRepository = new CachingEventsRepository(eventsRepository);
     this.eventsRestAPIConnectorBuilder = eventsRestAPIConnectorBuilder;
+    this.experienceInteractor = experienceInteractor;
+    this.placementAttributesInteractor = placementAttributesInteractor;
     eventRestModelCreator = new EventRestModelCreator(trackingId, deviceId);
     configurationListener = new ConfigurationService.ConfigurationListener() {
       @Override
@@ -136,7 +141,7 @@ public class EventTrackerImpl extends QBService implements EventTracker {
 
   public synchronized LookupData getLookupData() {
     if (currentLookupData == null) {
-      throw new IllegalStateException("Lookup data not avaliable yet...");
+      throw new IllegalStateException("Lookup data not available yet...");
     } else {
       return currentLookupData;
     }
@@ -187,7 +192,7 @@ public class EventTrackerImpl extends QBService implements EventTracker {
       SessionForEvent sessionForEvent = getSessionDataForNextEvent(qbEvent.getType(), now);
       SessionData sessionDataForEvent = sessionForEvent.getEventSessionData();
       NewSessionRequest newSessionRequest = sessionForEvent.getNewSessionRequest();
-      LOGGER.d("Got session response. New Session? " + ( newSessionRequest != null)
+      LOGGER.d("Got session response. New Session? " + (newSessionRequest != null)
           + " SessionData: " + sessionForEvent.getEventSessionData());
 
       if (newSessionRequest != null) {
@@ -196,7 +201,9 @@ public class EventTrackerImpl extends QBService implements EventTracker {
         eventsRepository.insert(sessionEventModel);
       }
 
-      eventsRepository.insert(createNewEventModel(now, qbEvent, sessionDataForEvent));
+      EventModel eventModel = createNewEventModel(now, qbEvent, sessionDataForEvent);
+      eventsRepository.insert(eventModel);
+      placementAttributesInteractor.storeEventAttribute(qbEvent);
 
       if (!isConnected) {
         deleteTheOldestEvents();

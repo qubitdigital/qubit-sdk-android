@@ -1,5 +1,5 @@
 package com.qubit.android.sdk.internal.experience.callback
 
-interface CallbackConnector {
+interface ExperienceCallbackConnector {
   fun shown()
 }
