@@ -6,7 +6,7 @@ Installation of the QubitSDK, to provide event tracking and lookup. To make use 
 
 | VERSION | UPDATES |
 |---|---|
-| 1.5.0 | Introduced placements feature
+| 2.0.0 | Major release, bringing support for Placement API. Upgrade to 2.* to use this feature.
 | 1.4.1 | Handle potential regression where /experiences endpoint does not return expected payload.
 | 1.4.0 | Production release for A/B testing & data collection.
 
@@ -19,7 +19,7 @@ In `build.gradle` of your Android application module (usually *$projectRoot/app/
 
 ```
 dependencies   {
-    compile  'com.qubit:qubit-sdk-android:1.5.0'
+    compile  'com.qubit:qubit-sdk-android:2.0.0'
 }
 ```
 
@@ -124,13 +124,13 @@ Note that tracking is enabled by default so you don't need to enable it if you'v
 
 # Experiences
 
-SDK contains methods to fetch Experiences. This can be achieved by:
+Use `getExperiences()` to integrate Experiences into your app.
 
 Kotlin snippet:
 ```kotlin    
 QubitSDK.getExperiences(
     listOfExperienceIds,
-    { experienceList -> experienceList.forEach { it.shown() } // make a Post to call the returned callback URL },
+    { experienceList -> experienceList.forEach { it.shown() } },
     { throwable -> Log.e(TAG, "Error: ", throwable) },
     222,
     false,
@@ -144,7 +144,7 @@ QubitSDK.getExperiences(
     listOfExperienceIds,
     experienceList -> {
       for (Experience experience : experienceList) {
-        experience.shown(); // make a Post to call the returned callback URL
+        experience.shown();
       }
       return Unit.INSTANCE;
     },
@@ -155,37 +155,45 @@ QubitSDK.getExperiences(
 );
 ```
 
-where `variation`, `preview`, `ignoreSegments` are optional parameters
+where `variation`, `preview`, `ignoreSegments` are optional parameters.
 
 # Placements
 
-SDK contains method to fetch the Placements.
+Use `getPlacement()` to add Qubit Placements into your app. 
 
-Kotlin snippet:
+## Kotlin
 
 ```kotlin
 QubitSDK.getPlacement(
-    "placement_id",
+    "83f6b528-9336-11eb-a8b3",
     PlacementMode.LIVE,
-    PlacementPreviewOptions("campaign_id", "experience_id"),
+    PlacementPreviewOptions("1ybrhki9RvKWpA", "AUuQ_8z7SV-Fw"),
     { placement ->
-        placement?.impression()     // make a POST request to call the returned impression callback URL
-        placement?.clickthrough()   // make a POST request to call the returned clickthrough callback URL
+
+        // get our payload
+        placement?.content
+
+        // send an impression event
+        placement?.impression()
+
+        // send a clickthrough event
+        placement?.clickthrough()
     },
     { throwable -> Log.e(TAG, "Failed to fetch placement", throwable) }
 )
 ```
-Placement has two callback urls defined: impression and clickthrough. They can be invoked explicitly from `Placement` object:
+A placement has two callbacks defined: `impression` and `clickthrough`. These can be invoked explicitly from `Placement` object:
 
 ```
 placement.impression()
+placement.clickthrough()
 ```
+
 or through separate method from `QubitSDK` which expects URL to be requested:
 
 ```
 QubitSDK.sendCallbackRequest(placement.impressionUrl)
 ```
-
 
 
 # Tracker Properties
@@ -195,26 +203,8 @@ QubitSDK.getTrackingId();
 QubitSDK.getDeviceId();
 ```
 
-## Backward compatibility
-
-Migration from [the previous version of the SDK](https://github.com/qubitdigital/android-tracker) might be time-consuming and error-prone.
-
-For this reason, in the current SDK you can send events in an exactly same way as before.
-
-Example:
-
-```java
-QBTrackingManager.sharedManager().registerEvent("ecView", viewJson);
-```
-
-Note that this class and its methods are deprecated and we recommend to eventually replace them by the new versions (see: [Sending events](#sending-events)).
-
-Example of how to replace deprecated method of sending events:
-
-```java
-QubitSDK.tracker().sendEvent(QBEvents.fromJsonString("ecView", viewJson));
-```
-
 # Logging
 
-You can specify which level of logs from SDK do you prefer to print in Logcat. You can do it during initialization (see: [Initialization](#initialization)). The default log level is `WARN`. You can turn off logs by setting `SILENT` log level.
+You can specify which level of logs from SDK do you prefer to print in Logcat. You can do it during initialization (see: [Initialization](#initialization)). 
+
+The default log level is `WARN`. You can turn off logs by setting `SILENT` log level.
