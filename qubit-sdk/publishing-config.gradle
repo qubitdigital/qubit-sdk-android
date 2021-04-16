@@ -67,29 +67,3 @@ publishing {
     }
   }
 }
-
-// Bintray
-apply plugin: 'com.jfrog.bintray'
-bintray {
-  user = project.hasProperty('bintray.user') ? project.property('bintray.user') : System.getenv('BINTRAY_USER')
-  key = project.hasProperty('bintray.apiKey') ? project.property('bintray.apiKey') : System.getenv('BINTRAY_API_KEY')
-
-  publications = ['mavenAar']
-  publish = true
-  pkg {
-    repo = 'maven'
-    name = project.artifactId
-    desc = project.description
-    websiteUrl = siteUrl
-    vcsUrl = gitUrl
-    licenses = allLicenses
-    publicDownloadNumbers = true
-    githubRepo = 'qubitdigital/qubit-sdk-android'
-    githubReleaseNotesFile = 'README.md'
-    version {
-      name = project.version
-      released = new Date()
-      vcsTag = 'version-' + project.version
-    }
-  }
-}
