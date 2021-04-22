@@ -97,15 +97,17 @@ internal class PlacementInteractorImpl(
 
   private fun buildPlacement(placementContent: PlacementContentModel?): PlacementImpl? {
     return if (placementContent != null) {
+      val impressionUrl = placementContent.callbacks.impression ?: ""
+      val clickthroughUrl = placementContent.callbacks.clickthrough ?: ""
       val callbackConnector = PlacementCallbackConnectorImpl(
           callbackRequestTracker,
-          placementContent.callbacks.impression,
-          placementContent.callbacks.clickthrough
+          impressionUrl,
+          clickthroughUrl
       )
       PlacementImpl(
           placementContent.content,
-          placementContent.callbacks.impression,
-          placementContent.callbacks.clickthrough,
+          impressionUrl,
+          clickthroughUrl,
           callbackConnector
       )
     } else {
