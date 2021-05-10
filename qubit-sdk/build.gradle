@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
-version = '2.0.0'
+version = '2.0.1'
 
 ext.retrofit_version = '2.4.0'
 
@@ -40,3 +40,4 @@ dependencies {
 apply from: "$rootProject.projectDir/checkstyle-config.gradle"
 apply from: "javadoc-config.gradle"
 apply from: "publishing-config.gradle"
+apply from: "${rootProject.projectDir}/publish-mavencentral.gradle"
