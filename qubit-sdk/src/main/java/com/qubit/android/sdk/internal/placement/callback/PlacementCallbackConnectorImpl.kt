@@ -10,10 +10,16 @@ internal class PlacementCallbackConnectorImpl(
 ) : PlacementCallbackConnector {
 
   override fun impression() {
-    callbackRequestTracker.scheduleRequest(impressionUrl)
+    scheduleRequest(impressionUrl)
   }
 
   override fun clickthrough() {
-    callbackRequestTracker.scheduleRequest(clickthroughUrl)
+    scheduleRequest(clickthroughUrl)
+  }
+
+  private fun scheduleRequest(url: String) {
+    if (url.isNotBlank()) {
+      callbackRequestTracker.scheduleRequest(url)
+    }
   }
 }

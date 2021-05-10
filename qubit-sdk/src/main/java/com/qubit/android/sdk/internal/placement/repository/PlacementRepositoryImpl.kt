@@ -2,6 +2,7 @@ package com.qubit.android.sdk.internal.placement.repository
 
 import android.content.Context
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.JsonSyntaxException
 import com.qubit.android.sdk.internal.common.logging.QBLogger
 import com.qubit.android.sdk.internal.placement.model.PlacementModel
@@ -16,7 +17,7 @@ internal class PlacementRepositoryImpl(
   }
 
   private val sharedPreferences = appContext.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
-  private val gson: Gson by lazy { Gson() }
+  private val gson: Gson by lazy { GsonBuilder().serializeNulls().create() }
 
   override fun save(key: String, placement: PlacementModel) {
     sharedPreferences.edit()

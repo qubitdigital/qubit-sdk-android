@@ -1,5 +1,6 @@
 package com.qubit.android.sdk.internal.placement.interactor
 
+import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import com.qubit.android.sdk.api.placement.PlacementMode
 import com.qubit.android.sdk.api.placement.PlacementPreviewOptions
@@ -97,15 +98,20 @@ internal class PlacementInteractorImpl(
 
   private fun buildPlacement(placementContent: PlacementContentModel?): PlacementImpl? {
     return if (placementContent != null) {
+      val impressionUrl = placementContent.callbacks.impression ?: ""
+      val clickthroughUrl = placementContent.callbacks.clickthrough ?: ""
+      // Gson uses unsafe instance construction mechanism which may cause non-nullable field to be null
+      // https://stackoverflow.com/questions/52837665/why-kotlin-data-classes-can-have-nulls-in-non-nullable-fields-with-gson
+      val content = placementContent.content ?: JsonNull.INSTANCE
       val callbackConnector = PlacementCallbackConnectorImpl(
           callbackRequestTracker,
-          placementContent.callbacks.impression,
-          placementContent.callbacks.clickthrough
+          impressionUrl,
+          clickthroughUrl
       )
       PlacementImpl(
-          placementContent.content,
-          placementContent.callbacks.impression,
-          placementContent.callbacks.clickthrough,
+          content,
+          impressionUrl,
+          clickthroughUrl,
           callbackConnector
       )
     } else {
