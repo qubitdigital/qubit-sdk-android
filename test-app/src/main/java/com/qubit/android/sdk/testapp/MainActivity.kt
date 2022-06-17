@@ -94,6 +94,14 @@ class MainActivity : AppCompatActivity() {
     findViewById<View>(R.id.placement_clickthrough).setOnClickListener {
       placement?.clickthrough() ?: Toast.makeText(this, "No placement loaded", Toast.LENGTH_LONG).show()
     }
+
+    findViewById<View>(R.id.device_id_custom).setOnClickListener {
+      QubitSDK.setDeviceId("custom")
+    }
+
+    findViewById<View>(R.id.device_id_reset).setOnClickListener {
+      QubitSDK.setDeviceId(null)
+    }
   }
 
   private fun getExperienceWithIds(list: List<Int>) {

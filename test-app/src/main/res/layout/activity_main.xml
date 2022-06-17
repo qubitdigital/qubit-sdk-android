@@ -7,76 +7,92 @@
   android:padding="16dp"
   tools:context="com.qubit.android.sdk.testapp.MainActivity">
 
-    <Button
-      android:id="@+id/send_view_event_button"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="@string/send_view_event"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent" />
+  <Button
+    android:id="@+id/send_view_event_button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/send_view_event"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-      android:id="@+id/send_interaction_event_button"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginTop="@dimen/standard_button_margin_top"
-      android:text="@string/send_interaction_event"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@+id/send_view_event_button" />
+  <Button
+    android:id="@+id/send_interaction_event_button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/standard_button_margin_top"
+    android:text="@string/send_interaction_event"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/send_view_event_button" />
 
-    <Button
-      android:id="@+id/send_20_events_button"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginTop="@dimen/standard_button_margin_top"
-      android:text="@string/send_20_events"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@+id/send_interaction_event_button" />
+  <Button
+    android:id="@+id/send_20_events_button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/standard_button_margin_top"
+    android:text="@string/send_20_events"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/send_interaction_event_button" />
 
-    <Button
-      android:id="@+id/get_experience"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginTop="@dimen/standard_button_margin_top"
-      android:text="@string/get_experience_with_id_139731"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@+id/send_20_events_button" />
+  <Button
+    android:id="@+id/get_experience"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/standard_button_margin_top"
+    android:text="@string/get_experience_with_id_139731"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/send_20_events_button" />
 
-    <Button
-      android:id="@+id/get_experience_default"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginTop="@dimen/standard_button_margin_top"
-      android:text="@string/get_all_experiences"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@+id/get_experience" />
+  <Button
+    android:id="@+id/get_experience_default"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/standard_button_margin_top"
+    android:text="@string/get_all_experiences"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/get_experience" />
 
-    <Button
-      android:id="@+id/get_example_placement"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginTop="@dimen/standard_button_margin_top"
-      android:text="@string/get_example_placement"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@+id/get_experience_default" />
+  <Button
+    android:id="@+id/get_example_placement"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/standard_button_margin_top"
+    android:text="@string/get_example_placement"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/get_experience_default" />
 
-    <Button
-      android:id="@+id/placement_impression"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:enabled="false"
-      android:text="@string/placement_impression"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@+id/get_example_placement" />
+  <Button
+    android:id="@+id/placement_impression"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:enabled="false"
+    android:text="@string/placement_impression"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/get_example_placement" />
 
-    <Button
-      android:id="@+id/placement_clickthrough"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:enabled="false"
-      android:text="@string/placement_clickthrough"
-      app:layout_constraintStart_toEndOf="@+id/placement_impression"
-      app:layout_constraintTop_toBottomOf="@+id/get_example_placement" />
+  <Button
+    android:id="@+id/placement_clickthrough"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:enabled="false"
+    android:text="@string/placement_clickthrough"
+    app:layout_constraintStart_toEndOf="@+id/placement_impression"
+    app:layout_constraintTop_toBottomOf="@+id/get_example_placement" />
 
+  <Button
+    android:id="@+id/device_id_custom"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/standard_button_margin_top"
+    android:text="@string/set_custom_device_id"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/placement_clickthrough" />
+
+  <Button
+    android:id="@+id/device_id_reset"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/reset_custom_device_id"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/device_id_custom" />
 
 </android.support.constraint.ConstraintLayout>

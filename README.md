@@ -6,6 +6,7 @@ Installation of the QubitSDK, to provide event tracking and lookup. To make use 
 
 | VERSION | UPDATES |
 |---|---|
+| 2.0.2 | Added ability to set custom device identifier.
 | 2.0.1 | Resolve caching issue when campaigns are paused.
 | 2.0.0 | Major release, bringing support for Placement API. Upgrade to 2.* to use this feature.
 | 1.4.1 | Handle potential regression where /experiences endpoint does not return expected payload.
@@ -20,7 +21,7 @@ In `build.gradle` of your Android application module (usually *$projectRoot/app/
 
 ```
 dependencies   {
-    compile  'com.qubit:qubit-sdk-android:2.0.1'
+    compile  'com.qubit:qubit-sdk-android:2.0.2'
 }
 ```
 
@@ -50,6 +51,10 @@ Qubit's Android SDK needs the following permissions to communicate with the serv
 ```
 
 Note that you don't have to add these permissions to manifest of your application.
+
+## Custom device identifier
+
+By default Qubit SDK uses system `Settings.Secure.ANDROID_ID` value as a device identifier. However it is possible to use custom value instead by calling `QubitSDK.setDeviceId("my-custom-device-id")`.  Calling `setDevice(null)` restores default behaviour. Changing device identifier once SDK is already started restarts SDK causing clearing all the caches and resending startup events.
 
 # Send events
 
