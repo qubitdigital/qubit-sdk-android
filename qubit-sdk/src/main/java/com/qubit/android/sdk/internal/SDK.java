@@ -79,11 +79,7 @@ public class SDK {
         new ConfigurationServiceImpl(networkStateService, configurationRepository, configurationConnectorBuilder);
 
     this.trackingId = trackingId;
-    if (customDeviceId == null) {
-      this.deviceId = new SecureAndroidIdDeviceIdProvider(appContext).getDeviceId();
-    } else {
-      this.deviceId = customDeviceId;
-    }
+    this.deviceId = (customDeviceId == null) ? new SecureAndroidIdDeviceIdProvider(appContext).getDeviceId() : customDeviceId;
 
     LookupRepository lookupRepository = new LookupRepositoryImpl(appContext);
     LookupConnectorBuilder lookupConnectorBuilder = new LookupConnectorBuilderImpl(trackingId, deviceId);

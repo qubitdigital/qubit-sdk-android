@@ -54,7 +54,7 @@ Note that you don't have to add these permissions to manifest of your applicatio
 
 ## Custom device identifier
 
-By default Qubit SDK uses system `Settings.Secure.ANDROID_ID` value as a device identifier. However it is possible to use custom value instead by calling `QubitSDK.setDeviceId("my-custom-device-id")`.  Calling `setDevice(null)` restores default behaviour. Changing device identifier once SDK is already started restarts SDK causing clearing all the caches and resending startup events.
+By default Qubit SDK uses system `Settings.Secure.ANDROID_ID` value as a device identifier. However it is possible to use custom value instead by calling `QubitSDK.restartWithCustomDeviceId("my-custom-device-id")`. Calling `restartWithCustomDeviceId(null)` restores default behaviour. Changing device identifier once SDK is already started restarts SDK causing clearing all the caches and resending startup events.
 
 # Send events
 

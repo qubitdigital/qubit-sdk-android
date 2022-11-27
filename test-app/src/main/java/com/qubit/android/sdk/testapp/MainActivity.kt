@@ -96,11 +96,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     findViewById<View>(R.id.device_id_custom).setOnClickListener {
-      QubitSDK.setDeviceId("custom")
+      QubitSDK.restartWithCustomDeviceId("custom")
     }
 
     findViewById<View>(R.id.device_id_reset).setOnClickListener {
-      QubitSDK.setDeviceId(null)
+      QubitSDK.restartWithCustomDeviceId(null)
     }
   }
 

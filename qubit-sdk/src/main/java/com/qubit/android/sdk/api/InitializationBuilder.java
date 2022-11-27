@@ -17,14 +17,18 @@ public class InitializationBuilder {
   }
 
   private final SdkConsumer sdkConsumer;
-  private final String deviceId;
+  private String deviceId;
   private Context appContext;
   private String trackingId;
   private QBLogLevel logLevel;
 
-  InitializationBuilder(SdkConsumer sdkConsumer, String deviceId) {
+  InitializationBuilder(SdkConsumer sdkConsumer) {
     this.sdkConsumer = sdkConsumer;
+  }
+
+  public InitializationBuilder withCustomDeviceId(String deviceId) {
     this.deviceId = deviceId;
+    return this;
   }
 
   /**

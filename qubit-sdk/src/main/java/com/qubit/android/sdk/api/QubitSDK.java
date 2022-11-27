@@ -24,7 +24,6 @@ import kotlin.jvm.functions.Function1;
 public final class QubitSDK {
 
   private static SDK sdkSingleton;
-  private static String deviceId;
 
   private QubitSDK() {
   }
@@ -43,7 +42,7 @@ public final class QubitSDK {
       public void accept(SDK sdk) {
         sdkSingleton = sdk;
       }
-    }, deviceId);
+    });
   }
 
   /**
@@ -70,23 +69,19 @@ public final class QubitSDK {
     return sdkSingleton.getDeviceId();
   }
 
-  public static void setDeviceId(@Nullable String deviceId) {
-    QubitSDK.deviceId = deviceId;
+  public static void restartWithCustomDeviceId(@Nullable String deviceId) {
     if (sdkSingleton != null) {
       // SDK is already initialized so it has to be restarted with a new deviceId
-      restart();
+      Context appContext = sdkSingleton.getAppContext();
+      String trackingId = sdkSingleton.getTrackingId();
+
+      release();
+      initialization()
+       .withCustomDeviceId(deviceId)
+       .inAppContext(appContext)
+       .withTrackingId(trackingId)
+       .start();
     }
-  }
-
-  private static void restart() {
-    Context appContext = sdkSingleton.getAppContext();
-    String trackingId = sdkSingleton.getTrackingId();
-
-    release();
-    initialization()
-     .inAppContext(appContext)
-     .withTrackingId(trackingId)
-     .start();
   }
 
   public static String getTrackingId() {
