@@ -1,5 +1,7 @@
 package com.qubit.android.sdk.internal.eventtracker;
 
+import android.os.Build;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
@@ -23,7 +25,7 @@ class EventRestModelCreator {
   private final String trackingId;
   private final String deviceId;
   private final int sample;
-  private final String source = "Android@" + BuildConfig.VERSION_NAME;
+  private final String source = "Android@OS:" + Build.VERSION.SDK_INT + "@SDK:" + BuildConfig.VERSION_NAME;
 
   EventRestModelCreator(String trackingId, String deviceId) {
     this.trackingId = trackingId;
