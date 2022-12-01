@@ -50,10 +50,13 @@ import com.qubit.android.sdk.internal.session.event.SessionEventGeneratorImpl;
 import com.qubit.android.sdk.internal.session.repository.SessionRepository;
 import com.qubit.android.sdk.internal.session.repository.SessionRepositoryImpl;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.concurrent.Future;
 
 public class SDK {
 
+  private final Context appContext;
   private final NetworkStateServiceImpl networkStateService;
   private final ConfigurationServiceImpl configurationService;
   private final LookupServiceImpl lookupService;
@@ -66,7 +69,8 @@ public class SDK {
   private final ExperienceInteractor experienceInteractor;
   private final PlacementInteractor placementInteractor;
 
-  public SDK(Context appContext, String trackingId) {
+  public SDK(Context appContext, String trackingId, @Nullable String customDeviceId) {
+    this.appContext = appContext;
     this.networkStateService = new NetworkStateServiceImpl(appContext);
 
     ConfigurationRepository configurationRepository = new ConfigurationRepositoryImpl(appContext);
@@ -75,8 +79,7 @@ public class SDK {
         new ConfigurationServiceImpl(networkStateService, configurationRepository, configurationConnectorBuilder);
 
     this.trackingId = trackingId;
-    this.deviceId = new SecureAndroidIdDeviceIdProvider(appContext).getDeviceId();
-
+    this.deviceId = (customDeviceId == null) ? new SecureAndroidIdDeviceIdProvider(appContext).getDeviceId() : customDeviceId;
 
     LookupRepository lookupRepository = new LookupRepositoryImpl(appContext);
     LookupConnectorBuilder lookupConnectorBuilder = new LookupConnectorBuilderImpl(trackingId, deviceId);
@@ -152,6 +155,10 @@ public class SDK {
     experienceService.stop();
     configurationService.stop();
     networkStateService.stop();
+  }
+
+  public Context getAppContext() {
+    return appContext;
   }
 
   public EventTrackerImpl getEventTracker() {

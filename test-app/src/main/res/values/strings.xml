@@ -8,4 +8,6 @@
   <string name="get_example_placement">Get example placement</string>
   <string name="placement_impression">Impression</string>
   <string name="placement_clickthrough">Clickthrough</string>
+  <string name="set_custom_device_id">Set custom deviceId</string>
+  <string name="reset_custom_device_id">Reset custom deviceId</string>
 </resources>
