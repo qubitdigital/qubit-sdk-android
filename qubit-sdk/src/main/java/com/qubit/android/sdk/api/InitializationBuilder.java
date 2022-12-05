@@ -17,12 +17,18 @@ public class InitializationBuilder {
   }
 
   private final SdkConsumer sdkConsumer;
+  private String deviceId;
   private Context appContext;
   private String trackingId;
   private QBLogLevel logLevel;
 
   InitializationBuilder(SdkConsumer sdkConsumer) {
     this.sdkConsumer = sdkConsumer;
+  }
+
+  public InitializationBuilder withCustomDeviceId(String deviceId) {
+    this.deviceId = deviceId;
+    return this;
   }
 
   /**
@@ -74,7 +80,7 @@ public class InitializationBuilder {
         QBLogger.logLevel = logLevel;
       }
 
-      SDK sdk = new SDK(appContext, trackingId);
+      SDK sdk = new SDK(appContext, trackingId, deviceId);
       timings.addSplit("creation");
       sdk.start();
       timings.addSplit("starting");

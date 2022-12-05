@@ -1,5 +1,7 @@
 package com.qubit.android.sdk.api;
 
+import android.content.Context;
+
 import com.google.gson.JsonObject;
 import com.qubit.android.sdk.api.placement.Placement;
 import com.qubit.android.sdk.api.placement.PlacementMode;
@@ -65,6 +67,21 @@ public final class QubitSDK {
   public static String getDeviceId() {
     checkSdkInitialized();
     return sdkSingleton.getDeviceId();
+  }
+
+  public static void restartWithCustomDeviceId(@Nullable String deviceId) {
+    if (sdkSingleton != null) {
+      // SDK is already initialized so it has to be restarted with a new deviceId
+      Context appContext = sdkSingleton.getAppContext();
+      String trackingId = sdkSingleton.getTrackingId();
+
+      release();
+      initialization()
+       .withCustomDeviceId(deviceId)
+       .inAppContext(appContext)
+       .withTrackingId(trackingId)
+       .start();
+    }
   }
 
   public static String getTrackingId() {
